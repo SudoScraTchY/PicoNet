@@ -17,14 +17,9 @@
       <TailwindCliPath Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(MSBuildThisFileDirectory)tools\tailwindcss.exe</TailwindCliPath>
     </PropertyGroup>
 
-    <DownloadFile Condition="!Exists('$(TailwindCliPath)')"
-                  SourceUrl="$(TailwindUrl)"
-                  DestinationFolder="$(MSBuildThisFileDirectory)tools"
-                  SkipUnchangedFiles="true" />
+    <DownloadFile Condition="!Exists('$(TailwindCliPath)')" SourceUrl="$(TailwindUrl)" DestinationFolder="$(MSBuildThisFileDirectory)tools" SkipUnchangedFiles="true" />
 
-    <Exec Command="chmod +x $(TailwindCliPath)"
-          Condition="$([MSBuild]::IsOSPlatform('Linux')) Or $([MSBuild]::IsOSPlatform('OSX'))"
-          ContinueOnError="true" />
+    <Exec Command="chmod +x $(TailwindCliPath)" Condition="$([MSBuild]::IsOSPlatform('Linux')) Or $([MSBuild]::IsOSPlatform('OSX'))" ContinueOnError="true" />
   </Target>
 
   <!-- Build Tailwind CSS -->
@@ -34,26 +29,27 @@
 
   <!-- Watch Tailwind CSS for development -->
   <Target Name="TailwindWatch" AfterTargets="Build">
-    <Exec Command="$(TailwindCliPath) -i wwwroot/css/input.css -o wwwroot/css/output.css --watch"
-          Condition="'$(Configuration)' == 'Debug'"
-          IgnoreExitCode="true"
-          ContinueOnError="true" />
+    <Exec Command="$(TailwindCliPath) -i wwwroot/css/input.css -o wwwroot/css/output.css --watch" Condition="'$(Configuration)' == 'Debug'" IgnoreExitCode="true" ContinueOnError="true" />
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="13.3.0" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.3.0" />
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.3.0" />
-    <PackageReference Include="ErrorOr" Version="2.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.5.0" />
-    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.5.0" />
+    <PackageReference Include="ErrorOr" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.6.0" />
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.6.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.15.3" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+    <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
+    <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>

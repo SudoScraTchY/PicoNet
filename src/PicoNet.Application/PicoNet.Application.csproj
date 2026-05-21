@@ -14,10 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ErrorOr" Version="2.0.1" />
+    <PackageReference Include="ErrorOr" Version="2.1.1" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="Riok.Mapperly" Version="4.3.1" />
-    <PackageReference Include="WolverineFx" Version="5.38.0" />
+    <PackageReference Include="WolverineFx" Version="5.39.3" />
   </ItemGroup>
 
 </Project>
