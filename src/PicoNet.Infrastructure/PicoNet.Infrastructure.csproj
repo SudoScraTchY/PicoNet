@@ -9,11 +9,16 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
     <PackageReference Include="Hashids.net" Version="1.7.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Npgsql" Version="10.0.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
     <PackageReference Include="Npgsql.OpenTelemetry" Version="10.0.2" />
     <PackageReference Include="OpenIddict.AspNetCore" Version="7.5.0" />
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="7.5.0" />
+    <PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
     <PackageReference Include="WolverineFx" Version="5.39.3" />
     <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="5.39.3" />
     <PackageReference Include="WolverineFx.Postgresql" Version="5.39.3" />
@@ -21,6 +26,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PicoNet.Domain\PicoNet.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

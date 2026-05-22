@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Hashids.net" Version="1.7.0" />
+    <PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
   </ItemGroup>
 
   <PropertyGroup>

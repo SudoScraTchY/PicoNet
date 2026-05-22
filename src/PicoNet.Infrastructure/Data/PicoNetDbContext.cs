@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using PicoNet.Domain.Entities;
 using PicoNet.Domain.Entities.Common.Interfaces;
 

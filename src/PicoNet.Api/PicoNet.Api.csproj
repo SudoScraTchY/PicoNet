@@ -7,13 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="13.3.5" />
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.3.5" />
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
     <PackageReference Include="ErrorOr" Version="2.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Npgsql.OpenTelemetry" Version="10.0.2" />
+    <PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.15.3" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
     <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
@@ -30,12 +37,14 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.PostgreSQL" Version="2.3.0" />
     <PackageReference Include="WolverineFx" Version="5.39.3" />
+    <PackageReference Include="WolverineFx.FluentValidation" Version="5.39.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PicoNet.Application\PicoNet.Application.csproj" />
     <ProjectReference Include="..\PicoNet.Contracts\PicoNet.Contracts.csproj" />
     <ProjectReference Include="..\PicoNet.Infrastructure\PicoNet.Infrastructure.csproj" />
+    <ProjectReference Include="..\PicoNet.ServiceDefaults\PicoNet.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

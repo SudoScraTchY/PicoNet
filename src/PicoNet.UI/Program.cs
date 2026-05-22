@@ -1,6 +1,12 @@
+using PicoNet.ServiceDefaults;
 using PicoNet.UI.Components;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
+
+// Add Garnet distributed caching
+builder.AddRedisDistributedCache(connectionName: "piconet-cache");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

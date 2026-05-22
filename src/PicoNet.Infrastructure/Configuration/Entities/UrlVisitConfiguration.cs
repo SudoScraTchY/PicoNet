@@ -1,6 +1,4 @@
-﻿// PicoNet.Infrastructure/Data/Configurations/UrlVisitConfiguration.cs
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PicoNet.Domain.Entities;
 
@@ -10,7 +8,7 @@ public class UrlVisitConfiguration : IEntityTypeConfiguration<UrlVisit>
 {
     public void Configure(EntityTypeBuilder<UrlVisit> builder)
     {
-        builder.ToTable("url_visits");
+        builder.ToTable("UrlVisits");
         
         builder.HasKey(v => v.Id);
         

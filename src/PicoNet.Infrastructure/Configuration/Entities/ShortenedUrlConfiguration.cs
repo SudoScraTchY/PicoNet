@@ -1,17 +1,16 @@
-﻿// PicoNet.Infrastructure/Data/Configurations/ShortenedUrlConfiguration.cs
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NpgsqlTypes;
 using PicoNet.Domain.Entities;
 using PicoNet.Domain.ValueObjects;
 
-namespace PicoNet.Infrastructure.Data.Configurations;
+namespace PicoNet.Infrastructure.Configuration.Entities;
 
 public class ShortenedUrlConfiguration : IEntityTypeConfiguration<ShortenedUrl>
 {
     public void Configure(EntityTypeBuilder<ShortenedUrl> builder)
     {
-        builder.ToTable("shortened_urls");
+        builder.ToTable("ShortenedUrls");
         
         // Primary Key
         builder.HasKey(u => u.Id);
@@ -22,7 +21,7 @@ public class ShortenedUrlConfiguration : IEntityTypeConfiguration<ShortenedUrl>
             .HasConversion(
                 code => code.Value,           
                 value => new ShortCode(value))
-            .HasColumnName("nano_id")
+            .HasColumnName("NanoId")
             .IsRequired()
             .HasMaxLength(20)
             .IsUnicode(false);
@@ -73,7 +72,7 @@ public class ShortenedUrlConfiguration : IEntityTypeConfiguration<ShortenedUrl>
         
         builder.HasIndex(u => u.CustomAlias)
             .IsUnique()
-            .HasFilter("[custom_alias] IS NOT NULL")
+            .HasFilter("\"CustomAlias\" IS NOT NULL")
             .HasDatabaseName("IX_shortened_urls_custom_alias");
         
         builder.HasIndex(u => u.UserId)
@@ -101,7 +100,7 @@ public class ShortenedUrlConfiguration : IEntityTypeConfiguration<ShortenedUrl>
         builder.Property<NpgsqlTsVector>("SearchVector")
             .HasColumnType("tsvector")
             .HasComputedColumnSql(
-                @"to_tsvector('english', coalesce(""original_url"", '') || ' ' || coalesce(""custom_alias"", '') || ' ' || coalesce(""tags"", ''))",
+                """to_tsvector('english', coalesce("OriginalUrl", '') || ' ' || coalesce("CustomAlias", '') || ' ' || coalesce("Tags", ''))""",
                 stored: true); // Stored generated column for better performance
         
         // Step 2: Create GIN index on the tsvector column
