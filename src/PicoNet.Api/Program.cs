@@ -1,19 +1,23 @@
 using PicoNet.Application.Extensions;
-using PicoNet.Infrastructure.Data;
 using PicoNet.Infrastructure.Extensions;
 using PicoNet.ServiceDefaults;
 using Scalar.AspNetCore;
 using Wolverine;
+using Wolverine.FluentValidation;
+using Wolverine.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//InfrastructureExtensions.AddInfrastructure(builder.Services, builder.Configuration);
+InfrastructureExtensions.AddInfrastructure(builder.Services, builder.Configuration);
 
 // Add Wolverine
-builder.Host.UseWolverine(opts =>
+builder.Services.AddWolverine(opts =>
 {
     opts.Discovery.IncludeAssembly(typeof(ApplicationExtension).Assembly);
-});
+    opts.Durability.Mode = DurabilityMode.MediatorOnly;
+    opts.UseFluentValidation(cfg => cfg.RegistrationBehavior = RegistrationBehavior.ExplicitRegistration);
+}).AddWolverineHttp();
+
 
 // Add Aspire service defaults
 builder.AddServiceDefaults();

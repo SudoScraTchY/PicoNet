@@ -38,6 +38,7 @@
     <PackageReference Include="Serilog.Sinks.PostgreSQL" Version="2.3.0" />
     <PackageReference Include="WolverineFx" Version="5.39.3" />
     <PackageReference Include="WolverineFx.FluentValidation" Version="5.39.3" />
+    <PackageReference Include="WolverineFx.Http" Version="5.39.3" />
   </ItemGroup>
 
   <ItemGroup>

@@ -10,4 +10,9 @@
     <PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
 </Project>

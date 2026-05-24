@@ -7,19 +7,35 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\" />
     <Folder Include="DTOs\" />
+    <Folder Include="Features\Auth\Commands\" />
+    <Folder Include="Features\Auth\Dtos\" />
+    <Folder Include="Features\Auth\Queries\" />
+    <Folder Include="Features\Auth\Validators\" />
+    <Folder Include="Features\Dashboard\Commands\" />
+    <Folder Include="Features\Dashboard\Dtos\" />
+    <Folder Include="Features\Dashboard\Queries\" />
+    <Folder Include="Features\Dashboard\Validators\" />
+    <Folder Include="Features\Shortener\DTOs\" />
+    <Folder Include="Features\Shortener\Queries\" />
     <Folder Include="Handlers\" />
-    <Folder Include="Queries\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ErrorOr" Version="2.1.1" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
     <PackageReference Include="Riok.Mapperly" Version="4.3.1" />
     <PackageReference Include="WolverineFx" Version="5.39.3" />
     <PackageReference Include="WolverineFx.FluentValidation" Version="5.39.3" />
+    <PackageReference Include="WolverineFx.Http" Version="5.39.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PicoNet.Contracts\PicoNet.Contracts.csproj" />
+    <ProjectReference Include="..\PicoNet.Domain\PicoNet.Domain.csproj" />
+    <ProjectReference Include="..\PicoNet.Infrastructure\PicoNet.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
