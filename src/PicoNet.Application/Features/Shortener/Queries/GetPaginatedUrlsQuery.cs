@@ -4,6 +4,7 @@ using PicoNet.Contracts.DTOs.Responses;
 using PicoNet.Infrastructure.Data;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
+using PicoNet.Application.Mappings;
 using PicoNet.Contracts.DTOs.Requests;
 using PicoNet.Contracts.DTOs.Responses.Shortner;
 
@@ -39,9 +40,7 @@ public class GetPaginatedUrlsQuery
         var items = await query
             .Skip((request.PageNumber-1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(x =>
-            new ShortUrlResponse(x.Id, x.NanoId.Value, x.OriginalUrl, x.CustomAlias
-                , x.CreatedAt, x.ExpiryTime, !x.IsDeleted, x.Tags != null ? x.Tags.Split(',').ToList() : null))
+            .Select(x => x.MapUrlResponse())
             .ToListAsync(cancellationToken: ct);
 
         return new PaginatedResult<ShortUrlResponse>()

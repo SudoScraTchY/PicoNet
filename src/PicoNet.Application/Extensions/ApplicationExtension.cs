@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PicoNet.Contracts.DTOs.Requests;
+using PicoNet.Contracts.DTOs.Requests.Shortner;
 using PicoNet.Domain.IServices;
 using PicoNet.Domain.Service;
 

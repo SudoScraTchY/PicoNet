@@ -1,4 +1,4 @@
-﻿namespace PicoNet.Contracts.DTOs.Requests;
+﻿namespace PicoNet.Contracts.DTOs.Requests.Shortner;
 
 public record CreateShortUrlRequest(
     string OriginalUrl,

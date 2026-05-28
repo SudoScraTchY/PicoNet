@@ -68,7 +68,7 @@ public class CreateShortUrlHandler
             shortenedUrl.CustomAlias,
             shortenedUrl.CreatedAt,
             shortenedUrl.ExpiryTime,
-            shortenedUrl.Status == UrlStatus.Active,
+            shortenedUrl.Status,
             shortenedUrl.Tags?.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList(),
             0 // visit count is 0 initially
         );

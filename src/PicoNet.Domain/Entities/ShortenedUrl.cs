@@ -107,6 +107,26 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         return url;
     }
     
+    public void Edit(
+        string? originalUrl,
+        string? customAlias,
+        bool? isPermanent,
+        string? password,
+        string? campaign,
+        UrlStatus? status,
+        string? tags,
+        DateTime? expiryTime)
+    {
+        OriginalUrl = originalUrl ?? OriginalUrl;
+        CustomAlias = customAlias ??  CustomAlias;
+        IsPermanent = isPermanent ?? IsPermanent;
+        ExpiryTime = IsPermanent ? expiryTime ?? ExpiryTime : null;
+        Password = password  ?? Password;
+        Campaign = campaign  ?? Campaign;
+        Tags = tags  ?? Tags;
+        Status = status ?? Status;
+    }
+    
     // Domain behaviors
     public void RecordVisit(string? ipAddress, string? userAgent, string? referrer, string? country)
     {

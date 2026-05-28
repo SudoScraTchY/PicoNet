@@ -21,4 +21,8 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PicoNet.Domain\PicoNet.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

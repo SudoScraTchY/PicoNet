@@ -1,4 +1,6 @@
-﻿namespace PicoNet.Contracts.DTOs.Responses.Shortner;
+﻿using PicoNet.Domain.Enums;
+
+namespace PicoNet.Contracts.DTOs.Responses.Shortner;
 
 public record ShortUrlResponse(
     Guid Id,
@@ -7,7 +9,7 @@ public record ShortUrlResponse(
     string? CustomAlias,
     DateTime CreatedAt,
     DateTime? ExpiresAt,
-    bool IsActive,
+    UrlStatus UrlStatus,
     List<string>? Tags,
     int VisitCount = 0
 );
