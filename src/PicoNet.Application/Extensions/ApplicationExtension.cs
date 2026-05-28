@@ -9,7 +9,7 @@ namespace PicoNet.Application.Extensions;
 
 public static class ApplicationExtension
 {
-    public static IServiceCollection AddInfrastructure(
+    public static IServiceCollection AddApplication(
         this IServiceCollection services,
         IConfiguration configuration)
     {

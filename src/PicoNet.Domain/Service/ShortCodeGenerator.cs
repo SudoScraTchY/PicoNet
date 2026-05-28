@@ -1,6 +1,4 @@
-﻿// PicoNet.Domain/Services/ShortCodeGenerator.cs
-
-using HashidsNet;
+﻿using HashidsNet;
 using PicoNet.Domain.IServices;
 using PicoNet.Domain.ValueObjects;
 

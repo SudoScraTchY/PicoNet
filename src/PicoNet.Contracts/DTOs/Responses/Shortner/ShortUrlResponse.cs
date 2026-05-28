@@ -1,4 +1,4 @@
-﻿namespace PicoNet.Contracts.DTOs.Responses;
+﻿namespace PicoNet.Contracts.DTOs.Responses.Shortner;
 
 public record ShortUrlResponse(
     Guid Id,

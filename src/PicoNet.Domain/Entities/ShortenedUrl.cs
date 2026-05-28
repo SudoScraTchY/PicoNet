@@ -75,6 +75,38 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         return url;
     }
     
+    public static ShortenedUrl CreateWithShortCode(
+        string originalUrl,
+        ShortCode shortCode,
+        Guid? userId = null,
+        string? customAlias = null,
+        bool isPermanent = false,
+        int maxClicks = 0,
+        string? password = null,
+        string? campaign = null,
+        string? tags = null)
+    {
+        var url = new ShortenedUrl
+        {
+            Id = Guid.NewGuid(),
+            NanoId = customAlias is not null ? new ShortCode(customAlias) :  shortCode,
+            OriginalUrl = originalUrl,
+            CustomAlias = customAlias,
+            UserId = userId,
+            ExpiryTime = isPermanent ? DateTime.UtcNow.AddDays(31) : null,
+            IsPermanent = isPermanent,
+            MaxClicks = maxClicks,
+            Password = password,
+            Campaign = campaign,
+            Tags = tags,
+            Status = UrlStatus.Active,
+            CreatedBy = userId ?? Guid.Empty
+        };
+        url.AddDomainEvent(new UrlCreatedDomainEvent(url.Id, url.NanoId, originalUrl, userId));
+        
+        return url;
+    }
+    
     // Domain behaviors
     public void RecordVisit(string? ipAddress, string? userAgent, string? referrer, string? country)
     {

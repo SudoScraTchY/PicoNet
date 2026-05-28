@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PicoNet.Application.Features.Shortener.Commands;
 using PicoNet.Contracts.DTOs.Responses;
+using PicoNet.Contracts.DTOs.Responses.Shortner;
 using PicoNet.Domain.Entities;
 using PicoNet.Domain.Enums;
 using PicoNet.Domain.IServices;
@@ -22,7 +23,7 @@ public class CreateShortUrlHandler
         _db = db;
         _codeGenerator = codeGenerator;
         _logger = logger;
-    }
+    }   
 
     public async Task<ErrorOr<ShortUrlResponse>> Handle(CreateShortUrlCommand command)
     {
@@ -41,14 +42,14 @@ public class CreateShortUrlHandler
             do
             {
                 code = _codeGenerator.Generate();
-            } while (await _db.Urls.AnyAsync(u => u.NanoId.Value == code));
+            } while (await _db.Urls.AnyAsync(u => u.NanoId == code));
             shortCode = new ShortCode(code);
         }
 
         // 2. Create the aggregate
-        var shortenedUrl = ShortenedUrl.Create(
+        var shortenedUrl = ShortenedUrl.CreateWithShortCode(
             command.OriginalUrl,
-            _codeGenerator,
+            shortCode,
             userId: null,             // no user yet
             customAlias: command.CustomAlias,
             tags: command.Tags != null ? string.Join(", ", command.Tags) : null 
