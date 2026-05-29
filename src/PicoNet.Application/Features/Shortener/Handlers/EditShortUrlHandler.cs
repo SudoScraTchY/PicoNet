@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PicoNet.Application.Mappings;
-using PicoNet.Contracts.DTOs.Requests.Shortner;
-using PicoNet.Contracts.DTOs.Responses.Shortner;
+using PicoNet.Contracts.DTOs.Requests.Shortener;
+using PicoNet.Contracts.DTOs.Responses.Shortener;
 using PicoNet.Domain.Enums;
 using PicoNet.Infrastructure.Data;
 
@@ -46,6 +46,6 @@ public class EditShortUrlHandler
         
         _context.Urls.Update(shortenedUrl);
         await _context.SaveChangesAsync(ct);
-        return shortenedUrl.MapUrlResponse();
+        return shortenedUrl.ToShortUrlResponse();
     }
 }

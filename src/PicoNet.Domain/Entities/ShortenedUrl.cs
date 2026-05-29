@@ -40,42 +40,7 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
     // Private constructor for EF Core
     private ShortenedUrl() { }
     
-    // Factory method
     public static ShortenedUrl Create(
-        string originalUrl,
-        IShortCodeGenerator codeGenerator,
-        Guid? userId = null,
-        string? customAlias = null,
-        bool isPermanent = false,
-        int maxClicks = 0,
-        string? password = null,
-        string? campaign = null,
-        string? tags = null)
-    {
-        var url = new ShortenedUrl
-        {
-            Id = Guid.NewGuid(),
-            NanoId = customAlias is not null 
-                ? new ShortCode(customAlias) 
-                : codeGenerator.Generate(),
-            OriginalUrl = originalUrl,
-            CustomAlias = customAlias,
-            UserId = userId,
-            ExpiryTime = isPermanent ? DateTime.UtcNow.AddDays(31) : null,
-            IsPermanent = isPermanent,
-            MaxClicks = maxClicks,
-            Password = password,
-            Campaign = campaign,
-            Tags = tags,
-            Status = UrlStatus.Active,
-            CreatedBy = userId ?? Guid.Empty
-        };
-        url.AddDomainEvent(new UrlCreatedDomainEvent(url.Id, url.NanoId, originalUrl, userId));
-        
-        return url;
-    }
-    
-    public static ShortenedUrl CreateWithShortCode(
         string originalUrl,
         ShortCode shortCode,
         Guid? userId = null,
@@ -89,11 +54,13 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         var url = new ShortenedUrl
         {
             Id = Guid.NewGuid(),
-            NanoId = customAlias is not null ? new ShortCode(customAlias) :  shortCode,
+            NanoId = customAlias is not null 
+                ? new ShortCode(customAlias) 
+                : shortCode,
             OriginalUrl = originalUrl,
             CustomAlias = customAlias,
             UserId = userId,
-            ExpiryTime = isPermanent ? DateTime.UtcNow.AddDays(31) : null,
+            ExpiryTime = isPermanent ? null : DateTime.UtcNow.AddDays(31),
             IsPermanent = isPermanent,
             MaxClicks = maxClicks,
             Password = password,
@@ -106,7 +73,7 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         
         return url;
     }
-    
+
     public void Edit(
         string? originalUrl,
         string? customAlias,
@@ -118,9 +85,13 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         DateTime? expiryTime)
     {
         OriginalUrl = originalUrl ?? OriginalUrl;
-        CustomAlias = customAlias ??  CustomAlias;
+        if (!string.IsNullOrEmpty(customAlias))
+        {
+            CustomAlias = customAlias;
+            NanoId = new ShortCode(customAlias);
+        }
         IsPermanent = isPermanent ?? IsPermanent;
-        ExpiryTime = IsPermanent ? expiryTime ?? ExpiryTime : null;
+        ExpiryTime = IsPermanent ? null : expiryTime ?? ExpiryTime;
         Password = password  ?? Password;
         Campaign = campaign  ?? Campaign;
         Tags = tags  ?? Tags;

@@ -1,9 +1,11 @@
 ﻿using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using PicoNet.Application.Features.Shortener.Commands;
+using PicoNet.Application.Mappings;
 using PicoNet.Contracts.DTOs.Responses;
-using PicoNet.Contracts.DTOs.Responses.Shortner;
+using PicoNet.Contracts.DTOs.Responses.Shortener;
 using PicoNet.Domain.Entities;
 using PicoNet.Domain.Enums;
 using PicoNet.Domain.IServices;
@@ -28,7 +30,7 @@ public class CreateShortUrlHandler
     public async Task<ErrorOr<ShortUrlResponse>> Handle(CreateShortUrlCommand command)
     {
         // 1. Generate or use custom alias
-        ShortCode shortCode;
+        ShortCode shortCode = _codeGenerator.Generate();
         if (!string.IsNullOrWhiteSpace(command.CustomAlias))
         {
             bool aliasExists = await _db.Urls.AnyAsync(u => u.CustomAlias == command.CustomAlias);
@@ -38,16 +40,19 @@ public class CreateShortUrlHandler
         }
         else
         {
-            string code;
-            do
+            const int maxAttempts = 5;
+            for (var i = 0; i < maxAttempts; i++)
             {
-                code = _codeGenerator.Generate();
-            } while (await _db.Urls.AnyAsync(u => u.NanoId == code));
-            shortCode = new ShortCode(code);
+                shortCode = _codeGenerator.Generate();
+                if (!await _db.Urls.AnyAsync(u => u.NanoId == shortCode))
+                    break;
+                if (i == maxAttempts - 1)
+                    return Error.Unexpected("ShortCode.GenerationFailed", "Could not generate a unique code.");
+            }
         }
 
         // 2. Create the aggregate
-        var shortenedUrl = ShortenedUrl.CreateWithShortCode(
+        var shortenedUrl = ShortenedUrl.Create(
             command.OriginalUrl,
             shortCode,
             userId: null,             // no user yet
@@ -55,22 +60,19 @@ public class CreateShortUrlHandler
             tags: command.Tags != null ? string.Join(", ", command.Tags) : null 
         );
 
-        _db.Urls.Add(shortenedUrl);
-        await _db.SaveChangesAsync();
+        try
+        {
+            await _db.Urls.AddAsync(shortenedUrl);
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pg && pg.SqlState == "23505")
+        {
+            return Error.Conflict("ShortCode.AlreadyExists", "This alias is already taken.");
+        }
 
         _logger.LogInformation("Created short URL {Code}", shortCode.Value);
 
         // 3. Map to response DTO (use Mapperly)
-        return new ShortUrlResponse(
-            shortenedUrl.Id,
-            shortCode.Value,
-            shortenedUrl.OriginalUrl,
-            shortenedUrl.CustomAlias,
-            shortenedUrl.CreatedAt,
-            shortenedUrl.ExpiryTime,
-            shortenedUrl.Status,
-            shortenedUrl.Tags?.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList(),
-            0 // visit count is 0 initially
-        );
+        return shortenedUrl.ToShortUrlResponse();
     }
 }

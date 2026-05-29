@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PicoNet.Application.Features.Shortener.Commands;
 using PicoNet.Contracts.DTOs.Requests;
 using PicoNet.Contracts.DTOs.Responses;
-using PicoNet.Contracts.DTOs.Responses.Shortner;
+using PicoNet.Contracts.DTOs.Responses.Shortener;
 using Wolverine;
 
 namespace PicoNet.Api.Controllers;
@@ -26,12 +26,29 @@ public class ShortenerController : ControllerBase
         );
     }
 
-    public async Task<ErrorOr<PaginatedResult<ShortUrlResponse>>> GetUserShortenedUrls(int pageNumber,int pageSize,CancellationToken ct)
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CursorPaginatedResult<ShortUrlResponse>))]
+    public async Task<IResult> GetUserShortenedUrls(string? cursor ,int pageSize,CancellationToken ct)
     {
         var result =
-            await _bus.InvokeAsync<ErrorOr<PaginatedResult<ShortUrlResponse>>>(
-                new PaginatedRequestDto(pageNumber, pageSize, HttpContext), ct);
-        
-        return result;
+            await _bus.InvokeAsync<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>>(
+                new CursorPaginatedRequestDto(pageSize,cursor), ct);
+
+        return result.Match(
+            Results.Ok,
+            Results.BadRequest);
     }
+    
+    // [HttpGet("{urlId:guid}")]
+    // [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CursorPaginatedResult<ShortUrlResponse>))]
+    // public async Task<IResult> GetUserShortenedUrls(Guid urlId,int pageSize,CancellationToken ct)
+    // {
+    //     var result =
+    //         await _bus.InvokeAsync<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>>(
+    //             new CursorPaginatedRequestDto(pageSize,cursor), ct);
+    //
+    //     return result.Match(
+    //         Results.Ok,
+    //         Results.BadRequest);
+    // }
 }

@@ -22,10 +22,8 @@ builder.Services.AddWolverine(opts =>
     opts.UseFluentValidation(cfg => cfg.RegistrationBehavior = RegistrationBehavior.ExplicitRegistration);
 }).AddWolverineHttp();
 
-// Add Aspire service defaults
-
-// Add Garnet distributed caching
-//builder.AddRedisDistributedCache(connectionName: "piconet-cache");
+// Add Redis distributed caching
+builder.AddRedisDistributedCache(connectionName: "piconet-cache");
 
 builder.Services.AddControllers();
 

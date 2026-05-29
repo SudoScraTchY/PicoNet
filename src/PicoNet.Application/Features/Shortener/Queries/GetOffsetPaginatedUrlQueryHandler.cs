@@ -6,29 +6,29 @@ using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 using PicoNet.Application.Mappings;
 using PicoNet.Contracts.DTOs.Requests;
-using PicoNet.Contracts.DTOs.Responses.Shortner;
+using PicoNet.Contracts.DTOs.Responses.Shortener;
 
 namespace PicoNet.Application.Features.Shortener.Queries;
 
-public class GetPaginatedUrlsQuery
+public class GetOffsetPaginatedUrlQueryHandler
 {
     private readonly PicoNetDbContext _context;
-    private readonly ILogger<GetPaginatedUrlsQuery> _logger;
+    private readonly ILogger<GetOffsetPaginatedUrlQueryHandler> _logger;
     
-    public GetPaginatedUrlsQuery(PicoNetDbContext context, ILogger<GetPaginatedUrlsQuery> logger)
+    public GetOffsetPaginatedUrlQueryHandler(PicoNetDbContext context, ILogger<GetOffsetPaginatedUrlQueryHandler> logger)
     {
         _context = context;
         _logger = logger;
     }
 
-    public  async Task<ErrorOr<PaginatedResult<ShortUrlResponse>>> GetPaginatedUrls(PaginatedRequestDto request,CancellationToken ct)
+    public  async Task<ErrorOr<OffsetPaginatedResult<ShortUrlResponse>>> Handle(OffsetPaginatedRequestDto request,CancellationToken ct)
     {
         var query = _context.Urls.AsNoTracking().Where(x => !x.IsDeleted);
 
         var totalCountQuery = await query.CountAsync(ct);
         if (totalCountQuery < 1)
         {
-            return new PaginatedResult<ShortUrlResponse>()
+            return new OffsetPaginatedResult<ShortUrlResponse>()
             {
                 PageSize = request.PageSize,
                 PageNumber = request.PageNumber,
@@ -40,10 +40,10 @@ public class GetPaginatedUrlsQuery
         var items = await query
             .Skip((request.PageNumber-1) * request.PageSize)
             .Take(request.PageSize)
-            .Select(x => x.MapUrlResponse())
+            .Select(x => x.ToShortUrlResponse())
             .ToListAsync(cancellationToken: ct);
 
-        return new PaginatedResult<ShortUrlResponse>()
+        return new OffsetPaginatedResult<ShortUrlResponse>()
         {
             PageSize = request.PageSize,
             PageNumber = request.PageNumber,

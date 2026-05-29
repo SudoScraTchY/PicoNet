@@ -1,5 +1,4 @@
-﻿// PicoNet.Infrastructure/Extensions/InfrastructureExtensions.cs
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PicoNet.Domain.IServices;
@@ -18,7 +17,7 @@ public static class InfrastructureExtensions
         services.AddDbContext<PicoNetDbContext>(options =>
         {
             options.UseNpgsql(
-                configuration.GetConnectionString("DefaultConnection"),
+                configuration.GetConnectionString("piconet"), //DefaultConnection for local instance
                 npgsqlOptions =>
                 {
                     npgsqlOptions.EnableRetryOnFailure(3);

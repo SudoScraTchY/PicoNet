@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using PicoNet.Contracts.DTOs.Requests;
-using PicoNet.Contracts.DTOs.Requests.Shortner;
+using PicoNet.Contracts.DTOs.Requests.Shortener;
 
 namespace PicoNet.Application.Features.Shortener.Validators;
 

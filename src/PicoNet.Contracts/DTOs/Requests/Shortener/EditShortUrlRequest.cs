@@ -1,6 +1,6 @@
 ﻿using PicoNet.Domain.Enums;
 
-namespace PicoNet.Contracts.DTOs.Requests.Shortner;
+namespace PicoNet.Contracts.DTOs.Requests.Shortener;
 
 public record EditShortUrlRequest(
     Guid ShortenedUrlId,
