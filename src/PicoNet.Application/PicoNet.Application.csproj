@@ -16,6 +16,9 @@
     <Folder Include="Features\Dashboard\Dtos\" />
     <Folder Include="Features\Dashboard\Queries\" />
     <Folder Include="Features\Dashboard\Validators\" />
+    <Folder Include="Features\Redirect\Dtos\" />
+    <Folder Include="Features\Redirect\Queries\" />
+    <Folder Include="Features\Redirect\Validators\" />
     <Folder Include="Features\Shortener\DTOs\" />
     <Folder Include="Handlers\" />
   </ItemGroup>

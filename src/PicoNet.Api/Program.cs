@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PicoNet.Application.Extensions;
+using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
 using PicoNet.Infrastructure.Extensions;
 using PicoNet.ServiceDefaults;
@@ -24,6 +25,7 @@ builder.Services.AddWolverine(opts =>
 
 // Add Redis distributed caching
 builder.AddRedisDistributedCache(connectionName: "piconet-cache");
+builder.Services.AddTransient<IRedirectCacheService,RedirectCacheService>();
 
 builder.Services.AddControllers();
 

@@ -121,8 +121,8 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         
         var visit = UrlVisit.Create(Id, ipAddress, userAgent, referrer, country);
         _visits.Add(visit);
-        
-        AddDomainEvent(new UrlVisitedDomainEvent(Id, NanoId, ipAddress, userAgent, DateTime.UtcNow));
+
+        AddDomainEvent(new UrlVisitedDomainEvent(Id, NanoId, ipAddress, userAgent, referrer, DateTime.UtcNow));
     }
     
     public void Deactivate()

@@ -7,4 +7,5 @@ public record UrlVisitedDomainEvent(
     string ShortCode,
     string? IpAddress,
     string? UserAgent,
+    string? Referrer,
     DateTime VisitedAt) : DomainEvent;
