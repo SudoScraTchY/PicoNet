@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PicoNet.Application.Features.Shortener.Commands;
 using PicoNet.Contracts.DTOs.Requests;
+using PicoNet.Contracts.DTOs.Requests.Shortener;
 using PicoNet.Contracts.DTOs.Responses;
 using PicoNet.Contracts.DTOs.Responses.Shortener;
 using Wolverine;
@@ -17,7 +18,7 @@ public class ShortenerController : ControllerBase
     public ShortenerController(IMessageBus bus) => _bus = bus;
 
     [HttpPost]
-    public async Task<IResult> Create([FromBody] CreateShortUrlCommand command)
+    public async Task<IResult> CreateUserShortUrl([FromBody] CreateShortUrlCommand command)
     {
         var result = await _bus.InvokeAsync<ErrorOr<ShortUrlResponse>>(command);
         return result.Match(
@@ -25,13 +26,27 @@ public class ShortenerController : ControllerBase
             Results.BadRequest
         );
     }
+    
+    [HttpPut("{urlId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ShortUrlResponse))]
+    public async Task<IResult> EditUserShortUrl(Guid urlId,[FromBody] EditShortUrlRequest editShortUrlRequest,CancellationToken ct)
+    {
+        var result = await _bus.InvokeAsync<ErrorOr<ShortUrlResponse>>(
+                new EditShortUrlCommand(urlId,editShortUrlRequest.OriginalUrl,editShortUrlRequest.CustomAlias,
+                    editShortUrlRequest.UrlStatus,editShortUrlRequest.Tags,editShortUrlRequest.IsPermanent,
+                    editShortUrlRequest.ExpiryTime, editShortUrlRequest.Password,editShortUrlRequest.Campaign),
+                ct);
+
+        return result.Match(
+            Results.Ok,
+            Results.BadRequest);
+    }
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CursorPaginatedResult<ShortUrlResponse>))]
     public async Task<IResult> GetUserShortenedUrls(string? cursor ,int pageSize,CancellationToken ct)
     {
-        var result =
-            await _bus.InvokeAsync<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>>(
+        var result = await _bus.InvokeAsync<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>>(
                 new CursorPaginatedRequestDto(pageSize,cursor), ct);
 
         return result.Match(
@@ -39,16 +54,14 @@ public class ShortenerController : ControllerBase
             Results.BadRequest);
     }
     
-    // [HttpGet("{urlId:guid}")]
-    // [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CursorPaginatedResult<ShortUrlResponse>))]
-    // public async Task<IResult> GetUserShortenedUrls(Guid urlId,int pageSize,CancellationToken ct)
-    // {
-    //     var result =
-    //         await _bus.InvokeAsync<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>>(
-    //             new CursorPaginatedRequestDto(pageSize,cursor), ct);
-    //
-    //     return result.Match(
-    //         Results.Ok,
-    //         Results.BadRequest);
-    // }
+    [HttpGet("{urlId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ShortUrlResponse))]
+    public async Task<IResult> GetUserShortenedUrl(Guid urlId,CancellationToken ct)
+    {
+        var result = await _bus.InvokeAsync<ErrorOr<ShortUrlResponse>>(new GetShortUrlByIdQuery(urlId), ct);
+    
+        return result.Match(
+            Results.Ok,
+            Results.BadRequest);
+    }
 }

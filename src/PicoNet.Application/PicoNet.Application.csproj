@@ -20,7 +20,6 @@
     <Folder Include="Features\Redirect\Queries\" />
     <Folder Include="Features\Redirect\Validators\" />
     <Folder Include="Features\Shortener\DTOs\" />
-    <Folder Include="Handlers\" />
   </ItemGroup>
 
   <ItemGroup>

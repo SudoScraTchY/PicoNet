@@ -25,7 +25,7 @@ builder.Services.AddWolverine(opts =>
 
 // Add Redis distributed caching
 builder.AddRedisDistributedCache(connectionName: "piconet-cache");
-builder.Services.AddTransient<IRedirectCacheService,RedirectCacheService>();
+builder.Services.AddSingleton<IRedirectCacheService,RedirectCacheService>();
 
 builder.Services.AddControllers();
 
