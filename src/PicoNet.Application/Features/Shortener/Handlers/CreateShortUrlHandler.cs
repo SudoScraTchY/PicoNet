@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using PicoNet.Application.Features.Shortener.Commands;
 using PicoNet.Application.Mappings;
+using PicoNet.Contracts.DTOs.Requests.Shortener;
 using PicoNet.Contracts.DTOs.Responses;
 using PicoNet.Contracts.DTOs.Responses.Shortener;
 using PicoNet.Domain.Entities;
@@ -27,13 +28,13 @@ public class CreateShortUrlHandler
         _logger = logger;
     }   
 
-    public async Task<ErrorOr<ShortUrlResponse>> Handle(CreateShortUrlCommand command)
+    public async Task<ErrorOr<ShortUrlResponse>> Handle(CreateShortUrlRequest command)
     {
         // 1. Generate or use custom alias
-        ShortCode shortCode = _codeGenerator.Generate();
+        var shortCode = _codeGenerator.Generate();
         if (!string.IsNullOrWhiteSpace(command.CustomAlias))
         {
-            bool aliasExists = await _db.Urls.AnyAsync(u => u.CustomAlias == command.CustomAlias);
+            var aliasExists = await _db.Urls.AnyAsync(u => u.CustomAlias == command.CustomAlias);
             if (aliasExists)
                 return Error.Conflict("CustomAlias.AlreadyExists", $"Alias '{command.CustomAlias}' is already in use.");
             shortCode = new ShortCode(command.CustomAlias);

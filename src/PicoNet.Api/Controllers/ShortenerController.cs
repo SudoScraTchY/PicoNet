@@ -18,7 +18,7 @@ public class ShortenerController : ControllerBase
     public ShortenerController(IMessageBus bus) => _bus = bus;
 
     [HttpPost]
-    public async Task<IResult> CreateUserShortUrl([FromBody] CreateShortUrlCommand command)
+    public async Task<IResult> CreateUserShortUrl([FromBody] CreateShortUrlRequest command)
     {
         var result = await _bus.InvokeAsync<ErrorOr<ShortUrlResponse>>(command);
         return result.Match(

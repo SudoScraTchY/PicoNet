@@ -1,0 +1,37 @@
+﻿@using PicoNet.Contracts.DTOs.Responses.Shortener
+<div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 flex items-center justify-between gap-4">
+    
+    <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2 mb-1">
+            <span class="font-mono text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                @Url.ShortCode
+            </span>
+            @if (Url.Tags is { Count: > 0 })
+            {
+                foreach (var tag in Url.Tags)
+                {
+                    <span class="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-2 py-0.5 rounded-full">
+                        @tag
+                    </span>
+                }
+            }
+        </div>
+        <p class="text-sm text-zinc-500 truncate" title="@Url.OriginalUrl">
+            @Url.OriginalUrl
+        </p>
+    </div>
+
+    <div class="flex items-center gap-6 shrink-0 text-sm text-zinc-500">
+        <span>@Url.ClickCount clicks</span>
+        <span>@Url.CreatedAt.ToString("MMM d, yyyy")</span>
+        <button @onclick="() => OnCopy.InvokeAsync(Url.ShortCode)"
+                class="text-zinc-400 hover:text-indigo-500 transition-colors">
+            Copy
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ShortUrlResponse Url { get; set; } = null!;
+    [Parameter] public EventCallback<string> OnCopy { get; set; }
+}

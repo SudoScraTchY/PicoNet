@@ -1,4 +1,6 @@
 using PicoNet.ServiceDefaults;
+using PicoNet.UI.ApiClients.Implementations;
+using PicoNet.UI.ApiClients.Interfaces;
 using PicoNet.UI.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +14,15 @@ builder.AddRedisDistributedCache(connectionName: "piconet-cache");
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddHttpClient<IUrlApiClient, UrlApiClient>(client =>
+{
+    // "api" matches the resource name in AppHost: .AddProject<Projects.PicoNet_Api>("api")
+    client.BaseAddress = new Uri("https+http://api");
+});
+
 var app = builder.Build();
+
+// PicoNet.UI/Program.cs
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
