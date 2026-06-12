@@ -13,11 +13,9 @@ public class RedirectController : ControllerBase
     private readonly IMessageBus _bus;
     public RedirectController(IMessageBus bus) => _bus = bus;
 
-    [HttpGet("/{shortCode}")]
-    public async Task<IResult> Redirect(
-        [FromRoute] string shortCode,
-        [FromQuery] string? password,
-        CancellationToken ct)
+    [HttpGet("{shortCode}")]
+    public async Task<IResult> Redirect([FromRoute] string shortCode, [FromQuery] string? password, CancellationToken ct)
+
     {
         var command = new RedirectCommand(
             ShortCode: shortCode,
@@ -33,8 +31,8 @@ public class RedirectController : ControllerBase
             redirect => Results.Redirect(redirect.OriginalUrl, permanent: false),
             errors => errors.First().Type switch
             {
-                ErrorType.NotFound   => Results.NotFound(),
-                ErrorType.Conflict   => Results.StatusCode(410), // 410 Gone
+                ErrorType.NotFound => Results.NotFound(),
+                ErrorType.Conflict => Results.StatusCode(410), // 410 Gone
                 ErrorType.Unauthorized => Results.StatusCode(401),
                 _ => Results.StatusCode(500)
             }

@@ -1,11 +1,10 @@
 ﻿using ErrorOr;
 using Microsoft.EntityFrameworkCore;
+using PicoNet.Application.Events.Commands;
 using PicoNet.Application.Features.Redirect.Commands;
 using PicoNet.Contracts.DTOs.Cache;
 using PicoNet.Contracts.DTOs.Responses.Redirect;
-using PicoNet.Contracts.Events;
 using PicoNet.Domain.Enums;
-using PicoNet.Domain.ValueObjects;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
 using Wolverine;
@@ -25,8 +24,7 @@ public sealed class RedirectHandler
         _bus = bus;
     }
 
-    public async Task<ErrorOr<RedirectUrlResult>> Handle(
-        RedirectCommand command, CancellationToken ct)
+    public async Task<ErrorOr<RedirectUrlResult>> Handle(RedirectCommand command, CancellationToken ct)
     {
         // 1. Cache hit path
         var cached = await _cache.GetAsync(command.ShortCode, ct);
@@ -74,13 +72,6 @@ public sealed class RedirectHandler
         if (dto.MaxClicks > 0 && dto.ClickCount >= dto.MaxClicks)
             return Error.Conflict("Url.MaxClicks", "This URL has reached its click limit.");
         
-        if (!fromCache)
-        {
-            var hits = await _cache.IncrementHitCountAsync(command.ShortCode, ct);
-            var ttl = RedirectCacheTtlPolicy.Resolve(hits);
-            await _cache.SetAsync(command.ShortCode, dto, ttl, ct);
-        }
-
         // Password check
         if (!string.IsNullOrEmpty(dto.PasswordHash))
         {
@@ -94,11 +85,10 @@ public sealed class RedirectHandler
 
         // Fire visit event — fire and forget, don't await
         await _bus.PublishAsync(new UrlVisitedEvent(
-            UrlId : dto.ShortenerId,
-            ShortCode: command.ShortCode,
-            IpAddress: command.IpAddress,
-            UserAgent: command.UserAgent,
-            Referrer: command.Referrer,
+            dto.ShortenerId,
+            fromCache,
+            dto,
+            RedirectCommand: command,
             VisitedAt: DateTime.UtcNow
         ));
 
