@@ -1,0 +1,59 @@
+﻿@* Pages/Dashboard.razor *@
+@page "/dashboard"
+@using PicoNet.UI.ApiClients.Interfaces
+@using PicoNet.UI.Components.Shared
+@inject IUrlApiClient ApiClient
+@inject NavigationManager Nav
+
+<PageTitle>Dashboard — PicoNet</PageTitle>
+
+<div class="mx-auto max-w-4xl px-4 py-10">
+
+    <div class="mb-8 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Your Links</h1>
+        <button @onclick='() => Nav.NavigateTo("/create")'
+                class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors">
+            + Shorten URL
+        </button>
+    </div>
+
+    @* 1. Error state *@
+    @if (_error is not null)
+    {
+        <ErrorAlert Message="@_error" OnDismiss="() => _error = null" />
+    }
+
+    @* 2. Initial loading — full page spinner *@
+    @if (_initialLoading)
+    {
+        <LoadingSpinner />
+    }
+    else
+    {
+        @* 3. Loaded — show table *@
+        <UrlTable
+            Urls="_items"
+            EmptyActionLabel="Shorten your first URL"
+            OnEmptyAction='() => Nav.NavigateTo("/create")' />
+
+        @* 4. Load More *@
+        @if (_hasMore)
+        {
+            <div class="mt-6 flex justify-center">
+                <button @onclick="LoadMoreAsync"
+                        disabled="@_loadingMore"
+                        class="rounded-xl border border-slate-200 px-6 py-2 text-sm font-medium text-slate-700
+                               hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    @if (_loadingMore)
+                    {
+                        <span>Loading…</span>
+                    }
+                    else
+                    {
+                        <span>Load more</span>
+                    }
+                </button>
+            </div>
+        }
+    }
+</div>

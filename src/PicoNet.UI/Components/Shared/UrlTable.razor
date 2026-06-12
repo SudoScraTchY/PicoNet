@@ -1,0 +1,20 @@
+﻿@using PicoNet.UI.Components.Urls
+@if (Urls.Count == 0)
+{
+    <EmptyState
+        Message="No shortened URLs found."
+        ActionLabel="@EmptyActionLabel"
+        OnAction="OnEmptyAction " />
+}
+else
+{
+    <div class="space-y-4">
+
+        @foreach (var item in Urls)
+        {
+            <UrlCard
+                Item="item"
+                BaseUrl="@BaseUrl" />
+        }
+    </div>
+}

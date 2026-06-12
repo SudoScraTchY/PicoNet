@@ -1,10 +1,11 @@
 ﻿using FluentValidation;
+using PicoNet.Application.Features.Shortener.Commands;
 using PicoNet.Contracts.DTOs.Requests;
 using PicoNet.Contracts.DTOs.Requests.Shortener;
 
 namespace PicoNet.Application.Features.Shortener.Validators;
 
-public class CreateShortUrlRequestValidator : AbstractValidator<CreateShortUrlRequest>
+public class CreateShortUrlRequestValidator : AbstractValidator<CreateShortUrlCommand>
 {
     public CreateShortUrlRequestValidator()
     {

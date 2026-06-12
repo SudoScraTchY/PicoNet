@@ -18,9 +18,15 @@ public class ShortenerController : ControllerBase
     public ShortenerController(IMessageBus bus) => _bus = bus;
 
     [HttpPost]
-    public async Task<IResult> CreateUserShortUrl([FromBody] CreateShortUrlRequest command)
+    public async Task<IResult> CreateUserShortUrl([FromBody] CreateShortUrlRequest request,CancellationToken ct)
     {
-        var result = await _bus.InvokeAsync<ErrorOr<ShortUrlResponse>>(command);
+        var command = new CreateShortUrlCommand(request.OriginalUrl,
+            HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A",
+            UserAgent: Request.Headers.UserAgent.ToString(), request.ExpiryTime, request.Campaign,
+            request.MaxClicks, request.CustomAlias, request.Tags, request.Password);
+        
+        var result = await _bus.InvokeAsync<ErrorOr<ShortUrlResponse>>(command, ct);
+        
         return result.Match(
             response => Results.Created($"/api/shortener/{response.ShortCode}", (object?)response),
             Results.BadRequest

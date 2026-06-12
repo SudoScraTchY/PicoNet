@@ -1,0 +1,42 @@
+﻿<div class="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+    <div class="shrink-0 text-red-600">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 24 24"
+             fill="currentColor"
+             class="size-5">
+            <path fill-rule="evenodd"
+                  d="M9.401 3.003c1.155-2.004 4.043-2.004 5.198 0l7.355 12.754c1.152 1.997-.289 4.493-2.598 4.493H4.644c-2.309 0-3.75-2.496-2.598-4.493L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0V9A.75.75 0 0 1 12 8.25Zm0 8.25a1.125 1.125 0 1 0 0-2.25 1.125 1.125 0 0 0 0 2.25Z"
+                  clip-rule="evenodd" />
+        </svg>
+    </div>
+    <div class="min-w-0 flex-1">
+        <p class="text-sm font-medium text-red-800">
+            @Message
+        </p>
+    </div>
+    @if (OnDismiss.HasDelegate)
+    {
+        <button type="button"
+                @onclick="OnDismiss"
+                class="shrink-0 rounded-lg p-1 text-red-600 transition hover:bg-red-100 hover:text-red-700"
+                aria-label="Dismiss">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2"
+                 class="size-5">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
+    }
+</div>
+@code
+{
+    [Parameter, EditorRequired]
+    public string Message { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback OnDismiss { get; set; }
+}

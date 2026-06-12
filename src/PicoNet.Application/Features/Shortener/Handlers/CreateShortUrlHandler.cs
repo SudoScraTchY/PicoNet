@@ -28,7 +28,7 @@ public class CreateShortUrlHandler
         _logger = logger;
     }   
 
-    public async Task<ErrorOr<ShortUrlResponse>> Handle(CreateShortUrlRequest command)
+    public async Task<ErrorOr<ShortUrlResponse>> Handle(CreateShortUrlCommand command)
     {
         // 1. Generate or use custom alias
         var shortCode = _codeGenerator.Generate();
