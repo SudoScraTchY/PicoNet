@@ -1,9 +1,9 @@
-﻿@* Pages/CreateUrl.razor *@
-@page "/create"
+﻿@page "/create"
 @using PicoNet.UI.ApiClients.Interfaces
 @using PicoNet.UI.Components.Shared
 @inject IUrlApiClient ApiClient
 @inject NavigationManager Nav
+@rendermode InteractiveServer
 
 <PageTitle>Shorten a URL — PicoNet</PageTitle>
 
@@ -22,7 +22,7 @@
     }
 
     @* EditForm binds to a model, wires up validation context *@
-    <EditForm Model="_model" OnValidSubmit="HandleSubmitAsync">
+    <EditForm Model="_model" OnValidSubmit="HandleSubmitAsync" FormName="create-url-form">
         
         @* DataAnnotationsValidator hooks FluentValidation via a bridge,
            or standard DataAnnotations — we'll discuss this below *@
@@ -98,8 +98,6 @@
             </div>
 
         </div>
-
-        @* Submit *@
         <div class="mt-6 flex justify-end gap-3">
             <button type="button"
                     @onclick='() => Nav.NavigateTo("/dashboard")'

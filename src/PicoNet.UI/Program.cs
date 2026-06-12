@@ -5,7 +5,11 @@ using PicoNet.UI.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+builder.Services.AddServiceDiscovery();
+builder.Services.ConfigureHttpClientDefaults(http =>
+{
+    http.AddServiceDiscovery(); // ← this makes https+http:// scheme work
+});
 
 // Add Garnet distributed caching
 builder.AddRedisDistributedCache(connectionName: "piconet-cache");
@@ -21,8 +25,6 @@ builder.Services.AddHttpClient<IUrlApiClient, UrlApiClient>(client =>
 });
 
 var app = builder.Build();
-
-// PicoNet.UI/Program.cs
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

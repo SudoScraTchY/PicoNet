@@ -22,7 +22,7 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
     public string? Password { get; private set; } // Optional password protection
     
     // Tracking
-    public long ClickCount { get; private set; }
+    public long ClickCount { get; private set; } = 0;
     public DateTime? LastAccessedAt { get; private set; }
     
     // Ownership & Organization
@@ -161,6 +161,12 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         IsPermanent = !IsPermanent;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void IncrementClickCount()
+    {
+        ClickCount++;
+        LastAccessedAt = DateTime.UtcNow;
+    } 
     
     public void RenewalUrl(IShortCodeGenerator codeGenerator)
     {

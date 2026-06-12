@@ -20,10 +20,14 @@ public class ShortenerController : ControllerBase
     [HttpPost]
     public async Task<IResult> CreateUserShortUrl([FromBody] CreateShortUrlRequest request,CancellationToken ct)
     {
-        var command = new CreateShortUrlCommand(request.OriginalUrl,
-            HttpContext.Connection.RemoteIpAddress?.ToString() ?? "N/A",
-            UserAgent: Request.Headers.UserAgent.ToString(), request.ExpiryTime, request.Campaign,
-            request.MaxClicks, request.CustomAlias, request.Tags, request.Password);
+        var command = new CreateShortUrlCommand(
+            OriginalUrl: request.OriginalUrl,
+            CustomAlias: request.CustomAlias,
+            Tags: request.Tags,
+            MaxClicks: request.MaxClicks,
+            Password: request.Password,
+            ExpiryTime: request.ExpiryTime,
+            Campaign: request.Campaign);
         
         var result = await _bus.InvokeAsync<ErrorOr<ShortUrlResponse>>(command, ct);
         

@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PicoNet.Contracts.DTOs.Responses.Shortener;
 
-namespace PicoNet.UI.Components.Pages;
+namespace PicoNet.UI.Components.Admin;
 
 public partial class Dashboard : ComponentBase
 {
-    // ─── State ────────────────────────────────────────────────
-    private readonly List<ShortUrlResponse> _items = [];
+    private readonly List<ShortUrlResponse> _urls = [];
     private string? _nextCursor;
     private bool _hasMore;
 
@@ -16,8 +15,6 @@ public partial class Dashboard : ComponentBase
 
     private const int PageSize = 20;
 
-    // ─── Lifecycle ────────────────────────────────────────────
-    
     // OnInitializedAsync fires exactly once when the component mounts.
     // Right place for initial data fetching that doesn't depend on route params.
     protected override async Task OnInitializedAsync()
@@ -25,8 +22,6 @@ public partial class Dashboard : ComponentBase
         await LoadAsync(cursor: null);
         _initialLoading = false;
     }
-
-    // ─── Actions ──────────────────────────────────────────────
 
     private async Task LoadMoreAsync()
     {
@@ -36,6 +31,11 @@ public partial class Dashboard : ComponentBase
         _loadingMore = true;
         await LoadAsync(_nextCursor);
         _loadingMore = false;
+    }
+
+    private void GoCreatePage()
+    {
+        Nav.NavigateTo("/create");
     }
 
     // ─── Core fetch — used by both initial load and load more ─
@@ -53,7 +53,7 @@ public partial class Dashboard : ComponentBase
             }
 
             // Append — never replace — so Load More accumulates
-            _items.AddRange(result.Items ?? []);
+            _urls.AddRange(result.Items ?? []);
             _nextCursor = result.NextCursor;
             _hasMore = result.HasMore;
         }

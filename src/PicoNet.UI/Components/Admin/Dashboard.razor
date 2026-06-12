@@ -1,9 +1,9 @@
-﻿@* Pages/Dashboard.razor *@
-@page "/dashboard"
+﻿@page "/dashboard"
 @using PicoNet.UI.ApiClients.Interfaces
 @using PicoNet.UI.Components.Shared
 @inject IUrlApiClient ApiClient
 @inject NavigationManager Nav
+@rendermode InteractiveServer
 
 <PageTitle>Dashboard — PicoNet</PageTitle>
 
@@ -32,7 +32,8 @@
     {
         @* 3. Loaded — show table *@
         <UrlTable
-            Urls="_items"
+            Urls="_urls"
+            BaseUrl="nimmas.ir"
             EmptyActionLabel="Shorten your first URL"
             OnEmptyAction='() => Nav.NavigateTo("/create")' />
 

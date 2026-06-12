@@ -33,9 +33,10 @@ var api = builder
 // The Blazor UI project
 var ui = builder
     .AddProject<Projects.PicoNet_UI>("ui")
+    .WithReference(api)
     .WithReference(postgres) 
     .WithReference(cache)    // Automatically maps to the new Redis connection string
-    .WaitForCompletion(api)
+    .WaitFor(api)
     .WithExternalHttpEndpoints(); 
 
 // == 4. Build and Run ==

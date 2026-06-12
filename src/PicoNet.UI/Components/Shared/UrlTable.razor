@@ -10,11 +10,9 @@ else
 {
     <div class="space-y-4">
 
-        @foreach (var item in Urls)
+        @foreach (var url in Urls)
         {
-            <UrlCard
-                Item="item"
-                BaseUrl="@BaseUrl" />
+            <UrlCard Url="url" />
         }
     </div>
 }

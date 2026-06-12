@@ -5,6 +5,8 @@ using PicoNet.Contracts.DTOs.Cache;
 using PicoNet.Contracts.DTOs.Responses.Redirect;
 using PicoNet.Contracts.Events;
 using PicoNet.Domain.Enums;
+using PicoNet.Domain.IServices;
+using PicoNet.Domain.ValueObjects;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
 using Wolverine;
@@ -31,13 +33,14 @@ public sealed class RedirectHandler
         var cached = await _cache.GetAsync(command.ShortCode, ct);
         if (cached is not null)
         {
-            return await ProcessRedirect(cached, command, fromCache: true, dbId: null, ct);
+            return await ProcessRedirect(cached, command, fromCache: true, ct: ct);
         }
 
+        //var shortCode = new ShortCode(command.ShortCode);
         // 2. DB miss path
         var url = await _db.Urls
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.NanoId == command.ShortCode && !u.IsDeleted, ct);
+            .FirstOrDefaultAsync(u => u.NanoId.Value == command.ShortCode && !u.IsDeleted, ct);
 
         if (url is null)
             return Error.NotFound("Url.NotFound", $"No URL found for code '{command.ShortCode}'");
@@ -53,22 +56,17 @@ public sealed class RedirectHandler
             MaxClicks = url.MaxClicks
         };
 
-        var hits = await _cache.IncrementHitCountAsync(command.ShortCode, ct);
-        var ttl = RedirectCacheTtlPolicy.Resolve(hits);
-        await _cache.SetAsync(command.ShortCode, dto, ttl, ct);
-
-        return await ProcessRedirect(dto, command, fromCache: false, dbId: url.Id, ct);
+        return await ProcessRedirect(dto, command, fromCache: false, ct: ct);
     }
 
     private async Task<ErrorOr<RedirectUrlResult>> ProcessRedirect(
         CachedRedirectDto dto,
         RedirectCommand command,
         bool fromCache,
-        Guid? dbId,
         CancellationToken ct)
     {
         // Status checks
-        if (dto.Status != UrlStatus.Active.ToString())
+        if (dto.Status != nameof(UrlStatus.Active))
             return Error.Conflict("Url.Inactive", "This URL is no longer active.");
 
         if (dto.ExpiryTime.HasValue && DateTime.UtcNow > dto.ExpiryTime.Value)
@@ -76,6 +74,13 @@ public sealed class RedirectHandler
 
         if (dto.MaxClicks > 0 && dto.ClickCount >= dto.MaxClicks)
             return Error.Conflict("Url.MaxClicks", "This URL has reached its click limit.");
+        
+        if (!fromCache)
+        {
+            var hits = await _cache.IncrementHitCountAsync(command.ShortCode, ct);
+            var ttl = RedirectCacheTtlPolicy.Resolve(hits);
+            await _cache.SetAsync(command.ShortCode, dto, ttl, ct);
+        }
 
         // Password check
         if (!string.IsNullOrEmpty(dto.PasswordHash))

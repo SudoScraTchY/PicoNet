@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PicoNet.Contracts.Events;
-using PicoNet.Domain.Events;
+using PicoNet.Domain.Entities;
 using PicoNet.Infrastructure.Data;
 
 namespace PicoNet.Application.Events;
@@ -14,12 +14,16 @@ public sealed class UrlVisitedEventHandler
     public async Task Handle(UrlVisitedEvent evt, CancellationToken ct)
     {
         var url = await _db.Urls
-            .Include(u => u.Visits)
-            .FirstOrDefaultAsync(u => u.NanoId == evt.ShortCode, ct);
+            .FirstOrDefaultAsync(u => u.Id == evt.UrlId, ct);
 
-        if (url is null) return; // already deleted, just skip
+        if (url is null)
+            return;
 
-        url.RecordVisit(evt.IpAddress, evt.UserAgent, evt.Referrer, country: null);
+        url.IncrementClickCount();
+        
+        var visit = UrlVisit.Create(url.Id, evt.IpAddress, evt.UserAgent, evt.Referrer, null);
+        await _db.Set<UrlVisit>().AddAsync(visit, ct);
+
         await _db.SaveChangesAsync(ct);
     }
 }

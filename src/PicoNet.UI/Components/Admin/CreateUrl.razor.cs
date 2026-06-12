@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PicoNet.Contracts.DTOs.Requests.Shortener;
 
-namespace PicoNet.UI.Components.Pages;
+namespace PicoNet.UI.Components.Admin;
 
 public partial class CreateUrl : ComponentBase
 {
