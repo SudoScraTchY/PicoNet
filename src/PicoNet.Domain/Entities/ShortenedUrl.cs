@@ -177,4 +177,6 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         }
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void Modified() => LastAccessedAt = DateTime.UtcNow;
 }
