@@ -1,0 +1,13 @@
+﻿@page "/{ShortCode}"
+@using PicoNet.UI.ApiClients.Interfaces
+@using PicoNet.UI.Components.Shared
+
+@inject IRedirectClient RedirectClient
+@inject NavigationManager Nav
+
+<PageTitle>Redirecting...</PageTitle>
+
+@if (_loading)
+{
+    <LoadingSpinner />
+}

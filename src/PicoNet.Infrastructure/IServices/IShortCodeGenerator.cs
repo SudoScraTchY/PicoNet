@@ -1,6 +1,6 @@
 ﻿using PicoNet.Domain.ValueObjects;
 
-namespace PicoNet.Domain.IServices;
+namespace PicoNet.Infrastructure.IServices;
 
 public interface IShortCodeGenerator
 {

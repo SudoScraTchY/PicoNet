@@ -5,7 +5,7 @@ using PicoNet.Application.Mappings;
 using PicoNet.Contracts.DTOs.Responses.Shortener;
 using PicoNet.Infrastructure.Data;
 
-namespace PicoNet.Application.Features.Shortener.Queries;
+namespace PicoNet.Application.Features.Shortener.Handlers;
 
 public sealed class GetShortenedUrlQueryHandler
 {

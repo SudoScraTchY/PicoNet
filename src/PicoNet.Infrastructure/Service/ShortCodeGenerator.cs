@@ -1,8 +1,8 @@
 ﻿using HashidsNet;
-using PicoNet.Domain.IServices;
 using PicoNet.Domain.ValueObjects;
+using PicoNet.Infrastructure.IServices;
 
-namespace PicoNet.Domain.Service;
+namespace PicoNet.Infrastructure.Service;
 
 public class ShortCodeGenerator : IShortCodeGenerator
 {

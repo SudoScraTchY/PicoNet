@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PicoNet.Domain.IServices;
-using PicoNet.Domain.Service;
 using PicoNet.Infrastructure.Data;
 
 namespace PicoNet.Infrastructure.Extensions;

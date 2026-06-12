@@ -3,8 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PicoNet.Contracts.DTOs.Requests;
 using PicoNet.Contracts.DTOs.Requests.Shortener;
-using PicoNet.Domain.IServices;
-using PicoNet.Domain.Service;
+using PicoNet.Infrastructure.IServices;
+using PicoNet.Infrastructure.Service;
 
 namespace PicoNet.Application.Extensions;
 

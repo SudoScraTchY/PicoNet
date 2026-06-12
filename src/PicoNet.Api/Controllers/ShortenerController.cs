@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using PicoNet.Application.Features.Shortener.Commands;
+using PicoNet.Application.Features.Shortener.Queries;
 using PicoNet.Contracts.DTOs.Requests;
 using PicoNet.Contracts.DTOs.Requests.Shortener;
 using PicoNet.Contracts.DTOs.Responses;
@@ -57,7 +58,7 @@ public class ShortenerController : ControllerBase
     public async Task<IResult> GetUserShortenedUrls(string? cursor ,int pageSize,CancellationToken ct)
     {
         var result = await _bus.InvokeAsync<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>>(
-                new CursorPaginatedRequestDto(pageSize,cursor), ct);
+                new CursorPaginatedCommand(pageSize,cursor), ct);
 
         return result.Match(
             Results.Ok,

@@ -1,7 +1,6 @@
 ﻿using PicoNet.Domain.Entities.Common.Concrete;
 using PicoNet.Domain.Enums;
 using PicoNet.Domain.Events;
-using PicoNet.Domain.IServices;
 using PicoNet.Domain.ValueObjects;
 
 namespace PicoNet.Domain.Entities;
@@ -168,15 +167,5 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         LastAccessedAt = DateTime.UtcNow;
     } 
     
-    public void RenewalUrl(IShortCodeGenerator codeGenerator)
-    {
-        if (!IsPermanent)
-        {
-            NanoId = codeGenerator.Generate();
-            ExpiryTime = DateTime.UtcNow.AddDays(31);
-        }
-        UpdatedAt = DateTime.UtcNow;
-    }
-
     public void Modified() => LastAccessedAt = DateTime.UtcNow;
 }

@@ -5,7 +5,6 @@ using PicoNet.Contracts.DTOs.Cache;
 using PicoNet.Contracts.DTOs.Responses.Redirect;
 using PicoNet.Contracts.Events;
 using PicoNet.Domain.Enums;
-using PicoNet.Domain.IServices;
 using PicoNet.Domain.ValueObjects;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;

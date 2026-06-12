@@ -1,14 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
-using PicoNet.Contracts.DTOs.Responses;
-using PicoNet.Infrastructure.Data;
-using ErrorOr;
+﻿using ErrorOr;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using PicoNet.Application.Features.Shortener.Queries;
 using PicoNet.Application.Mappings;
-using PicoNet.Contracts.DTOs.Requests;
+using PicoNet.Contracts.DTOs.Responses;
 using PicoNet.Contracts.DTOs.Responses.Shortener;
 using PicoNet.Contracts.Extensions;
+using PicoNet.Infrastructure.Data;
 
-namespace PicoNet.Application.Features.Shortener.Queries;
+namespace PicoNet.Application.Features.Shortener.Handlers;
 
 public class GetCursorPaginatedUrlsQueryHandler
 {
@@ -21,7 +21,7 @@ public class GetCursorPaginatedUrlsQueryHandler
         _logger = logger;
     }
 
-    public  async Task<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>> Handle(CursorPaginatedRequestDto request,CancellationToken ct)
+    public  async Task<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>> Handle(CursorPaginatedCommand request,CancellationToken ct)
     {
         var query = _context.Urls.AsNoTracking().Where(x => !x.IsDeleted);
         // for future
