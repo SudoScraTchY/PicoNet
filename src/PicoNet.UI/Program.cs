@@ -2,13 +2,14 @@ using PicoNet.ServiceDefaults;
 using PicoNet.UI.ApiClients.Implementations;
 using PicoNet.UI.ApiClients.Interfaces;
 using PicoNet.UI.Components;
+using PicoNet.UI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddServiceDiscovery();
 builder.Services.ConfigureHttpClientDefaults(http =>
 {
-    http.AddServiceDiscovery(); // ← this makes https+http:// scheme work
+    http.AddServiceDiscovery();
 });
 
 // Add Garnet distributed caching
@@ -18,11 +19,7 @@ builder.AddRedisDistributedCache(connectionName: "piconet-cache");
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddHttpClient<IUrlApiClient, UrlApiClient>(client =>
-{
-    // "api" matches the resource name in AppHost: .AddProject<Projects.PicoNet_Api>("api")
-    client.BaseAddress = new Uri("https+http://api");
-});
+builder.Services.AddApiClients(builder.Configuration);
 
 var app = builder.Build();
 

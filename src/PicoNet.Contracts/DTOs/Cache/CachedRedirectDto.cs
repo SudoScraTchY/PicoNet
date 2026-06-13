@@ -8,5 +8,5 @@ public sealed record CachedRedirectDto
     public string Status { get; init; } = string.Empty;
     public DateTime? ExpiryTime { get; init; }
     public long ClickCount { get; init; }
-    public int MaxClicks { get; init; }
+    public int? MaxClicks { get; init; }
 }

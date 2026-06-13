@@ -5,6 +5,7 @@ using PicoNet.Application.Features.Redirect.Commands;
 using PicoNet.Contracts.DTOs.Cache;
 using PicoNet.Contracts.DTOs.Responses.Redirect;
 using PicoNet.Domain.Enums;
+using PicoNet.Domain.ValueObjects;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
 using Wolverine;
@@ -30,14 +31,14 @@ public sealed class RedirectHandler
         var cached = await _cache.GetAsync(command.ShortCode, ct);
         if (cached is not null)
         {
-            return await ProcessRedirect(cached, command, fromCache: true, ct: ct);
+            return await ProcessRedirect(cached, command, fromCache: true);
         }
 
-        //var shortCode = new ShortCode(command.ShortCode);
+        var shortCode = new ShortCode(command.ShortCode);
         // 2. DB miss path
         var url = await _db.Urls
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.NanoId.Value == command.ShortCode && !u.IsDeleted, ct);
+            .FirstOrDefaultAsync(u => u.NanoId == shortCode && !u.IsDeleted, ct);
 
         if (url is null)
             return Error.NotFound("Url.NotFound", $"No URL found for code '{command.ShortCode}'");
@@ -53,14 +54,13 @@ public sealed class RedirectHandler
             MaxClicks = url.MaxClicks
         };
 
-        return await ProcessRedirect(dto, command, fromCache: false, ct: ct);
+        return await ProcessRedirect(dto, command, fromCache: false);
     }
 
     private async Task<ErrorOr<RedirectUrlResult>> ProcessRedirect(
         CachedRedirectDto dto,
         RedirectCommand command,
-        bool fromCache,
-        CancellationToken ct)
+        bool fromCache)
     {
         // Status checks
         if (dto.Status != nameof(UrlStatus.Active))
@@ -86,11 +86,19 @@ public sealed class RedirectHandler
         // Fire visit event — fire and forget, don't await
         await _bus.PublishAsync(new UrlVisitedEvent(
             dto.ShortenerId,
+            command.ShortCode,
             fromCache,
-            dto,
-            RedirectCommand: command,
-            VisitedAt: DateTime.UtcNow
-        ));
+            dto.OriginalUrl,
+            dto.PasswordHash,
+            dto.ClickCount,
+            dto.MaxClicks,
+            dto.Status,
+            dto.ExpiryTime,
+            command.IpAddress,
+            command.UserAgent,
+            command.Referrer,
+            DateTime.UtcNow)
+        );
 
         return new RedirectUrlResult(dto.OriginalUrl);
     }

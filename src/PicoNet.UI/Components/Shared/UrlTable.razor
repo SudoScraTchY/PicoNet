@@ -1,4 +1,6 @@
 ﻿@using PicoNet.UI.Components.Urls
+@inject IJSRuntime JsRuntime
+
 @if (Urls.Count == 0)
 {
     <EmptyState
@@ -12,7 +14,7 @@ else
 
         @foreach (var url in Urls)
         {
-            <UrlCard Url="url" />
+            <UrlCard Url="url" OnCopy="CopyShortCode" />
         }
     </div>
 }
