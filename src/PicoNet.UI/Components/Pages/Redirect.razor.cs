@@ -11,6 +11,7 @@ public partial class Redirect
 
     protected override async Task OnInitializedAsync()
     {
+        
         var result =
             await RedirectClient.ResolveAsync(ShortCode);
 

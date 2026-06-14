@@ -19,6 +19,7 @@ public class RedirectClient : IRedirectClient
         if (!response.IsSuccessStatusCode)
             return Error.NotFound();
 
-        return await response.Content.ReadFromJsonAsync<RedirectUrlResult>() ?? null;
+        var result = await response.Content.ReadFromJsonAsync<RedirectUrlResult>() ?? null;
+        return result;
     }
 }

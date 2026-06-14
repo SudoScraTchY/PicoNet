@@ -28,7 +28,7 @@ public class RedirectController : ControllerBase
         var result = await _bus.InvokeAsync<ErrorOr<RedirectUrlResult>>(command, ct);
 
         return result.Match(
-            redirect => Results.Redirect(redirect.OriginalUrl, permanent: false),
+            Results.Ok,
             errors => errors.First().Type switch
             {
                 ErrorType.NotFound => Results.NotFound(),

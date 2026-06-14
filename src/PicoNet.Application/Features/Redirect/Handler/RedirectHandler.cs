@@ -16,13 +16,13 @@ public sealed class RedirectHandler
 {
     private readonly PicoNetDbContext _db;
     private readonly IRedirectCacheService _cache;
-    private readonly IMessageBus _bus;
+    private readonly IMessageContext _messageContext;
 
-    public RedirectHandler(PicoNetDbContext db, IRedirectCacheService cache, IMessageBus bus)
+    public RedirectHandler(PicoNetDbContext db, IRedirectCacheService cache,  IMessageContext messageContext)
     {
         _db = db;
         _cache = cache;
-        _bus = bus;
+        _messageContext = messageContext;
     }
 
     public async Task<ErrorOr<RedirectUrlResult>> Handle(RedirectCommand command, CancellationToken ct)
@@ -31,7 +31,7 @@ public sealed class RedirectHandler
         var cached = await _cache.GetAsync(command.ShortCode, ct);
         if (cached is not null)
         {
-            return await ProcessRedirect(cached, command, fromCache: true);
+            return await ProcessRedirect(cached, command, fromCache: true, ct);
         }
 
         var shortCode = new ShortCode(command.ShortCode);
@@ -46,21 +46,22 @@ public sealed class RedirectHandler
         // 3. Populate cache for next time
         var dto = new CachedRedirectDto
         {
+            ShortenerId = url.Id,
             OriginalUrl = url.OriginalUrl,
             PasswordHash = url.Password,
             Status = url.Status.ToString(),
             ExpiryTime = url.ExpiryTime,
             ClickCount = url.ClickCount,
-            MaxClicks = url.MaxClicks
+            MaxClicks = url.MaxClicks,
         };
 
-        return await ProcessRedirect(dto, command, fromCache: false);
+        return await ProcessRedirect(dto, command, fromCache: false, ct);
     }
 
     private async Task<ErrorOr<RedirectUrlResult>> ProcessRedirect(
         CachedRedirectDto dto,
         RedirectCommand command,
-        bool fromCache)
+        bool fromCache,CancellationToken ct)
     {
         // Status checks
         if (dto.Status != nameof(UrlStatus.Active))
@@ -84,22 +85,23 @@ public sealed class RedirectHandler
         }
 
         // Fire visit event — fire and forget, don't await
-        await _bus.PublishAsync(new UrlVisitedEvent(
-            dto.ShortenerId,
-            command.ShortCode,
-            fromCache,
-            dto.OriginalUrl,
-            dto.PasswordHash,
-            dto.ClickCount,
-            dto.MaxClicks,
-            dto.Status,
-            dto.ExpiryTime,
-            command.IpAddress,
-            command.UserAgent,
-            command.Referrer,
-            DateTime.UtcNow)
-        );
+        if (!fromCache)
+        {
+            var hits = await _cache.IncrementHitCountAsync(command.ShortCode, ct);
+            var ttl = RedirectCacheTtlPolicy.Resolve(hits);
+            await _cache.SetAsync(command.ShortCode, dto, ttl, ct);
+        }
 
-        return new RedirectUrlResult(dto.OriginalUrl);
+        await _messageContext.PublishAsync(new UrlVisitedEvent(
+            UrlId: dto.ShortenerId,
+            ShortCode: command.ShortCode,
+            IpAddress: command.IpAddress,
+            UserAgent: command.UserAgent,
+            Referrer: command.Referrer,
+            VisitedAt: DateTime.UtcNow
+        ));
+
+        var result = new RedirectUrlResult(dto.OriginalUrl);
+        return result;
     }
 }

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using PicoNet.Application.Events.Commands;
-using PicoNet.Contracts.DTOs.Cache;
 using PicoNet.Domain.Entities;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
@@ -20,32 +19,12 @@ public sealed class UrlVisitedEventHandler
 
     public async Task Handle(UrlVisitedEvent evt, CancellationToken ct)
     {
-        var url = await _db.Urls
-            .FirstOrDefaultAsync(u => u.Id == evt.UrlId, ct);
+        await _db.Urls.AsNoTracking()
+            .ExecuteUpdateAsync(
+                x => x.SetProperty(
+                    p => p.ClickCount, n => n.ClickCount + 1), ct);
 
-        if (url is null)
-            return;
-
-        url.IncrementClickCount();
-        
-        if (!evt.FromCache)
-        {
-            var hits = await _cache .IncrementHitCountAsync( evt.ShortCode, ct);
-
-            var ttl = RedirectCacheTtlPolicy .Resolve(hits);
-
-            await _cache.SetAsync( evt.ShortCode, new CachedRedirectDto
-                {
-                    OriginalUrl = evt.OriginalUrl,
-                    PasswordHash = evt.PasswordHash,
-                    ClickCount = evt.ClickCount,
-                    MaxClicks = evt.MaxClicks,
-                    Status = evt.Status,
-                    ExpiryTime = evt.ExpiryTime
-                }, ttl, ct);
-        }
-        
-        var visit = UrlVisit.Create(url.Id, evt.IpAddress, 
+        var visit = UrlVisit.Create(evt.UrlId, evt.IpAddress, 
             evt.UserAgent, evt.Referrer, null);
         
         await _db.Set<UrlVisit>().AddAsync(visit, ct);

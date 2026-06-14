@@ -19,7 +19,7 @@ builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddWolverine(opts =>
 {
     opts.Discovery.IncludeAssembly(typeof(ApplicationExtension).Assembly);
-    opts.Durability.Mode = DurabilityMode.MediatorOnly;
+    //opts.Durability.Mode = DurabilityMode.Balanced;
     opts.UseFluentValidation(cfg => cfg.RegistrationBehavior = RegistrationBehavior.ExplicitRegistration);
 }).AddWolverineHttp();
 

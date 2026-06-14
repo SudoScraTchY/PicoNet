@@ -9,5 +9,5 @@ public record RedirectUrlResult
 
     public string OriginalUrl { get; set; }
     public bool IsPasswordProtected { get; set; }
-    public int? MaxClicks { get; set; }
+    public int? MaxClicks { get; set; } 
 }
