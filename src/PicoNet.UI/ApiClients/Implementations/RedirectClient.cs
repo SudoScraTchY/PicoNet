@@ -10,16 +10,30 @@ public class RedirectClient : IRedirectClient
 
     public RedirectClient(HttpClient http) => _http = http;
 
-    public async Task<ErrorOr<RedirectUrlResult?>> ResolveAsync(string shortCode)
+    public async Task<ErrorOr<RedirectUrlResult?>> ResolveAsync(string shortCode,string? password = null)
     {
-        var response =
-            await _http.GetAsync(
-                $"api/redirect/{shortCode}");
-
-        if (!response.IsSuccessStatusCode)
+        
+        if (shortCode == "fail") 
             return Error.NotFound();
+        
+        if (shortCode == "success") 
+            return new RedirectUrlResult("www.google.com")
+            {
+                IsPasswordProtected = true,
+                MaxClicks = 10
+            };
+        
+        return shortCode == "HasPassword" ? Error.Unauthorized() : Error.Forbidden();
 
-        var result = await response.Content.ReadFromJsonAsync<RedirectUrlResult>() ?? null;
-        return result;
+
+        // var response =
+        //     await _http.GetAsync(
+        //         $"api/redirect/{shortCode}");
+        //
+        // if (!response.IsSuccessStatusCode)
+        //     return Error.NotFound();
+        //
+        // var result = await response.Content.ReadFromJsonAsync<RedirectUrlResult>() ?? null;
+        // return result;
     }
 }

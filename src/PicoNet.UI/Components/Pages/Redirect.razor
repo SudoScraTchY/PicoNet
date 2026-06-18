@@ -11,3 +11,25 @@
 {
     <LoadingSpinner />
 }
+else
+{
+    if (_hasPassword)
+    {
+        <h2>The Url Is Password Protected</h2>
+        
+        <div class="flex">
+            <p>Enter Password</p>
+            <InputText type="text" @bind-Value="@Password"></InputText>
+            <button @onclick="RedirectUrl" ></button>
+        </div>
+    }
+    else
+    {
+        <div>
+            <h2>the Short Url you looking for wasn't found , it could be the reasons below:</h2>
+            <p>the short url is Expired</p>
+            <p>the short url is InActive</p>
+            <p>the short url is is Wrong</p>
+        </div>
+    }
+}

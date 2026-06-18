@@ -5,5 +5,5 @@ namespace PicoNet.UI.ApiClients.Interfaces;
 
 public interface IRedirectClient
 {
-    Task<ErrorOr<RedirectUrlResult?>> ResolveAsync(string shortCode);
+    Task<ErrorOr<RedirectUrlResult?>> ResolveAsync(string shortCode, string? password);
 }
