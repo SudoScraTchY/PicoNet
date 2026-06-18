@@ -1,93 +1,111 @@
 ﻿@page "/"
-@rendermode InteractiveServer
+@inject NavigationManager Nav
 
-<div class="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-white font-sans">
-    <!-- Navigation -->
-    <nav class="container mx-auto px-6 py-5 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <svg class="w-8 h-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
-            <span class="text-2xl font-bold tracking-tight">PicoNet</span>
-        </div>
-        <div class="hidden md:flex gap-8 text-sm font-medium">
-            <a href="#" class="hover:text-indigo-300 transition-colors">Features</a>
-            <a href="#" class="hover:text-indigo-300 transition-colors">Pricing</a>
-            <a href="#" class="hover:text-indigo-300 transition-colors">Docs</a>
-            <a href="#" class="hover:text-indigo-300 transition-colors">Sign In</a>
-        </div>
-    </nav>
+<PageTitle>نیم‌مسیر | NimMas.ir</PageTitle>
 
-    <!-- Hero Section -->
-    <section class="container mx-auto px-6 pt-24 pb-32 text-center">
-        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
-            Shorten links.<br />Measure everything.
-        </h1>
-        <p class="mt-6 text-lg text-indigo-100/80 max-w-2xl mx-auto leading-relaxed">
-            PicoNet transforms long URLs into short, trackable links with powerful analytics and an event‑driven architecture you can trust.
-        </p>
-        <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <button class="px-8 py-4 bg-indigo-500 hover:bg-indigo-600 rounded-2xl font-semibold text-lg shadow-2xl shadow-indigo-500/30 transition-all hover:scale-105">
-                Create your first link →
-            </button>
-            <button class="px-8 py-4 border border-indigo-400/30 rounded-2xl font-semibold text-lg hover:bg-white/5 transition-all hover:scale-105">
-                View demo
-            </button>
-        </div>
-    </section>
+<div class="relative min-h-screen overflow-hidden">
+    <div class="absolute inset-0">
+        <div class="absolute left-[-8rem] top-[-6rem] h-72 w-72 rounded-full bg-[rgb(var(--primary)/0.18)] blur-3xl animate-floaty"></div>
+        <div class="absolute right-[-7rem] top-[8rem] h-80 w-80 rounded-full bg-[rgb(var(--accent)/0.16)] blur-3xl animate-floaty [animation-delay:1.5s]"></div>
+        <div class="absolute bottom-[-8rem] left-[30%] h-96 w-96 rounded-full bg-[rgb(var(--primary-2)/0.14)] blur-3xl animate-floaty [animation-delay:3s]"></div>
+    </div>
 
-    <!-- Features Grid -->
-    <section class="container mx-auto px-6 pb-32">
-        <div class="grid md:grid-cols-3 gap-8">
-            <!-- Card 1 -->
-            <div class="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 hover:border-indigo-400/50 transition-colors">
-                <div class="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-6 h-6 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
+    <div class="relative mx-auto flex min-h-screen max-w-7xl items-center px-6 py-12">
+        <div class="grid w-full gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+            <section class="flex flex-col justify-center">
+                <div class="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-app bg-surface/70 px-4 py-2 text-sm text-muted shadow-soft backdrop-blur">
+                    <span class="h-2 w-2 rounded-full bg-[rgb(var(--primary))]"></span>
+                    نیم‌مسیر — the shorter path, beautifully presented
                 </div>
-                <h3 class="text-xl font-bold mb-3">Instant Shortening</h3>
-                <p class="text-indigo-200/70 leading-relaxed">Generate short, branded links in milliseconds. Custom aliases supported.</p>
-            </div>
-            <!-- Card 2 -->
-            <div class="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 hover:border-purple-400/50 transition-colors">
-                <div class="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-6 h-6 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold mb-3">Powerful Analytics</h3>
-                <p class="text-indigo-200/70 leading-relaxed">Track clicks, referrers, browsers, countries. Real-time dashboards.</p>
-            </div>
-            <!-- Card 3 -->
-            <div class="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 hover:border-pink-400/50 transition-colors">
-                <div class="w-12 h-12 bg-pink-500/20 rounded-2xl flex items-center justify-center mb-6">
-                    <svg class="w-6 h-6 text-pink-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-bold mb-3">Enterprise Security</h3>
-                <p class="text-indigo-200/70 leading-relaxed">OAuth2/OIDC authentication, rate limiting, and audit logs built‑in.</p>
-            </div>
-        </div>
-    </section>
 
-    <!-- CTA Section -->
-    <section class="border-t border-white/5">
-        <div class="container mx-auto px-6 py-24 text-center">
-            <h2 class="text-4xl font-bold mb-6">Ready to scale your links?</h2>
-            <p class="text-indigo-200/70 mb-10 max-w-xl mx-auto">Join thousands of developers who trust PicoNet for their URL shortening needs.</p>
-            <button class="px-10 py-5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl font-bold text-lg shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 transition-all hover:scale-105">
-                Get started free
-            </button>
-        </div>
-    </section>
+                <h1 class="max-w-3xl text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl">
+                    A smarter
+                    <span class="bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--primary-2))] to-[rgb(var(--accent))] bg-clip-text text-transparent">
+                        halfway
+                    </span>
+                    for your links.
+                </h1>
 
-    <!-- Footer -->
-    <footer class="border-t border-white/5 py-10">
-        <div class="container mx-auto px-6 text-center text-sm text-indigo-200/50">
-            <p>© 2026 PicoNet · Event‑Driven URL Shortener</p>
-            <p class="mt-2">If this page looks beautiful, your Tailwind CSS v4 setup works perfectly! 🎉</p>
+                <p class="mt-6 max-w-2xl text-lg leading-8 text-muted">
+                    NimMas.ir turns long links into a modern, branded bridge between destination and discovery.
+                    Clean redirects, beautiful landing moments, and a visual system that adapts to every theme.
+                </p>
+
+                <div class="mt-10 flex flex-wrap gap-4">
+                    <button class="rounded-2xl bg-[rgb(var(--primary))] px-6 py-3 font-semibold text-white shadow-soft transition hover:scale-[1.02] active:scale-[0.99]"
+                            @onclick="@(() => Nav.NavigateTo("/demo"))">
+                        See the bridge
+                    </button>
+
+                    <button class="rounded-2xl border border-app bg-surface/70 px-6 py-3 font-semibold text-app shadow-soft transition hover:bg-surface-2"
+                            @onclick="@(() => Nav.NavigateTo("/dashboard"))">
+                        Open dashboard
+                    </button>
+                </div>
+
+                <div class="mt-10 grid max-w-2xl gap-4 sm:grid-cols-3">
+                    <div class="rounded-2xl border border-app bg-surface/70 p-4 shadow-soft">
+                        <div class="text-sm text-muted">Fast</div>
+                        <div class="mt-1 text-lg font-semibold">Visible redirect window</div>
+                    </div>
+                    <div class="rounded-2xl border border-app bg-surface/70 p-4 shadow-soft">
+                        <div class="text-sm text-muted">Adaptive</div>
+                        <div class="mt-1 text-lg font-semibold">Light + dark themes</div>
+                    </div>
+                    <div class="rounded-2xl border border-app bg-surface/70 p-4 shadow-soft">
+                        <div class="text-sm text-muted">Branded</div>
+                        <div class="mt-1 text-lg font-semibold">Palette-driven UI</div>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="flex items-center justify-center">
+                <div class="relative w-full max-w-md rounded-[2rem] border border-app bg-surface/75 p-6 shadow-soft backdrop-blur">
+                    <div class="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-[rgb(var(--primary)/0.10)] via-transparent to-[rgb(var(--accent)/0.10)]"></div>
+
+                    <div class="relative">
+                        <div class="mb-6 flex items-center justify-between">
+                            <div>
+                                <div class="text-sm text-muted">Visual identity</div>
+                                <div class="text-2xl font-bold">Halfway, but premium.</div>
+                            </div>
+                            <div class="rounded-2xl bg-surface-2 px-3 py-2 text-sm font-semibold">
+                                نیم‌ مسیر
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 rounded-3xl border border-app bg-app/60 p-5">
+                            <div class="flex items-center gap-4">
+                                <div class="relative h-12 w-12">
+                                    <div class="absolute inset-0 rounded-full bg-[rgb(var(--primary)/0.20)] animate-pulse-ring"></div>
+                                    <div class="relative flex h-12 w-12 items-center justify-center rounded-full bg-[rgb(var(--primary))] text-white font-black">
+                                        N
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-semibold">Source → Path → Destination</div>
+                                    <div class="text-sm text-muted">A bridge page users actually notice</div>
+                                </div>
+                            </div>
+
+                            <div class="h-2 overflow-hidden rounded-full bg-surface-2">
+                                <div class="h-full w-2/3 rounded-full bg-gradient-to-r from-[rgb(var(--primary))] via-[rgb(var(--primary-2))] to-[rgb(var(--accent))]"></div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div class="rounded-2xl bg-surface-2 p-3">
+                                    <div class="text-muted">Mode</div>
+                                    <div class="font-semibold">Live</div>
+                                </div>
+                                <div class="rounded-2xl bg-surface-2 p-3">
+                                    <div class="text-muted">Palette</div>
+                                    <div class="font-semibold">Switchable</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
         </div>
-    </footer>
+    </div>
 </div>

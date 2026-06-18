@@ -12,11 +12,16 @@
     <link rel="icon" type="image/png" href="favicon.png" />
     <HeadOutlet />
     <title>نیم مسیر</title>
+    
 </head>
 
 <body>
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
     <ReconnectModal />
+    <script src="theme.js"></script>
+    <script>
+        window.nimTheme?.init?.();
+    </script>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
 

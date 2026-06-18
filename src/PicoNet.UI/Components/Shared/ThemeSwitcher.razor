@@ -1,0 +1,38 @@
+﻿@inject IJSRuntime JsRuntime
+
+<div class="flex flex-wrap items-center gap-3 rounded-full border border-app bg-surface/80 px-3 py-2 shadow-soft backdrop-blur">
+    <button class="rounded-full px-3 py-1 text-sm font-medium transition hover:bg-surface-2"
+            @onclick="@(() => SetModeAsync("light"))">
+        Light
+    </button>
+    <button class="rounded-full px-3 py-1 text-sm font-medium transition hover:bg-surface-2"
+            @onclick="@(() => SetModeAsync("dark"))">
+        Dark
+    </button>
+
+    <span class="mx-1 h-5 w-px bg-app/40"></span>
+
+    <button class="h-4 w-4 rounded-full bg-indigo-500 ring-2 ring-transparent hover:ring-indigo-300"
+            title="Nim Indigo"
+            @onclick="@(() => SetPaletteAsync("nim-indigo"))"></button>
+
+    <button class="h-4 w-4 rounded-full bg-amber-500 ring-2 ring-transparent hover:ring-amber-300"
+            title="Desert Gold"
+            @onclick="@(() => SetPaletteAsync("desert-gold"))"></button>
+
+    <button class="h-4 w-4 rounded-full bg-emerald-500 ring-2 ring-transparent hover:ring-emerald-300"
+            title="Mint Night"
+            @onclick="@(() => SetPaletteAsync("mint-night"))"></button>
+
+    <button class="h-4 w-4 rounded-full bg-rose-500 ring-2 ring-transparent hover:ring-rose-300"
+            title="Rose Ink"
+            @onclick="@(() => SetPaletteAsync("rose-ink"))"></button>
+</div>
+
+@code {
+    private async Task SetModeAsync(string mode)
+        => await JsRuntime.InvokeVoidAsync("nimTheme.setMode", mode);
+
+    private async Task SetPaletteAsync(string palette)
+        => await JsRuntime.InvokeVoidAsync("nimTheme.setPalette", palette);
+}

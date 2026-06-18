@@ -1,1 +1,114 @@
 ﻿@import "tailwindcss";
+
+@layer base {
+    :root {
+        color-scheme: light;
+        --bg: 247 248 252;
+        --surface: 255 255 255;
+        --surface-2: 241 245 249;
+        --text: 15 23 42;
+        --muted: 100 116 139;
+        --border: 226 232 240;
+        --primary: 79 70 229;
+        --primary-2: 14 165 233;
+        --accent: 245 158 11;
+        --success: 34 197 94;
+        --danger: 239 68 68;
+        --shadow: 15 23 42;
+    }
+
+    :root.dark {
+        color-scheme: dark;
+        --bg: 6 10 20;
+        --surface: 15 23 42;
+        --surface-2: 30 41 59;
+        --text: 226 232 240;
+        --muted: 148 163 184;
+        --border: 51 65 85;
+        --shadow: 0 0 0;
+    }
+
+    :root[data-palette="nim-indigo"] {
+        --primary: 99 102 241;
+        --primary-2: 56 189 248;
+        --accent: 250 204 21;
+    }
+
+    :root[data-palette="desert-gold"] {
+        --primary: 245 158 11;
+        --primary-2: 251 191 36;
+        --accent: 79 70 229;
+    }
+
+    :root[data-palette="mint-night"] {
+        --primary: 16 185 129;
+        --primary-2: 45 212 191;
+        --accent: 168 85 247;
+    }
+
+    :root[data-palette="rose-ink"] {
+        --primary: 244 63 94;
+        --primary-2: 236 72 153;
+        --accent: 59 130 246;
+    }
+
+    html, body {
+        min-height: 100%;
+        background: rgb(var(--bg));
+        color: rgb(var(--text));
+        transition: background-color 250ms ease, color 250ms ease;
+    }
+
+    body {
+        background:
+                radial-gradient(circle at top left, rgb(var(--primary) / 0.16), transparent 32%),
+                radial-gradient(circle at top right, rgb(var(--accent) / 0.12), transparent 28%),
+                linear-gradient(180deg, rgb(var(--bg)), rgb(var(--bg)));
+    }
+}
+
+@layer utilities {
+    .bg-app { background-color: rgb(var(--bg)); }
+    .bg-surface { background-color: rgb(var(--surface)); }
+    .bg-surface-2 { background-color: rgb(var(--surface-2)); }
+    .text-app { color: rgb(var(--text)); }
+    .text-muted { color: rgb(var(--muted)); }
+    .border-app { border-color: rgb(var(--border)); }
+
+    .shadow-soft {
+        box-shadow: 0 20px 60px rgb(var(--shadow) / 0.18);
+    }
+
+    .glass {
+        background: rgb(var(--surface) / 0.72);
+        backdrop-filter: blur(20px);
+    }
+}
+
+@keyframes floaty {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-14px) scale(1.03); }
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.85); opacity: 0.7; }
+    70% { transform: scale(1.25); opacity: 0; }
+    100% { transform: scale(1.25); opacity: 0; }
+}
+
+@keyframes slide-progress {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(320%); }
+}
+
+.animate-floaty {
+    animation: floaty 6s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+    animation: pulse-ring 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.animate-slide-progress {
+    animation: slide-progress 1.5s linear infinite;
+}
