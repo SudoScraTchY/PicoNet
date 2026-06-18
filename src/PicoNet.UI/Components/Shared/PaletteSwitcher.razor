@@ -1,43 +1,53 @@
-﻿<div class="flex items-center gap-2">
-    @foreach (var palette in Palettes)
-    {
-        <button @onclick="() => SetPalette(palette.Key)"
-                class="group relative size-8 rounded-full border-2 transition-all duration-300 @(CurrentPalette == palette.Key ? "border-foreground scale-110" : "border-transparent hover:scale-105")"
-                style="background: @palette.Value"
-                title="@palette.Key">
-            @if (CurrentPalette == palette.Key)
-            {
-                <span class="absolute -inset-1 rounded-full border-2 border-primary-500 animate-pulse"></span>
-            }
+﻿@inject IJSRuntime JS
+
+<div class="relative inline-block">
+    <div class="group relative">
+        <button class="flex items-center gap-2 rounded-2xl border border-border bg-surface-0 px-4 py-2.5 text-sm font-medium shadow-sm transition-all duration-300 hover:border-primary-500/30 hover:shadow-lg hover:shadow-primary-500/10">
+            <span class="size-2 rounded-full bg-primary-500 animate-pulse"></span>
+            <span class="hidden sm:inline">Palette</span>
+            <svg class="size-4 text-muted transition-transform duration-300 group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.23 7.21L10 10.94l4.71-3.71" clip-rule="evenodd" />
+            </svg>
         </button>
-    }
+
+        <div class="absolute left-0 top-full h-4 w-full"></div>
+
+        <div class="absolute right-0 top-[calc(100%+10px)] invisible scale-95 opacity-0 transition-all duration-300 group-hover:visible group-hover:scale-100 group-hover:opacity-100">
+            <div class="w-72 rounded-[28px] border border-border glass p-4 shadow-2xl">
+                <div class="mb-4 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs uppercase tracking-[0.35em] text-muted">Appearance</div>
+                        <div class="text-sm font-semibold">Pick your journey</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    @foreach (var palette in _palettes)
+                    {
+                        <button @onclick="() => ApplyPalette(palette.Key)" class="rounded-2xl border border-border bg-surface-50 p-3 text-left transition-all duration-300 hover:-translate-y-1 hover:border-primary-500/40 hover:bg-surface-100">
+                            <div class="mb-3 flex gap-1">
+                                <span class="@($"size-4 rounded-full {palette.Primary}")"></span>
+                                <span class="@($"size-4 rounded-full {palette.Accent}")"></span>
+                            </div>
+                            <div class="font-medium">@palette.Name</div>
+                            <div class="text-xs text-muted">@palette.Tagline</div>
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
-    [Inject] private IJSRuntime JS { get; set; } = default!;
-    private string CurrentPalette { get; set; } = "indigo";
+    private readonly Palette[] _palettes = [
+        new("Indigo Gold","default","bg-indigo-500","bg-amber-500","Elegant"),
+        new("Ocean","ocean","bg-cyan-500","bg-orange-500","Fluid"),
+        new("Desert","desert","bg-orange-500","bg-emerald-500","Warm"),
+        new("Neon","neon","bg-emerald-500","bg-cyan-400","Digital")
+    ];
 
-    private Dictionary<string, string> Palettes = new()
-    {
-        ["indigo"] = "linear-gradient(135deg, #6366f1, #f59e0b)",
-        ["ocean"] = "linear-gradient(135deg, #14b8a6, #f97316)",
-        ["desert"] = "linear-gradient(135deg, #d4623d, #4ade80)",
-        ["neon"] = "linear-gradient(135deg, #22c55e, #06b6d4)"
-    };
+    private async Task ApplyPalette(string palette) => await JS.InvokeVoidAsync("setPalette", palette);
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var palette = await JS.InvokeAsync<string?>("localStorage.getItem", "palette");
-            CurrentPalette = palette ?? "indigo";
-            StateHasChanged();
-        }
-    }
-
-    private async Task SetPalette(string palette)
-    {
-        CurrentPalette = palette;
-        await JS.InvokeVoidAsync("setPalette", palette);
-    }
+    private record Palette(string Name, string Key, string Primary, string Accent, string Tagline);
 }

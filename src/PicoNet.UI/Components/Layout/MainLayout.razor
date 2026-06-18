@@ -1,28 +1,48 @@
-﻿@inherits LayoutComponentBase
-@using PicoNet.UI.Components.Shared
-@implements IDisposable
+﻿@using PicoNet.UI.Components.Shared
+@inherits LayoutComponentBase
+@inject IJSRuntime JS
 
-<div class="min-h-screen flex flex-col bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
-    <!-- Error UI -->
+<div class="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-500">
     <div id="blazor-error-ui" class="fixed bottom-4 right-4 z-50 hidden" data-nosnippet>
-        <div class="bg-red-600 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4">
+        <div class="bg-error text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4">
             <span>An unhandled error has occurred.</span>
             <a href="." class="underline font-medium hover:no-underline">Reload</a>
-            <button class="ml-2 text-xl leading-none opacity-70 hover:opacity-100" onclick="document.getElementById('blazor-error-ui').classList.add('hidden')">×</button>
+            <button class="ml-2 text-xl leading-none opacity-70 hover:opacity-100"
+                    onclick="document.getElementById('blazor-error-ui').classList.add('hidden')">×</button>
         </div>
     </div>
-    <!-- Global controls (top right) -->
-    <div class="fixed top-4 right-4 z-50 flex items-center gap-3">
-        <ThemeSelector />
-        <DarkModeToggle />
-    </div>
 
-    <main class="flex-1">
+    <header class="sticky top-0 z-40 border-b border-border/70 bg-background/70 backdrop-blur-xl">
+        <div class="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <a href="/" class="group flex items-center gap-3">
+                <div class="relative flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-accent-500 shadow-lg shadow-primary-500/20 transition-transform duration-300 group-hover:scale-[1.03]">
+                    <span class="text-base font-black text-white">N</span>
+                </div>
+
+                <div class="flex flex-col leading-none">
+                    <span class="text-lg font-bold tracking-tight">NimMas</span>
+                    <span class="text-[10px] font-medium uppercase tracking-[0.35em] text-muted">
+                        نیم‌مسیر
+                    </span>
+                </div>
+            </a>
+
+            <div class="flex items-center gap-3">
+                <PaletteSwitcher />
+                <ThemeToggle />
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 relative">
         @Body
     </main>
 </div>
 
 @code {
-    protected override void OnInitialized() { }
-    public void Dispose() { }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await JS.InvokeVoidAsync("initTheme");
+    }
 }

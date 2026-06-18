@@ -1,36 +1,22 @@
 ﻿<!DOCTYPE html>
-<html lang="en" class="light" data-theme="desert">
-
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <ResourcePreloader />
     <link href="css/output.css" rel="stylesheet" />
+    <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="@Assets["PicoNet.UI.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
     <HeadOutlet />
     <title>نیم مسیر</title>
-
-    <script>
-        (function() {
-            const storedTheme = localStorage.getItem('nimmas-theme') || 'desert';
-            document.documentElement.setAttribute('data-theme', storedTheme);
-            const storedMode = localStorage.getItem('nimmas-mode');
-            if (storedMode === 'dark' ||
-                (!storedMode && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        })();
-    </script>
 </head>
-
-<body class="bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] transition-colors duration-300">
+<body class="bg-background text-foreground transition-colors duration-500">
 <Routes />
 <ReconnectModal />
+<script src="theme.js"></script>
 <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
 </html>

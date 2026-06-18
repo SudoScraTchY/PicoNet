@@ -1,0 +1,40 @@
+﻿<div class="relative h-[280px] w-full overflow-hidden rounded-[40px] glass">
+    <div class="absolute inset-0 mesh-gradient"></div>
+
+    <svg viewBox="0 0 1200 280" class="absolute inset-0 h-full w-full">
+        <defs>
+            <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="var(--color-primary-500)" />
+                <stop offset="100%" stop-color="var(--color-accent-500)" />
+            </linearGradient>
+            <filter id="glow"><feGaussianBlur stdDeviation="8" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+        </defs>
+
+        <path id="travelPath" d="M60 140 C180 40 280 40 400 140 C480 205 560 205 600 140 C640 75 720 75 800 140 C920 240 1020 240 1140 140" fill="none" stroke="url(#pathGradient)" stroke-width="7" stroke-linecap="round" stroke-dasharray="12 14" class="animate-path" />
+
+        <circle cx="60" cy="140" r="18" fill="var(--color-primary-600)" filter="url(#glow)" />
+        <circle cx="600" cy="140" r="26" fill="var(--color-accent-500)" filter="url(#glow)" class="animate-pulse-glow" />
+        <circle cx="1140" cy="140" r="18" fill="var(--color-primary-600)" filter="url(#glow)" />
+
+        <circle r="14" fill="var(--color-primary-500)" filter="url(#glow)">
+            <animateMotion dur="4.8s" repeatCount="indefinite" rotate="auto">
+                <mpath href="#travelPath" />
+            </animateMotion>
+        </circle>
+    </svg>
+
+    <div class="absolute left-[42px] top-[162px]">
+        <div class="text-sm text-muted">Start</div>
+        <div class="font-semibold">Your Link</div>
+    </div>
+
+    <div class="absolute left-1/2 top-[58px] -translate-x-1/2 text-center">
+        <div class="gradient-text text-lg font-bold">نیم‌ مسیر</div>
+        <div class="text-xs text-muted">Half-way there</div>
+    </div>
+
+    <div class="absolute right-[44px] top-[162px] text-right">
+        <div class="text-sm text-muted">Destination</div>
+        <div class="font-semibold">Reached</div>
+    </div>
+</div>

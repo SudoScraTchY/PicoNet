@@ -1,0 +1,12 @@
+﻿@implements IDisposable
+
+<span class="text-[10px] tracking-[0.35em] uppercase text-muted">@Texts[_index]</span>
+
+@code {
+    private int _index;
+    private Timer? _timer;
+    private readonly string[] Texts = ["Half-Way There", "Shorter Journeys", "Link Less. Reach More.", "Direction Matters", "Every Click Counts"];
+
+    protected override void OnInitialized() => _timer = new Timer(_ => { _index = (_index + 1) % Texts.Length; InvokeAsync(StateHasChanged); }, null, 3000, 3000);
+    public void Dispose() => _timer?.Dispose();
+}
