@@ -1,0 +1,15 @@
+﻿<!-- Inline spinner used inside Redirect.razor -->
+@code {
+    [Parameter] public bool Static { get; set; } = false;
+}
+
+<div class="flex justify-center">
+    <svg class="w-20 h-20 @(Static ? "" : "animate-spin-slow") text-[var(--color-accent)]" viewBox="0 0 24 24" fill="none">
+        <!-- Outer ring -->
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.4" />
+        <!-- Needle -->
+        <path d="M12 2 L16 12 L12 22 L8 12 Z" fill="currentColor" />
+        <!-- Center dot -->
+        <circle cx="12" cy="12" r="1.5" fill="white" />
+    </svg>
+</div>

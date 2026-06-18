@@ -1,268 +1,167 @@
 ﻿@page "/{ShortCode}"
-@using System.Timers
 @using ErrorOr
 @using PicoNet.UI.ApiClients.Interfaces
 @using PicoNet.UI.Components.Shared
 @inject IRedirectClient RedirectClient
 @inject NavigationManager Nav
+@implements IDisposable
 
-<PageTitle>Redirecting... | NimMas</PageTitle>
+<PageTitle>@(_state == RedirectState.Loading ? "Loading..." : "نیم مسیر - Redirect")</PageTitle>
 
-<div class="relative min-h-[calc(100vh-4rem)] flex items-center justify-center overflow-hidden">
-    <!-- Background -->
-    <div class="absolute inset-0 mesh-gradient"></div>
-    <div class="absolute inset-0 bg-background/80 backdrop-blur-3xl"></div>
-
-    <!-- Floating orbs -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        @for (int i = 0; i < 6; i++)
-        {
-            <div class="absolute rounded-full bg-primary-500/20 animate-float"
-                 style="width: @(20 + i * 15)px; height: @(20 + i * 15)px;
-                        left: @(10 + i * 15)%; top: @(20 + (i % 3) * 25)%;
-                        animation-delay: @(i * 0.5)s; animation-duration: @(3 + i * 0.5)s;">
-            </div>
-        }
-    </div>
-
-    @if (_loading)
+<div class="min-h-screen flex items-center justify-center p-4 bg-[var(--color-bg-primary)] transition-all duration-500">
+    @if (_state == RedirectState.Loading)
     {
-        <div class="relative z-10 animate-fade-in">
-            <LoadingSpinner Text="Resolving your link..." />
+        <!-- Loading spinner with brand -->
+        <div class="text-center animate-fade-in-up">
+            <CompassSpinner />
+            <p class="mt-6 text-2xl font-bold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">
+                نیم مسیر
+            </p>
+            <p class="text-sm text-[var(--color-text-secondary)] mt-2">Preparing your path...</p>
         </div>
     }
-    else if (_hasPassword)
+    else if (_state == RedirectState.PasswordRequired)
     {
-        <!-- Password Card -->
-        <div class="relative z-10 w-full max-w-md mx-4 animate-fade-in-up">
-            <div class="rounded-3xl glass border border-border shadow-2xl shadow-primary-500/10 p-8">
-                <div class="mx-auto size-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25 mb-6">
-                    <svg class="size-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+        <!-- Password gate -->
+        <div class="w-full max-w-md animate-fade-in-up">
+            <div class="text-center mb-8">
+                <CompassSpinner static />
+                <h2 class="mt-4 text-3xl font-extrabold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">Protected Path</h2>
+                <p class="mt-2 text-[var(--color-text-secondary)]">This link requires a password</p>
+            </div>
+            <div class="bg-white/30 dark:bg-black/30 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/20 dark:border-white/10">
+                <div class="flex flex-col gap-4">
+                    <input type="password" @bind="Password"
+                           placeholder="Enter password"
+                           class="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-black/50 border border-white/30 dark:border-white/20
+                                  text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)]
+                                  focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all" />
+                    <button @onclick="SubmitPassword"
+                            class="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)]
+                                   text-white shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+                        Continue on Path
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+    else if (_state == RedirectState.NotFound)
+    {
+        <!-- 404 styled -->
+        <div class="text-center animate-fade-in-up">
+            <div class="text-8xl font-black bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">404</div>
+            <h2 class="mt-4 text-2xl font-bold text-[var(--color-text-primary)]">Halfway Lost</h2>
+            <p class="mt-2 text-[var(--color-text-secondary)] max-w-sm mx-auto">
+                The path you’re looking for doesn’t exist or has expired.
+            </p>
+            <a href="/" class="inline-block mt-6 px-6 py-3 rounded-full bg-[var(--color-primary)] text-white hover:bg-[var(--color-accent)] transition-colors duration-300">
+                Start a New Journey
+            </a>
+        </div>
+    }
+    else if (_state == RedirectState.Ready)
+    {
+        <!-- Landing interstitial -->
+        <div class="w-full max-w-lg animate-fade-in-up">
+            <div class="text-center">
+                <!-- Brand visual: half circle symbol -->
+                <div class="mx-auto w-32 h-32 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] flex items-center justify-center shadow-2xl mb-6">
+                    <svg class="w-16 h-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                 </div>
-
-                <h2 class="text-2xl font-bold text-center mb-2">Protected Link</h2>
-                <p class="text-muted text-center mb-8">This shortened URL requires a password to access.</p>
-
-                <div class="space-y-4">
-                    <div class="relative">
-                        <InputText type="password" @bind-Value="@Password"
-                                   class="w-full rounded-xl border border-border bg-surface-50 px-4 py-3.5 text-foreground placeholder:text-muted focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
-                                   placeholder="Enter password..." />
-                    </div>
-
-                    <button @onclick="SubmitPassword"
-                            class="w-full rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white font-semibold py-3.5 px-4 hover:shadow-lg hover:shadow-primary-500/25 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2">
-                        <span>Unlock & Continue</span>
-                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                        </svg>
-                    </button>
+                <h1 class="text-4xl font-extrabold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">
+                    نیم مسیر
+                </h1>
+                <p class="mt-2 text-lg text-[var(--color-text-secondary)]">
+                    Your bridge to the destination.
+                </p>
+                <p class="text-sm text-[var(--color-text-secondary)] mt-1">
+                    Redirecting in <span class="font-mono font-bold text-[var(--color-accent)]">@countdown</span>s
+                </p>
+                <!-- Progress bar -->
+                <div class="mt-6 h-1.5 w-full bg-white/30 dark:bg-black/30 rounded-full overflow-hidden backdrop-blur-sm">
+                    <div class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] transition-all duration-1000 ease-linear"
+                         style="width: @((countdown / 5.0 * 100).ToString("F0"))%"></div>
                 </div>
+                <button @onclick="GoNow"
+                        class="mt-6 px-8 py-3 rounded-full font-semibold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)]
+                               text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
+                    Go Now
+                </button>
             </div>
-        </div>
-    }
-    else if (_resolvedUrl != null)
-    {
-        <!-- Countdown Redirect Card -->
-        <div class="relative z-10 w-full max-w-lg mx-4 animate-fade-in-up">
-            <div class="rounded-3xl glass border border-border shadow-2xl shadow-primary-500/10 overflow-hidden">
-                <!-- Header -->
-                <div class="relative h-32 bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center overflow-hidden">
-                    <div class="absolute inset-0 opacity-20">
-                        <svg class="absolute inset-0 w-full h-full" viewBox="0 0 400 150" preserveAspectRatio="none">
-                            <path d="M0,75 Q100,20 200,75 T400,75" fill="none" stroke="white" stroke-width="2" opacity="0.5" />
-                            <path d="M0,75 Q100,130 200,75 T400,75" fill="none" stroke="white" stroke-width="2" opacity="0.3" />
-                        </svg>
-                    </div>
-                    <div class="relative text-center text-white">
-                        <p class="text-sm font-medium opacity-90 uppercase tracking-wider mb-1">You're almost there</p>
-                        <h2 class="text-3xl font-bold">نیم‌راه هستید</h2>
-                    </div>
-                </div>
-
-                <div class="p-8">
-                    <!-- Destination -->
-                    <div class="mb-8">
-                        <p class="text-xs font-semibold text-muted uppercase tracking-wider mb-2">Destination</p>
-                        <div class="flex items-center gap-3 rounded-xl bg-surface-50 border border-border p-4">
-                            <div class="size-10 rounded-lg bg-primary-500/10 flex items-center justify-center shrink-0">
-                                <svg class="size-5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                </svg>
-                            </div>
-                            <div class="min-w-0">
-                                <p class="text-sm font-medium text-foreground truncate">@_resolvedUrl</p>
-                                <p class="text-xs text-muted">Original URL</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Countdown -->
-                    <div class="flex items-center justify-center mb-8">
-                        <div class="relative size-24">
-                            <svg class="size-24 -rotate-90" viewBox="0 0 100 100">
-                                <circle cx="50" cy="50" r="45" fill="none" stroke="var(--border)" stroke-width="6" />
-                                <circle cx="50" cy="50" r="45" fill="none" stroke="var(--primary-500)" stroke-width="6"
-                                        stroke-linecap="round" stroke-dasharray="283"
-                                        class="transition-all duration-1000 ease-linear"
-                                        style="stroke-dashoffset: @(_progress * 2.83)" />
-                            </svg>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">@_countdown</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Ad / Self-promotion Card -->
-                    <div class="rounded-2xl bg-gradient-to-br from-surface-50 to-surface-100 dark:from-surface-50/50 dark:to-surface-100/50 border border-border p-5 mb-6">
-                        <div class="flex items-start gap-4">
-                            <div class="size-12 rounded-xl bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center shadow-lg shadow-accent-500/20 shrink-0">
-                                <span class="text-white font-bold text-lg">N</span>
-                            </div>
-                            <div>
-                                <p class="text-sm font-semibold text-foreground mb-1">NimMas.ir — نیم مسیر</p>
-                                <p class="text-xs text-muted leading-relaxed">The smartest way to shorten your links. Track clicks, protect with passwords, and customize your URLs.</p>
-                            </div>
-                        </div>
-                        <a href="/" class="mt-4 block w-full text-center rounded-lg bg-surface-0 dark:bg-surface-100 border border-border py-2 text-sm font-medium text-foreground hover:border-primary-500 hover:text-primary-600 transition-colors">
-                            Learn More
-                        </a>
-                    </div>
-
-                    <!-- Skip -->
-                    <button @onclick="SkipCountdown"
-                            class="w-full rounded-xl bg-foreground text-background font-semibold py-3.5 px-4 hover:opacity-90 active:scale-[0.98] transition-all duration-200">
-                        Skip & Go Now
-                    </button>
-                </div>
-            </div>
-        </div>
-    }
-    else
-    {
-        <!-- Not Found -->
-        <div class="relative z-10 text-center animate-fade-in-up">
-            <div class="mx-auto size-24 rounded-full bg-error/10 flex items-center justify-center mb-6">
-                <svg class="size-12 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-            </div>
-            <h2 class="text-3xl font-bold mb-4">Link Not Found</h2>
-            <p class="text-muted max-w-md mx-auto mb-8">The short URL you're looking for doesn't exist or is no longer available.</p>
-
-            <div class="flex flex-col gap-3 max-w-sm mx-auto mb-8">
-                @foreach (var reason in _errorReasons)
-                {
-                    <div class="flex items-center gap-3 rounded-xl bg-surface-50 border border-border px-4 py-3">
-                        <div class="size-2 rounded-full bg-error shrink-0"></div>
-                        <span class="text-sm text-foreground">@reason</span>
-                    </div>
-                }
-            </div>
-
-            <a href="/" class="inline-flex items-center gap-2 rounded-xl bg-primary-600 text-white font-semibold py-3 px-6 hover:shadow-lg hover:shadow-primary-500/25 transition-all">
-                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
-                Back to Home
-            </a>
         </div>
     }
 </div>
 
 @code {
-    [Parameter] public string ShortCode { get; set; } = "";
-    [Parameter] public string Password { get; set; } = "";
+    [Parameter]
+    public string ShortCode { get; set; } = "";
 
-    private bool _loading = true;
-    private bool _hasPassword;
-    private string? _resolvedUrl;
-    private int _countdown = 5;
-    private int _progress;
+    private RedirectState _state = RedirectState.Loading;
+    private string _destination = "";
+    private string Password { get; set; } = "";
+    private int countdown = 5;
     private Timer? _timer;
 
-    private const int CountdownSeconds = 5;
-
-    private readonly List<string> _errorReasons =
-    [
-        "The short URL has expired",
-        "The short URL is currently inactive",
-        "The short code is incorrect or doesn't exist"
-    ];
+    enum RedirectState { Loading, Ready, PasswordRequired, NotFound }
 
     protected override async Task OnInitializedAsync()
     {
-        await ResolveLink();
+        await ResolveUrl();
     }
 
-    private async Task ResolveLink()
+    private async Task ResolveUrl()
     {
+        // Simulate your actual client call
+        ShortCode = "HasPassword"; // for testing password
         var result = await RedirectClient.ResolveAsync(ShortCode, Password);
 
         if (result.IsError)
         {
-            if (result.Errors.Any(x => x.Type == ErrorType.Unauthorized))
+            if (result.Errors.Any(e => e.Type == ErrorType.Unauthorized))
             {
-                _hasPassword = true;
-                _loading = false;
+                _state = RedirectState.PasswordRequired;
                 return;
             }
-            else
-            {
-                _loading = false;
-                return;
-            }
+            _state = RedirectState.NotFound;
+            return;
         }
 
-        _resolvedUrl = result.Value.OriginalUrl;
-        _loading = false;
+        _destination = result.Value.OriginalUrl;
+        _state = RedirectState.Ready;
         StartCountdown();
-    }
-
-    private void StartCountdown()
-    {
-        _countdown = CountdownSeconds;
-        _progress = 100;
-        _timer = new Timer(1000);
-        _timer.Elapsed += async (_, _) =>
-        {
-            _countdown--;
-            _progress = _countdown * 100 / CountdownSeconds;
-
-            if (_countdown <= 0)
-            {
-                _timer?.Stop();
-                _timer?.Dispose();
-                await InvokeAsync(PerformRedirect);
-            }
-
-            await InvokeAsync(StateHasChanged);
-        };
-        _timer.AutoReset = true;
-        _timer.Start();
-    }
-
-    private void SkipCountdown()
-    {
-        _timer?.Stop();
-        _timer?.Dispose();
-        PerformRedirect();
-    }
-
-    private void PerformRedirect()
-    {
-        if (!string.IsNullOrEmpty(_resolvedUrl))
-        {
-            Nav.NavigateTo(_resolvedUrl, forceLoad: true);
-        }
     }
 
     private async Task SubmitPassword()
     {
-        _loading = true;
-        await ResolveLink();
+        _state = RedirectState.Loading;
+        await ResolveUrl();
+    }
+
+    private void StartCountdown()
+    {
+        _timer = new Timer(async _ =>
+        {
+            if (countdown > 0)
+            {
+                countdown--;
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                await GoNow();
+            }
+        }, null, 1000, 1000);
+    }
+
+    private async Task GoNow()
+    {
+        _timer?.Dispose();
+        if (!string.IsNullOrEmpty(_destination))
+        {
+            Nav.NavigateTo(_destination, forceLoad: true);
+        }
     }
 
     public void Dispose()
