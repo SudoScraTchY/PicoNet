@@ -1,0 +1,43 @@
+﻿<div class="flex items-center gap-2">
+    @foreach (var palette in Palettes)
+    {
+        <button @onclick="() => SetPalette(palette.Key)"
+                class="group relative size-8 rounded-full border-2 transition-all duration-300 @(CurrentPalette == palette.Key ? "border-foreground scale-110" : "border-transparent hover:scale-105")"
+                style="background: @palette.Value"
+                title="@palette.Key">
+            @if (CurrentPalette == palette.Key)
+            {
+                <span class="absolute -inset-1 rounded-full border-2 border-primary-500 animate-pulse"></span>
+            }
+        </button>
+    }
+</div>
+
+@code {
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+    private string CurrentPalette { get; set; } = "indigo";
+
+    private Dictionary<string, string> Palettes = new()
+    {
+        ["indigo"] = "linear-gradient(135deg, #6366f1, #f59e0b)",
+        ["ocean"] = "linear-gradient(135deg, #14b8a6, #f97316)",
+        ["desert"] = "linear-gradient(135deg, #d4623d, #4ade80)",
+        ["neon"] = "linear-gradient(135deg, #22c55e, #06b6d4)"
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var palette = await JS.InvokeAsync<string?>("localStorage.getItem", "palette");
+            CurrentPalette = palette ?? "indigo";
+            StateHasChanged();
+        }
+    }
+
+    private async Task SetPalette(string palette)
+    {
+        CurrentPalette = palette;
+        await JS.InvokeVoidAsync("setPalette", palette);
+    }
+}

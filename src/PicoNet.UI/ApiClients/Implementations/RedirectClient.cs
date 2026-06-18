@@ -17,7 +17,7 @@ public class RedirectClient : IRedirectClient
             return Error.NotFound();
         
         if (shortCode == "success") 
-            return new RedirectUrlResult("www.google.com")
+            return new RedirectUrlResult(@"https://www.google.com")
             {
                 IsPasswordProtected = true,
                 MaxClicks = 10

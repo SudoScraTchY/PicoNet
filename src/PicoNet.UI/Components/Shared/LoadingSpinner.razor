@@ -1,5 +1,22 @@
-﻿<div class="flex items-center justify-center py-12">
-    <div
-        class="size-10 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-600">
+﻿<div class="flex flex-col items-center justify-center gap-4">
+    <div class="relative size-20">
+        <svg class="size-20" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" stroke-width="3" opacity="0.3" />
+            <circle cx="50" cy="50" r="42" fill="none" stroke="var(--primary-500)" stroke-width="3"
+                    stroke-linecap="round" stroke-dasharray="60 200"
+                    class="origin-center animate-spin" style="animation-duration: 1.2s;" />
+            <circle cx="50" cy="50" r="10" fill="var(--primary-500)" class="animate-pulse-glow origin-center" />
+            <circle cx="50" cy="8" r="5" fill="var(--accent-500)">
+                <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="2s" repeatCount="indefinite" />
+            </circle>
+        </svg>
     </div>
+    @if (!string.IsNullOrEmpty(Text))
+    {
+        <p class="text-sm text-muted font-medium tracking-wide animate-pulse">@Text</p>
+    }
 </div>
+
+@code {
+    [Parameter] public string? Text { get; set; }
+}

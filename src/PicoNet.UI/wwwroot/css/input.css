@@ -1,114 +1,201 @@
 ﻿@import "tailwindcss";
 
-@layer base {
-    :root {
-        color-scheme: light;
-        --bg: 247 248 252;
-        --surface: 255 255 255;
-        --surface-2: 241 245 249;
-        --text: 15 23 42;
-        --muted: 100 116 139;
-        --border: 226 232 240;
-        --primary: 79 70 229;
-        --primary-2: 14 165 233;
-        --accent: 245 158 11;
-        --success: 34 197 94;
-        --danger: 239 68 68;
-        --shadow: 15 23 42;
-    }
+/* Enable class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
 
-    :root.dark {
-        color-scheme: dark;
-        --bg: 6 10 20;
-        --surface: 15 23 42;
-        --surface-2: 30 41 59;
-        --text: 226 232 240;
-        --muted: 148 163 184;
-        --border: 51 65 85;
-        --shadow: 0 0 0;
-    }
+@theme {
+    --font-sans: 'Inter', 'Vazirmatn', system-ui, -apple-system, sans-serif;
 
-    :root[data-palette="nim-indigo"] {
-        --primary: 99 102 241;
-        --primary-2: 56 189 248;
-        --accent: 250 204 21;
-    }
+    /* Core palette mapped to CSS variables */
+    --color-primary-50: var(--primary-50);
+    --color-primary-100: var(--primary-100);
+    --color-primary-200: var(--primary-200);
+    --color-primary-300: var(--primary-300);
+    --color-primary-400: var(--primary-400);
+    --color-primary-500: var(--primary-500);
+    --color-primary-600: var(--primary-600);
+    --color-primary-700: var(--primary-700);
+    --color-primary-800: var(--primary-800);
+    --color-primary-900: var(--primary-900);
+    --color-primary-950: var(--primary-950);
 
-    :root[data-palette="desert-gold"] {
-        --primary: 245 158 11;
-        --primary-2: 251 191 36;
-        --accent: 79 70 229;
-    }
+    --color-accent-400: var(--accent-400);
+    --color-accent-500: var(--accent-500);
+    --color-accent-600: var(--accent-600);
 
-    :root[data-palette="mint-night"] {
-        --primary: 16 185 129;
-        --primary-2: 45 212 191;
-        --accent: 168 85 247;
-    }
+    --color-surface-0: var(--surface-0);
+    --color-surface-50: var(--surface-50);
+    --color-surface-100: var(--surface-100);
+    --color-surface-200: var(--surface-200);
+    --color-surface-300: var(--surface-300);
 
-    :root[data-palette="rose-ink"] {
-        --primary: 244 63 94;
-        --primary-2: 236 72 153;
-        --accent: 59 130 246;
-    }
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-muted: var(--muted);
+    --color-border: var(--border);
 
-    html, body {
-        min-height: 100%;
-        background: rgb(var(--bg));
-        color: rgb(var(--text));
-        transition: background-color 250ms ease, color 250ms ease;
-    }
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-error: var(--error);
 
-    body {
-        background:
-                radial-gradient(circle at top left, rgb(var(--primary) / 0.16), transparent 32%),
-                radial-gradient(circle at top right, rgb(var(--accent) / 0.12), transparent 28%),
-                linear-gradient(180deg, rgb(var(--bg)), rgb(var(--bg)));
-    }
+    /* Custom animations */
+    --animate-float: float 3s ease-in-out infinite;
+    --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+    --animate-fade-in: fade-in 0.5s ease-out forwards;
+    --animate-fade-in-up: fade-in-up 0.6s ease-out forwards;
+    --animate-path-draw: path-draw 2s ease-in-out infinite alternate;
+    --animate-shimmer: shimmer 2s linear infinite;
 }
 
-@layer utilities {
-    .bg-app { background-color: rgb(var(--bg)); }
-    .bg-surface { background-color: rgb(var(--surface)); }
-    .bg-surface-2 { background-color: rgb(var(--surface-2)); }
-    .text-app { color: rgb(var(--text)); }
-    .text-muted { color: rgb(var(--muted)); }
-    .border-app { border-color: rgb(var(--border)); }
+/* ==================== PALETTE 1: INDIGO GOLD (Default) ==================== */
+:root {
+    --primary-50: #eef2ff; --primary-100: #e0e7ff; --primary-200: #c7d2fe;
+    --primary-300: #a5b4fc; --primary-400: #818cf8; --primary-500: #6366f1;
+    --primary-600: #4f46e5; --primary-700: #4338ca; --primary-800: #3730a3;
+    --primary-900: #312e81; --primary-950: #1e1b4b;
 
-    .shadow-soft {
-        box-shadow: 0 20px 60px rgb(var(--shadow) / 0.18);
-    }
+    --accent-400: #fbbf24; --accent-500: #f59e0b; --accent-600: #d97706;
 
-    .glass {
-        background: rgb(var(--surface) / 0.72);
-        backdrop-filter: blur(20px);
-    }
+    --surface-0: #ffffff; --surface-50: #f8fafc; --surface-100: #f1f5f9;
+    --surface-200: #e2e8f0; --surface-300: #cbd5e1;
+
+    --background: #f8fafc; --foreground: #0f172a; --muted: #64748b;
+    --border: #e2e8f0;
+
+    --success: #10b981; --warning: #f59e0b; --error: #ef4444;
 }
 
-@keyframes floaty {
-    0%, 100% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-14px) scale(1.03); }
+:root.dark {
+    --primary-50: #1e1b4b; --primary-100: #312e81; --primary-200: #3730a3;
+    --primary-300: #4338ca; --primary-400: #4f46e5; --primary-500: #6366f1;
+    --primary-600: #818cf8; --primary-700: #a5b4fc; --primary-800: #c7d2fe;
+    --primary-900: #e0e7ff; --primary-950: #eef2ff;
+
+    --accent-400: #fbbf24; --accent-500: #f59e0b; --accent-600: #d97706;
+
+    --surface-0: #0f172a; --surface-50: #1e293b; --surface-100: #334155;
+    --surface-200: #475569; --surface-300: #64748b;
+
+    --background: #020617; --foreground: #f8fafc; --muted: #94a3b8;
+    --border: #334155;
 }
 
-@keyframes pulse-ring {
-    0% { transform: scale(0.85); opacity: 0.7; }
-    70% { transform: scale(1.25); opacity: 0; }
-    100% { transform: scale(1.25); opacity: 0; }
+/* ==================== PALETTE 2: OCEAN MIDWAY ==================== */
+[data-palette="ocean"] {
+    --primary-50: #f0fdfa; --primary-100: #ccfbf1; --primary-200: #99f6e4;
+    --primary-300: #5eead4; --primary-400: #2dd4bf; --primary-500: #14b8a6;
+    --primary-600: #0d9488; --primary-700: #0f766e; --primary-800: #115e59;
+    --primary-900: #134e4a; --primary-950: #042f2e;
+
+    --accent-400: #fb923c; --accent-500: #f97316; --accent-600: #ea580c;
 }
 
-@keyframes slide-progress {
-    0% { transform: translateX(-120%); }
-    100% { transform: translateX(320%); }
+[data-palette="ocean"].dark, .dark[data-palette="ocean"] {
+    --primary-50: #042f2e; --primary-100: #134e4a; --primary-200: #115e59;
+    --primary-300: #0f766e; --primary-400: #0d9488; --primary-500: #14b8a6;
+    --primary-600: #2dd4bf; --primary-700: #5eead4; --primary-800: #99f6e4;
+    --primary-900: #ccfbf1; --primary-950: #f0fdfa;
 }
 
-.animate-floaty {
-    animation: floaty 6s ease-in-out infinite;
+/* ==================== PALETTE 3: DESERT DUSK ==================== */
+[data-palette="desert"] {
+    --primary-50: #fdf4ef; --primary-100: #fbe5d8; --primary-200: #f6c7b0;
+    --primary-300: #eea47e; --primary-400: #e07a52; --primary-500: #d4623d;
+    --primary-600: #c44d2f; --primary-700: #a33c28; --primary-800: #863326;
+    --primary-900: #6f2e24; --primary-950: #3c150f;
+
+    --accent-400: #86efac; --accent-500: #4ade80; --accent-600: #22c55e;
 }
 
-.animate-pulse-ring {
-    animation: pulse-ring 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+[data-palette="desert"].dark, .dark[data-palette="desert"] {
+    --primary-50: #3c150f; --primary-100: #6f2e24; --primary-200: #863326;
+    --primary-300: #a33c28; --primary-400: #c44d2f; --primary-500: #d4623d;
+    --primary-600: #e07a52; --primary-700: #eea47e; --primary-800: #f6c7b0;
+    --primary-900: #fbe5d8; --primary-950: #fdf4ef;
+
+    --surface-0: #1c1917; --surface-50: #292524; --surface-100: #44403c;
+    --surface-200: #57534e; --surface-300: #78716c;
+    --background: #0c0a09; --foreground: #fafaf9; --muted: #a8a29e;
+    --border: #44403c;
 }
 
-.animate-slide-progress {
-    animation: slide-progress 1.5s linear infinite;
+/* ==================== PALETTE 4: DIGITAL NEON ==================== */
+[data-palette="neon"] {
+    --primary-50: #f0fdf4; --primary-100: #dcfce7; --primary-200: #bbf7d0;
+    --primary-300: #86efac; --primary-400: #4ade80; --primary-500: #22c55e;
+    --primary-600: #16a34a; --primary-700: #15803d; --primary-800: #166534;
+    --primary-900: #14532d; --primary-950: #052e16;
+
+    --accent-400: #22d3ee; --accent-500: #06b6d4; --accent-600: #0891b2;
+}
+
+[data-palette="neon"].dark, .dark[data-palette="neon"] {
+    --primary-50: #052e16; --primary-100: #14532d; --primary-200: #166534;
+    --primary-300: #15803d; --primary-400: #16a34a; --primary-500: #22c55e;
+    --primary-600: #4ade80; --primary-700: #86efac; --primary-800: #bbf7d0;
+    --primary-900: #dcfce7; --primary-950: #f0fdf4;
+}
+
+/* ==================== KEYFRAMES ==================== */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes path-draw {
+    0% { stroke-dashoffset: 600; opacity: 0; }
+    10% { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* ==================== UTILITIES ==================== */
+.mesh-gradient {
+    background:
+            radial-gradient(at 40% 20%, var(--primary-500) 0px, transparent 50%),
+            radial-gradient(at 80% 0%, var(--accent-500) 0px, transparent 50%),
+            radial-gradient(at 0% 50%, var(--primary-300) 0px, transparent 50%),
+            radial-gradient(at 80% 50%, var(--primary-700) 0px, transparent 50%),
+            radial-gradient(at 0% 100%, var(--accent-500) 0px, transparent 50%);
+    opacity: 0.12;
+}
+
+.dark .mesh-gradient {
+    opacity: 0.08;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.glass {
+    background: color-mix(in srgb, var(--surface-0) 80%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+    background: color-mix(in srgb, var(--surface-0) 70%, transparent);
 }

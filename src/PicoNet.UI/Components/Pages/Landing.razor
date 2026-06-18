@@ -1,0 +1,146 @@
+﻿@page "/"
+
+<PageTitle>NimMas — نیم مسیر | Smart URL Shortener</PageTitle>
+
+<div class="relative overflow-hidden">
+    <!-- Hero -->
+    <div class="relative pt-20 pb-32 lg:pt-32 lg:pb-40">
+        <div class="absolute inset-0 mesh-gradient"></div>
+        <div class="absolute inset-0 bg-background/60 backdrop-blur-3xl"></div>
+
+        <div class="absolute top-20 left-10 size-72 rounded-full bg-primary-500/20 blur-3xl animate-pulse-glow"></div>
+        <div class="absolute bottom-20 right-10 size-96 rounded-full bg-accent-500/20 blur-3xl animate-pulse-glow" style="animation-delay: 1s;"></div>
+
+        <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <!-- Badge -->
+                <div class="mb-8 inline-flex items-center gap-2 rounded-full border border-primary-500/20 bg-primary-500/10 px-4 py-1.5">
+                    <span class="relative flex size-2">
+                        <span class="absolute inline-flex size-full animate-ping rounded-full bg-primary-500 opacity-75"></span>
+                        <span class="relative inline-flex size-2 rounded-full bg-primary-500"></span>
+                    </span>
+                    <span class="text-sm font-medium text-primary-600 dark:text-primary-400">Free & Open Source</span>
+                </div>
+
+                <h1 class="mx-auto max-w-4xl text-5xl font-extrabold tracking-tight sm:text-7xl mb-6">
+                    <span class="block text-foreground">Shorten Your</span>
+                    <span class="block gradient-text">Journey</span>
+                </h1>
+
+                <p class="mx-auto max-w-2xl text-lg text-muted mb-10 leading-relaxed">
+                    نیم مسیر — The intelligent URL shortener that protects, tracks, and beautifies your links.
+                    From long URLs to memorable shortcuts in seconds.
+                </p>
+
+                <!-- Path Visualization -->
+                <div class="mx-auto max-w-2xl mb-12">
+                    <svg class="w-full h-20" viewBox="0 0 600 80" fill="none">
+                        <path d="M10,40 C50,5 100,75 150,40 C200,5 250,75 300,40 C350,5 400,75 450,40 C500,5 550,75 590,40"
+                              stroke="var(--border)" stroke-width="3" fill="none" stroke-linecap="round" class="opacity-40" />
+                        <path d="M10,40 L590,40"
+                              stroke="var(--primary-500)" stroke-width="4" fill="none" stroke-linecap="round"
+                              stroke-dasharray="600" stroke-dashoffset="600" class="animate-path-draw" />
+                        <circle cx="10" cy="40" r="6" fill="var(--primary-500)" class="animate-pulse-glow" />
+                        <circle cx="590" cy="40" r="6" fill="var(--accent-500)" class="animate-pulse-glow" style="animation-delay: 0.5s;" />
+                    </svg>
+                    <p class="text-xs text-muted font-medium tracking-widest uppercase">Long path → Short path</p>
+                </div>
+
+                <!-- URL Input -->
+                <div class="mx-auto max-w-2xl">
+                    <div class="relative flex items-center rounded-2xl bg-surface-0 border border-border shadow-xl shadow-primary-500/5 p-2">
+                        <div class="pl-4 pr-3 text-muted">
+                            <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                        </div>
+                        <input type="text"
+                               class="flex-1 bg-transparent py-3 text-foreground placeholder:text-muted outline-none"
+                               placeholder="Paste your long URL here..." />
+                        <button class="rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white font-semibold py-3 px-6 hover:shadow-lg hover:shadow-primary-500/25 active:scale-95 transition-all duration-200 shrink-0">
+                            Shorten
+                        </button>
+                    </div>
+                    <p class="mt-3 text-sm text-muted">No signup required. Free forever.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="relative border-t border-border bg-surface-50/50">
+        <div class="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-foreground mb-4">Everything You Need</h2>
+                <p class="text-muted max-w-xl mx-auto">Powerful features designed for modern link management</p>
+            </div>
+
+            <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach (var feature in _features)
+                {
+                    <div class="group relative rounded-2xl bg-surface-0 border border-border p-8 hover:border-primary-500/30 hover:shadow-xl hover:shadow-primary-500/5 transition-all duration-300">
+                        <div class="mb-5 inline-flex size-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 items-center justify-center shadow-lg shadow-primary-500/20 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="size-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                @((MarkupString)feature.Icon)
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-foreground mb-2">@feature.Title</h3>
+                        <p class="text-sm text-muted leading-relaxed">@feature.Description</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="relative border-t border-border">
+        <div class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+            <div class="grid gap-8 sm:grid-cols-3 text-center">
+                @foreach (var stat in _stats)
+                {
+                    <div class="rounded-2xl bg-surface-0 border border-border p-8 hover:border-primary-500/20 transition-colors duration-300">
+                        <div class="text-4xl font-extrabold gradient-text mb-2">@stat.Value</div>
+                        <div class="text-sm font-medium text-muted uppercase tracking-wider">@stat.Label</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="relative border-t border-border overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-accent-500/5"></div>
+        <div class="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold text-foreground mb-4">Ready to Shorten?</h2>
+            <p class="text-muted max-w-xl mx-auto mb-8">Join thousands of users who trust NimMas for their link management needs.</p>
+            <a href="/" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white font-semibold py-4 px-8 hover:shadow-xl hover:shadow-primary-500/25 active:scale-95 transition-all duration-200">
+                <span>Get Started Free</span>
+                <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+                </svg>
+            </a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Feature> _features = new()
+    {
+        new Feature("Lightning Fast", "Redirects optimized for speed with global edge caching.", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z\" />"),
+        new Feature("Password Protection", "Secure sensitive links with custom passwords.", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z\" />"),
+        new Feature("Click Analytics", "Track engagement with detailed click statistics.", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z\" />"),
+        new Feature("Custom Aliases", "Create memorable short links with your own keywords.", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z\" /><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M6 6h.008v.008H6V6z\" />"),
+        new Feature("Expiration Control", "Set custom expiration dates for temporary links.", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z\" />"),
+        new Feature("API Access", "Integrate link shortening into your applications.", "<path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5\" />")
+    };
+
+    private List<Stat> _stats = new()
+    {
+        new Stat("1M+", "Links Shortened"),
+        new Stat("99.9%", "Uptime"),
+        new Stat("50ms", "Avg Redirect")
+    };
+
+    public record Feature(string Title, string Description, string Icon);
+    public record Stat(string Value, string Label);
+}

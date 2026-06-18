@@ -1,28 +1,66 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <ResourcePreloader />
+
+    <!-- Fonts: Inter for Latin, Vazirmatn for Persian -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <link href="css/output.css" rel="stylesheet" />
     <link rel="stylesheet" href="@Assets["PicoNet.UI.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
     <HeadOutlet />
     <title>نیم مسیر</title>
-    
+
+    <!-- Critical: Prevent FOUC (flash of unstyled content) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+            const palette = localStorage.getItem('palette') || 'indigo';
+            document.documentElement.setAttribute('data-palette', palette);
+        })();
+    </script>
 </head>
 
-<body>
-    <Routes @rendermode="InteractiveServer" />
+<body class="bg-background text-foreground antialiased">
+    <Routes @rendermode="InteractiveServer"/>
     <ReconnectModal />
-    <script src="theme.js"></script>
+
     <script>
-        window.nimTheme?.init?.();
+        window.toggleTheme = function() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            return isDark;
+        };
+
+        window.setPalette = function(palette) {
+            document.documentElement.setAttribute('data-palette', palette);
+            localStorage.setItem('palette', palette);
+        };
+
+        window.initTheme = function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            const palette = localStorage.getItem('palette') || 'indigo';
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            document.documentElement.setAttribute('data-palette', palette);
+        };
     </script>
+
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
-
 </html>
