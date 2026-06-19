@@ -1,58 +1,62 @@
 ﻿@implements IDisposable
 <div class="space-y-6">
-    <div class="overflow-hidden">
-        <h1
-            class="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[0.95] animate-fade-in-up">
-            @((MarkupString)_current.Title)
+        <h1 class="mx-auto max-w-4xl text-5xl h-auto font-extrabold tracking-tight sm:text-6xl lg:text-7xl mb-6 font-black tracking-tight leading-[0.95] animate-fade-in-up">
+            @((MarkupString)Current.Title)
         </h1>
-    </div>
-    <p
-        class="max-w-2xl text-lg sm:text-xl text-muted leading-relaxed animate-fade-in">
-        @_current.Description
+    <p class="max-w-2xl  mx-auto text-lg sm:text-xl text-muted leading-relaxed animate-fade-in">
+        @Current.Description
     </p>
 </div>
 @code {
     private int _index;
     private Timer? _timer;
-    private Hero[] Messages =
+    private readonly Hero[] _messages =
     [
         new(
             """
-            Every link deserves
+            <span class="block text-foreground">Every link deserves</span>
             <span class='gradient-text'>a better journey</span>
             """,
             "Not just shorter. Faster, cleaner, memorable."
         ),
         new(
             """
-            You're already
+            <span class="block text-foreground">You're already</span>
             <span class='gradient-text'>half-way there</span>
             """,
             "نیم‌مسیر — between intent and destination."
         ),
         new(
             """
-            A shorter path.
+            <span class="block text-foreground">A shorter path.</span>
             <span class='gradient-text'>A clearer arrival.</span>
             """,
             "Transform long forgotten links into experiences."
         ),
         new(
             """
-            Stop sharing URLs.
+            <span class="block text-foreground">Stop sharing URLs.</span>
             <span class='gradient-text'>Share direction.</span>
             """,
             "One clean path from click to destination."
         ),
         new(
             """
-            Every click
+            <span class="block text-foreground">Every click</span>
             <span class='gradient-text'>starts somewhere</span>
+            """,
+            "Make the in-between unforgettable."
+        ),
+        new(
+            """
+            A smarter
+            <span class='gradient-text'>halfway</span>
+            <span class="text-foreground">for your links.</span>
             """,
             "Make the in-between unforgettable."
         )
     ];
-    private Hero _current => Messages[_index];
+    private Hero Current => _messages[_index];
     protected override void OnInitialized()
     {
         _timer=new(
@@ -60,7 +64,7 @@
                 _index=
                     (_index+1)
                     %
-                    Messages.Length;
+                    _messages.Length;
                 InvokeAsync(
                     StateHasChanged);
             },

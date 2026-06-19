@@ -2,7 +2,7 @@
 using PicoNet.Domain.ValueObjects;
 using PicoNet.Infrastructure.IServices;
 
-namespace PicoNet.Infrastructure.Service;
+namespace PicoNet.Infrastructure.Services;
 
 public class ShortCodeGenerator : IShortCodeGenerator
 {

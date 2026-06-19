@@ -27,7 +27,7 @@ public class RedirectController : ControllerBase
 
         var result = await _bus.InvokeAsync<ErrorOr<RedirectUrlResult>>(command, ct);
 
-        return result.Match(
+        var resultReturn = result.Match(
             Results.Ok,
             errors => errors.First().Type switch
             {
@@ -37,5 +37,7 @@ public class RedirectController : ControllerBase
                 _ => Results.StatusCode(500)
             }
         );
+
+        return resultReturn;
     }
 }

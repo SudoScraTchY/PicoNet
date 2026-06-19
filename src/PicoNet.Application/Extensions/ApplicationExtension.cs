@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PicoNet.Contracts.DTOs.Requests;
 using PicoNet.Contracts.DTOs.Requests.Shortener;
 using PicoNet.Infrastructure.IServices;
-using PicoNet.Infrastructure.Service;
+using PicoNet.Infrastructure.Services;
 
 namespace PicoNet.Application.Extensions;
 

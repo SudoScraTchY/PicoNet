@@ -23,13 +23,20 @@ var cache = builder
     .WithRedisCommander();
 
 // The API project
+// AppHost/Program.cs
+var jwtKey = builder.AddParameter("jwt-key", secret: true);
+
 var api = builder
     .AddProject<Projects.PicoNet_Api>("api")
     .WithReference(postgres)
     .WithReference(cache)
+    .WithEnvironment("Jwt__Key", jwtKey)        // double underscore — see below
+    .WithEnvironment("Jwt__Issuer", "PicoNet")
+    .WithEnvironment("Jwt__Audience", "PicoNetClients")
     .WaitFor(postgres)
     .WaitFor(cache)
     .WithExternalHttpEndpoints();
+
 // The Blazor UI project
 var ui = builder
     .AddProject<Projects.PicoNet_UI>("ui")

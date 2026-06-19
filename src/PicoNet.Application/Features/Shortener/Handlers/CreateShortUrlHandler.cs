@@ -1,4 +1,5 @@
-﻿using ErrorOr;
+﻿using System.Security.Cryptography;
+using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Npgsql;
@@ -52,11 +53,19 @@ public class CreateShortUrlHandler
             }
         }
 
+        // temporary until we create Password Hasher Service
+        string passwordHash;
+        if (command.Password != null)
+        {
+            passwordHash = command.Password;
+        }
+
         // 2. Create the aggregate
         var shortenedUrl = ShortenedUrl.Create(
             command.OriginalUrl,
             shortCode,
             userId: null,             // no user yet
+            password: command.Password,
             customAlias: command.CustomAlias,
             tags: command.Tags != null ? string.Join(", ", command.Tags) : null 
         );

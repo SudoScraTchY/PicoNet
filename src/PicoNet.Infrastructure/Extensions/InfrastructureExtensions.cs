@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PicoNet.Infrastructure.Data;
+using PicoNet.Infrastructure.Identity;
 
 namespace PicoNet.Infrastructure.Extensions;
 
@@ -33,11 +35,16 @@ public static class InfrastructureExtensions
         // OpenIddict stores will also use the same context
         services.AddOpenIddict()
             .AddCore(options =>
+                options.UseEntityFrameworkCore().UseDbContext<PicoNetDbContext>());
+        
+        services.AddIdentityCore<ApplicationUser>(options =>
             {
-                options.UseEntityFrameworkCore()
-                    .UseDbContext<PicoNetDbContext>();
-            });
-        // ... other OpenIddict configuration
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false; // tune later
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<PicoNetDbContext>();
         
         // Health checks
         services.AddHealthChecks()

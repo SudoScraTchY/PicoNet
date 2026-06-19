@@ -1,11 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using PicoNet.Domain.Entities;
 using PicoNet.Domain.Entities.Common.Interfaces;
+using PicoNet.Infrastructure.Identity;
 
 namespace PicoNet.Infrastructure.Data;
 
-public class PicoNetDbContext : DbContext
+public class PicoNetDbContext : IdentityDbContext<ApplicationUser,IdentityRole<Guid>, Guid>
 {
     public PicoNetDbContext(DbContextOptions<PicoNetDbContext> options) : base(options) { }
     

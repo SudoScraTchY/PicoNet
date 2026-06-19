@@ -1,4 +1,7 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PicoNet.Application.Extensions;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
@@ -33,6 +36,31 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddProblemDetails();
 
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var signingKey = Encoding.UTF8.GetBytes(jwtSection["Key"]!);
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSection["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwtSection["Audience"],
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(signingKey),
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
@@ -51,6 +79,7 @@ app.MapScalarApiReference();
 app.MapOpenApi();
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

@@ -1,4 +1,5 @@
-﻿@inject IJSRuntime JsRuneTime
+﻿@rendermode InteractiveServer
+@inject IJSRuntime JsRuntime
 <button @onclick="ToggleTheme"
         class="relative size-10 rounded-xl bg-surface-100 dark:bg-surface-50 border border-border
                hover:border-primary-500 transition-all duration-300 flex items-center justify-center
@@ -20,19 +21,9 @@
 @code {
     private bool IsDark { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var theme = await JsRuneTime.InvokeAsync<string?>("localStorage.getItem", "theme");
-            IsDark = theme == "dark";
-            StateHasChanged();
-        }
-    }
-
     private async Task ToggleTheme()
     {
+        await JsRuntime.InvokeVoidAsync("nimTheme.setMode", IsDark ? "light" : "dark");
         IsDark = !IsDark;
-        await JsRuneTime.InvokeVoidAsync("toggleTheme");
-    }
+    } 
 }

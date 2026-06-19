@@ -19,6 +19,7 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
     public DateTime? ExpiryTime { get; private set; }
     public int MaxClicks { get; private set; } // Rate limiting per link
     public string? Password { get; private set; } // Optional password protection
+    public string? Salt { get; private set; }
     
     // Tracking
     public long ClickCount { get; private set; } = 0;
@@ -47,6 +48,7 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         bool isPermanent = false,
         int maxClicks = 0,
         string? password = null,
+        string? salt = null,
         string? campaign = null,
         string? tags = null)
     {
@@ -63,6 +65,7 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
             IsPermanent = isPermanent,
             MaxClicks = maxClicks,
             Password = password,
+            Salt = salt,
             Campaign = campaign,
             Tags = tags,
             Status = UrlStatus.Active,
@@ -123,8 +126,8 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
 
         AddDomainEvent(new UrlVisitedDomainEvent(Id, NanoId, ipAddress, userAgent, referrer, DateTime.UtcNow));
     }
-    
-    public void Deactivate()
+
+    private void Deactivate()
     {
         Status = UrlStatus.Inactive;
         AddDomainEvent(new UrlDeactivatedDomainEvent(Id, NanoId));

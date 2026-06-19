@@ -1,5 +1,8 @@
 ﻿@import "tailwindcss";
 
+@keyframes path { to { stroke-dashoffset: -1000; } }
+.animate-path { animation: path 12s linear infinite; }
+
 /* Enable class-based dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
 
