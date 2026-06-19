@@ -3,6 +3,7 @@ using PicoNet.Application.Features.Auth.Commands;
 using PicoNet.Contracts.DTOs.Requests.Auth;
 using Wolverine;
 using ErrorOr;
+using PicoNet.Api.Extensions;
 
 namespace PicoNet.Api.Controllers;
 
