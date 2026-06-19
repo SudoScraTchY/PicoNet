@@ -24,7 +24,7 @@
                 <div class="grid grid-cols-2 gap-2">
                     @foreach (var palette in _palettes)
                     {
-                        <button @onclick="() => ApplyPalette(palette.Key)" class="rounded-2xl border border-border bg-surface-50 p-3 text-left transition-all duration-300 hover:-translate-y-1 hover:border-primary-500/40 hover:bg-surface-100">
+                        <button @onclick="@(() => ApplyPalette(palette.Key))" class="rounded-2xl border border-border bg-surface-50 p-3 text-left transition-all duration-300 hover:-translate-y-1 hover:border-primary-500/40 hover:bg-surface-100">
                             <div class="mb-3 flex gap-1">
                                 <span class="@($"size-4 rounded-full {palette.Primary}")"></span>
                                 <span class="@($"size-4 rounded-full {palette.Accent}")"></span>
