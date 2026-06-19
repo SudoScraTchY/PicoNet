@@ -21,6 +21,7 @@
     <PackageReference Include="OpenIddict.AspNetCore" Version="7.5.0" />
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="7.5.0" />
     <PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
     <PackageReference Include="WolverineFx" Version="5.39.3" />
     <PackageReference Include="WolverineFx.EntityFrameworkCore" Version="5.39.3" />
     <PackageReference Include="WolverineFx.Postgresql" Version="5.39.3" />
@@ -32,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Identity\Entities\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

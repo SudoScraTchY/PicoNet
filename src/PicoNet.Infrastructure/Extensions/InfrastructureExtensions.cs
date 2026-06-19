@@ -4,6 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PicoNet.Infrastructure.Data;
 using PicoNet.Infrastructure.Identity;
+using PicoNet.Infrastructure.Identity.Implementations;
+using PicoNet.Infrastructure.Identity.Interfaces;
+using PicoNet.Infrastructure.IServices;
+using PicoNet.Infrastructure.Services;
 
 namespace PicoNet.Infrastructure.Extensions;
 
@@ -45,6 +49,15 @@ public static class InfrastructureExtensions
             })
             .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<PicoNetDbContext>();
+        
+        services.AddScoped<ITokenService, TokenService>();
+        
+        // Services
+        services.AddSingleton<IShortCodeGenerator>(sp =>
+        {
+            var salt = configuration["ShortCode:Salt"] ?? "PicoNet-Default-Salt";
+            return new ShortCodeGenerator(salt);
+        });
         
         // Health checks
         services.AddHealthChecks()

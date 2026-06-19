@@ -18,13 +18,6 @@ public static class ApplicationExtension
 
         services.AddValidatorsFromAssemblyContaining<CreateShortUrlRequest>();
         // Health checks
-        
-        // Services
-        services.AddSingleton<IShortCodeGenerator>(sp =>
-        {
-            var salt = configuration["ShortCode:Salt"] ?? "PicoNet-Default-Salt";
-            return new ShortCodeGenerator(salt);
-        });
 
         return services;
     }

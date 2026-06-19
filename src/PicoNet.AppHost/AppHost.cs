@@ -1,4 +1,6 @@
 // PicoNet.AppHost/Program.cs
+
+using System.Security.Cryptography;
 using Aspire.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -24,7 +26,7 @@ var cache = builder
 
 // The API project
 // AppHost/Program.cs
-var jwtKey = builder.AddParameter("jwt-key", secret: true);
+var jwtKey = builder.AddParameter("jwt-key", secret: true, value: GenerateJwtKey());
 
 var api = builder
     .AddProject<Projects.PicoNet_Api>("api")
@@ -48,3 +50,10 @@ var ui = builder
 
 // == 4. Build and Run ==
 builder.Build().Run();
+return;
+
+static string GenerateJwtKey()
+{
+    var bytes = RandomNumberGenerator.GetBytes(32); // 32 bytes = 256-bit key
+    return Convert.ToBase64String(bytes);
+}
