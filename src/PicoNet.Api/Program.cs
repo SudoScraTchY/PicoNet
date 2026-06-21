@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PicoNet.Api.ModelBinding;
 using PicoNet.Application.Extensions;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
@@ -30,7 +31,10 @@ builder.Services.AddWolverine(opts =>
 builder.AddRedisDistributedCache(connectionName: "piconet-cache");
 builder.Services.AddSingleton<IRedirectCacheService,RedirectCacheService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.ModelBinderProviders.Insert(0, new UserContextBinderProvider());
+});
 
 builder.Services.AddOpenApi();
 

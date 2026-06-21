@@ -1,3 +1,5 @@
-﻿namespace PicoNet.Application.Features.Shortener.Commands;
+﻿using PicoNet.Contracts.DTOs.Requests;
 
-public record RemoveShortUrlCommand(Guid UrlId);
+namespace PicoNet.Application.Features.Shortener.Commands;
+
+public record RemoveShortUrlCommand(Guid UrlId,UserContext UserContext);

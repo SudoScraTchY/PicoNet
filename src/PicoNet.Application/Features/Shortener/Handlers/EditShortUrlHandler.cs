@@ -25,7 +25,7 @@ public class EditShortUrlHandler
 
     public async Task<ErrorOr<ShortUrlResponse>> Handle(EditShortUrlCommand request, CancellationToken ct)
     {
-        var shortenedUrl = await _context.Urls.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.ShortenedUrlId, cancellationToken: ct);
+        var shortenedUrl = await _context.Urls.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == request.UserContext.UserId && x.Id == request.ShortenedUrlId, cancellationToken: ct);
 
         if (shortenedUrl is null || shortenedUrl.IsDeleted)
         {

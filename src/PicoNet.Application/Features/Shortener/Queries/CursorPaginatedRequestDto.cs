@@ -1,3 +1,5 @@
-﻿namespace PicoNet.Application.Features.Shortener.Queries;
+﻿using PicoNet.Contracts.DTOs.Requests;
 
-public record CursorPaginatedCommand(int PageSize, string? Cursor = null);
+namespace PicoNet.Application.Features.Shortener.Queries;
+
+public record CursorPaginatedCommand(UserContext UserContext,int PageSize, string? Cursor = null);

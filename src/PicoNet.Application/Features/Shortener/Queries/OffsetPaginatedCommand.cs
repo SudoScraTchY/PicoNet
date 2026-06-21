@@ -1,3 +1,5 @@
-﻿namespace PicoNet.Application.Features.Shortener.Queries;
+﻿using PicoNet.Contracts.DTOs.Requests;
 
-public record OffsetPaginatedCommand(int PageNumber, int PageSize);
+namespace PicoNet.Application.Features.Shortener.Queries;
+
+public record OffsetPaginatedCommand(UserContext UserContext,int PageNumber, int PageSize);

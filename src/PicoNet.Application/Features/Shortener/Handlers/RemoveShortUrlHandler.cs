@@ -17,7 +17,7 @@ public class RemoveShortUrlHandler
     public async Task<ErrorOr<bool>> Handle(RemoveShortUrlCommand command, CancellationToken ct)
     {
         var url = await _dbContext.Urls.AsNoTracking()
-            .FirstOrDefaultAsync(x=>x.Id == command.UrlId && !x.IsDeleted , ct);
+            .FirstOrDefaultAsync(x=> x.UserId == command.UserContext.UserId && x.Id == command.UrlId && !x.IsDeleted , ct);
 
         if (url is null)
             return Error.NotFound();

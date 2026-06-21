@@ -23,9 +23,7 @@ public class GetCursorPaginatedUrlsQueryHandler
 
     public  async Task<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>> Handle(CursorPaginatedCommand request,CancellationToken ct)
     {
-        var query = _context.Urls.AsNoTracking().Where(x => !x.IsDeleted);
-        // for future
-        // && x.UserId == userId);
+        var query = _context.Urls.AsNoTracking().Where(x => x.UserId == request.UserContext.UserId && !x.IsDeleted);
         
         var cursorId = PaginationHelper.DecodeCursor(request.Cursor);
         if (cursorId is not null)
@@ -35,7 +33,7 @@ public class GetCursorPaginatedUrlsQueryHandler
             .OrderByDescending(x => x.CreatedAt)
             .ThenByDescending(x => x.Id)
             .Take(request.PageSize + 1)
-            .ToListAsync(ct);  // ← materializes here
+            .ToListAsync(ct);
 
         var items = rawItems.Select(x => x.ToShortUrlResponse()).ToList();
         

@@ -35,7 +35,7 @@ public class CreateShortUrlHandler
         var shortCode = _codeGenerator.Generate();
         if (!string.IsNullOrWhiteSpace(command.CustomAlias))
         {
-            var aliasExists = await _db.Urls.AnyAsync(u => u.CustomAlias == command.CustomAlias);
+            var aliasExists = await _db.Urls.AnyAsync(u => u.CustomAlias == command.CustomAlias && !u.IsDeleted);
             if (aliasExists)
                 return Error.Conflict("CustomAlias.AlreadyExists", $"Alias '{command.CustomAlias}' is already in use.");
             shortCode = new ShortCode(command.CustomAlias);
@@ -46,7 +46,7 @@ public class CreateShortUrlHandler
             for (var i = 0; i < maxAttempts; i++)
             {
                 shortCode = _codeGenerator.Generate();
-                if (!await _db.Urls.AnyAsync(u => u.NanoId == shortCode))
+                if (!await _db.Urls.AnyAsync(u => u.NanoId == shortCode &&  !u.IsDeleted))
                     break;
                 if (i == maxAttempts - 1)
                     return Error.Unexpected("ShortCode.GenerationFailed", "Could not generate a unique code.");
@@ -64,7 +64,7 @@ public class CreateShortUrlHandler
         var shortenedUrl = ShortenedUrl.Create(
             command.OriginalUrl,
             shortCode,
-            userId: null,             // no user yet
+            userId: command.UserContext.UserId,
             password: command.Password,
             customAlias: command.CustomAlias,
             tags: command.Tags != null ? string.Join(", ", command.Tags) : null 

@@ -23,8 +23,8 @@ public class GetOffsetPaginatedUrlQueryHandler
 
     public  async Task<ErrorOr<OffsetPaginatedResult<ShortUrlResponse>>> Handle(OffsetPaginatedCommand request,CancellationToken ct)
     {
-        var query = _context.Urls.AsNoTracking().Where(x => !x.IsDeleted);
-
+        var query = _context.Urls.AsNoTracking().Where(x => x.UserId == request.UserContext.UserId && !x.IsDeleted);
+        
         var totalCountQuery = await query.CountAsync(ct);
         if (totalCountQuery < 1)
         {

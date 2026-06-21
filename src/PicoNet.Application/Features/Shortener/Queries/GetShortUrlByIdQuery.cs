@@ -1,3 +1,5 @@
-﻿namespace PicoNet.Application.Features.Shortener.Queries;
+﻿using PicoNet.Contracts.DTOs.Requests;
 
-public record GetShortUrlByIdQuery(Guid UrlId);
+namespace PicoNet.Application.Features.Shortener.Queries;
+
+public record GetShortUrlByIdQuery(UserContext UserContext,Guid UrlId);

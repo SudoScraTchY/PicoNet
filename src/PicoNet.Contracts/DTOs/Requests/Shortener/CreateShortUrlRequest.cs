@@ -20,4 +20,5 @@ public record CreateShortUrlRequest()
     public DateTime? ExpiryTime { get; set; }
     [MaxLength(512, ErrorMessage = "Campaign cannot be longer than 512 characters.")]
     public string? Campaign { get; set; }
+    
 }

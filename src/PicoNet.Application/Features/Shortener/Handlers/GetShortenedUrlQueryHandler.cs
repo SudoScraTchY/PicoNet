@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PicoNet.Application.Features.Shortener.Queries;
 using PicoNet.Application.Mappings;
 using PicoNet.Contracts.DTOs.Responses.Shortener;
 using PicoNet.Infrastructure.Data;
@@ -18,10 +19,10 @@ public sealed class GetShortenedUrlQueryHandler
         _logger = logger;
     }
 
-    public async Task<ErrorOr<ShortUrlResponse>> Handle(Guid shortenedUrlId, CancellationToken ct)
+    public async Task<ErrorOr<ShortUrlResponse>> Handle(GetShortUrlByIdQuery query, CancellationToken ct)
     {
         var result = await _context.Urls.AsNoTracking()
-            .Where(x => !x.IsDeleted && x.Id == shortenedUrlId)
+            .Where(x => x.UserId == query.UserContext.UserId && !x.IsDeleted && x.Id == query.UrlId)
             .Select(x=>x.ToShortUrlResponse())
             .FirstOrDefaultAsync(ct);
 

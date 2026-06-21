@@ -1,28 +1,43 @@
-﻿using ErrorOr;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using ErrorOr;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PicoNet.Api.Extensions;
 using PicoNet.Application.Features.Shortener.Commands;
 using PicoNet.Application.Features.Shortener.Queries;
 using PicoNet.Contracts.DTOs.Requests;
 using PicoNet.Contracts.DTOs.Requests.Shortener;
 using PicoNet.Contracts.DTOs.Responses;
 using PicoNet.Contracts.DTOs.Responses.Shortener;
+using PicoNet.Infrastructure.Identity;
 using Wolverine;
 
 namespace PicoNet.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ShortenerController : ControllerBase
 {
     private readonly IMessageBus _bus;
 
-    public ShortenerController(IMessageBus bus) => _bus = bus;
+    public ShortenerController(IMessageBus bus)
+    {
+        _bus = bus;
+    }
 
     [HttpPost]
     public async Task<IResult> CreateUserShortUrl([FromBody] CreateShortUrlRequest request,CancellationToken ct)
     {
+        var userCtx = HttpContext.GetCurrentUser();
+        if(userCtx.IsError)
+            return  Results.Unauthorized();
+        
         var command = new CreateShortUrlCommand(
             OriginalUrl: request.OriginalUrl,
+            userCtx.Value,
             CustomAlias: request.CustomAlias,
             Tags: request.Tags,
             MaxClicks: request.MaxClicks,
@@ -42,8 +57,12 @@ public class ShortenerController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ShortUrlResponse))]
     public async Task<IResult> EditUserShortUrl(Guid urlId,[FromBody] EditShortUrlRequest editShortUrlRequest,CancellationToken ct)
     {
+        var userCtx = HttpContext.GetCurrentUser();
+        if(userCtx.IsError)
+            return  Results.Unauthorized();
+                
         var result = await _bus.InvokeAsync<ErrorOr<ShortUrlResponse>>(
-                new EditShortUrlCommand(urlId,editShortUrlRequest.OriginalUrl,editShortUrlRequest.CustomAlias,
+                new EditShortUrlCommand(urlId,userCtx.Value,editShortUrlRequest.OriginalUrl,editShortUrlRequest.CustomAlias,
                     editShortUrlRequest.UrlStatus,editShortUrlRequest.Tags,editShortUrlRequest.IsPermanent,
                     editShortUrlRequest.ExpiryTime, editShortUrlRequest.Password,editShortUrlRequest.Campaign),
                 ct);
@@ -57,8 +76,12 @@ public class ShortenerController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CursorPaginatedResult<ShortUrlResponse>))]
     public async Task<IResult> GetUserShortenedUrls(string? cursor ,int pageSize,CancellationToken ct)
     {
+        var userCtx = HttpContext.GetCurrentUser();
+        if(userCtx.IsError)
+            return  Results.Unauthorized();
+        
         var result = await _bus.InvokeAsync<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>>(
-                new CursorPaginatedCommand(pageSize,cursor), ct);
+                new CursorPaginatedCommand(userCtx.Value,pageSize,cursor), ct);
 
         return result.Match(
             Results.Ok,
@@ -69,7 +92,11 @@ public class ShortenerController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ShortUrlResponse))]
     public async Task<IResult> GetUserShortenedUrl(Guid urlId,CancellationToken ct)
     {
-        var result = await _bus.InvokeAsync<ErrorOr<ShortUrlResponse>>(new GetShortUrlByIdQuery(urlId), ct);
+        var userCtx = HttpContext.GetCurrentUser();
+        if(userCtx.IsError)
+            return  Results.Unauthorized();
+        
+        var result = await _bus.InvokeAsync<ErrorOr<ShortUrlResponse>>(new GetShortUrlByIdQuery(userCtx.Value,urlId), ct);
     
         return result.Match(
             Results.Ok,
