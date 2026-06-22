@@ -34,7 +34,7 @@ public class AuthController : ControllerBase
     }
     
     [HttpPost("validate")]
-    public async Task<IResult> Login([FromBody] ValidateRegistrationRequest request, CancellationToken ct)
+    public async Task<IResult> ValidateEmail([FromBody] ValidateRegistrationRequest request, CancellationToken ct)
     {
         var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(
             new ValidateEmailCommand(request.Email, request.Token, HttpContext.GetUserAgentData()), ct);

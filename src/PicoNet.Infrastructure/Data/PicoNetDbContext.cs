@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using PicoNet.Domain.Entities;
 using PicoNet.Domain.Entities.Common.Interfaces;
 using PicoNet.Infrastructure.Identity;
@@ -14,9 +13,10 @@ public class PicoNetDbContext : IdentityDbContext<ApplicationUser,IdentityRole<G
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(PicoNetDbContext).Assembly);
-        
-        // Global query filter for soft delete
+
         modelBuilder.Entity<ShortenedUrl>()
             .HasQueryFilter(u => !u.IsDeleted);
     }

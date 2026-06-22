@@ -21,9 +21,9 @@ public sealed class LoginHandler
 
     public async Task<ErrorOr<AuthResponse>> Handle(LoginCommand command, CancellationToken ct)
     {
-        if (string.IsNullOrEmpty(command.Email) && !string.IsNullOrEmpty(command.Username))
+        if (string.IsNullOrEmpty(command.Email) && string.IsNullOrEmpty(command.Username))
         {
-            return Error.Validation("Auth.InvalidCredentials", "No Email or Username provided.");
+            return Error.Validation("Auth.InvalidCredentials", "No Email or Username was provided.");
         }
         
         var user = !string.IsNullOrEmpty(command.Email) ?

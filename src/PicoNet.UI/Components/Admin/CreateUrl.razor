@@ -14,11 +14,14 @@
         <p class="mt-1 text-sm text-slate-500">Create a new short link.</p>
     </div>
 
-    @if (_error is not null)
+    @if (_errors is { Count: > 0 })
     {
-        <div class="mb-6">
-            <ErrorAlert Message="@_error" OnDismiss="() => _error = null" />
-        </div>
+        @foreach (var err in _errors)
+        {
+            <div class="mb-6">
+                <ErrorAlert Message="@err.Description" OnDismiss="@(() => _errors.Remove(err))" />
+            </div>
+        }
     }
 
     @* EditForm binds to a model, wires up validation context *@

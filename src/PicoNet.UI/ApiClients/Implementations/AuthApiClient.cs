@@ -14,21 +14,30 @@ public class AuthApiClient : IAuthApiClient
     public async Task<ErrorOr<AuthResponse>> LoginAsync(LoginRequest command, CancellationToken ct = default)
     {
         var response = await _http.PostAsJsonAsync("/api/auth/login", command, ct);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<AuthResponse>(cancellationToken: ct) ?? new ErrorOr<AuthResponse>();
-    }
 
+        if (!response.IsSuccessStatusCode)
+            return await response.ToErrorListAsync(ct);
+
+        return await response.Content.ReadFromJsonAsync<ErrorOr<AuthResponse>>(cancellationToken: ct);
+    }
+    
     public async Task<ErrorOr<RegisterResponse>> RegisterAsync(RegisterRequest command, CancellationToken ct)
     {
         var response = await _http.PostAsJsonAsync("/api/auth/register", command, ct);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<RegisterResponse>(cancellationToken: ct) ?? new ErrorOr<RegisterResponse>();
+        
+        if (!response.IsSuccessStatusCode)
+            return await response.ToErrorListAsync(ct);
+        
+        return await response.Content.ReadFromJsonAsync<ErrorOr<RegisterResponse>>(cancellationToken: ct);
     }
 
     public async Task<ErrorOr<AuthResponse>> ValidateEmailAsync(ValidateRegistrationRequest command, CancellationToken ct)
     {
         var response = await _http.PostAsJsonAsync("/api/auth/validate", command, ct);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<AuthResponse>(cancellationToken: ct) ?? new ErrorOr<AuthResponse>();
+        
+        if (!response.IsSuccessStatusCode)
+            return await response.ToErrorListAsync(ct);
+        
+        return await response.Content.ReadFromJsonAsync<ErrorOr<AuthResponse>>(cancellationToken: ct);
     }
 }

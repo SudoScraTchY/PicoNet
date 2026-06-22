@@ -17,27 +17,28 @@
         </button>
     </div>
 
-    @* 1. Error state *@
-    @if (_error is not null)
+    @if (_errors is { Count: > 0 })
     {
-        <ErrorAlert Message="@_error" OnDismiss="() => _error = null" />
+        @foreach (var err in _errors)
+        {
+            <div class="mb-6">
+                <ErrorAlert Message="@err.Description" OnDismiss="@(() => _errors.Remove(err))" />
+            </div>
+        }
     }
 
-    @* 2. Initial loading — full page spinner *@
     @if (_initialLoading)
     {
         <LoadingSpinner />
     }
     else
     {
-        @* 3. Loaded — show table *@
         <UrlTable
             Urls="_urls"
             BaseUrl="nimmas.ir"
             EmptyActionLabel="Shorten your first URL"
             OnEmptyAction='() => Nav.NavigateTo("/create")' />
 
-        @* 4. Load More *@
         @if (_hasMore)
         {
             <div class="mt-6 flex justify-center">

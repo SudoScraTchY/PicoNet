@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using ErrorOr;
+using Microsoft.AspNetCore.Components;
 using PicoNet.Contracts.DTOs.Responses.Shortener;
 
 namespace PicoNet.UI.Components.Admin;
@@ -11,7 +12,7 @@ public partial class Dashboard : ComponentBase
 
     private bool _initialLoading = true;
     private bool _loadingMore;
-    private string? _error;
+    private IList<Error> _errors = [];
 
     private const int PageSize = 20;
 
@@ -38,28 +39,26 @@ public partial class Dashboard : ComponentBase
         Nav.NavigateTo("/create");
     }
 
-    // ─── Core fetch — used by both initial load and load more ─
-    
     private async Task LoadAsync(string? cursor)
     {
         try
         {
             var result = await ApiClient.GetUrlsAsync(PageSize, cursor);
 
-            if (result is null)
+            if (result.IsError)
             {
-                _error = "Failed to load URLs. Please try again.";
+                _errors = result.Errors;
                 return;
             }
 
             // Append — never replace — so Load More accumulates
-            _urls.AddRange(result.Items ?? []);
-            _nextCursor = result.NextCursor;
-            _hasMore = result.HasMore;
+            _urls.AddRange(result.Value.Items ?? []);
+            _nextCursor = result.Value.NextCursor;
+            _hasMore = result.Value.HasMore;
         }
         catch (Exception ex)
         {
-            _error = $"Something went wrong: {ex.Message}";
+            _errors.Add(Error.Unexpected("CreateUrl.Unexpected", ex.Message));
         }
     }
 }

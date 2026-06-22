@@ -35,6 +35,9 @@ public sealed class RegisterHandler
             return Error.Validation("User.InvalidPassword", description);
         }
 
+        var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        Console.WriteLine($"\n{emailConfirmationToken} has been Created for {command.Email}.\n");
+        
         var (token, expiresAt) = _tokenService.GenerateToken(user);
         return new AuthResponse(AccessToken: string.Empty, RefreshToken: string.Empty, ExpiresAt: expiresAt,
             User: user.ToAuthResponseUser());
