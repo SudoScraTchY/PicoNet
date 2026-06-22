@@ -4,6 +4,7 @@ using PicoNet.Contracts.DTOs.Requests.Auth;
 using Wolverine;
 using ErrorOr;
 using PicoNet.Api.Extensions;
+using PicoNet.Contracts.DTOs.Responses.Auth;
 
 namespace PicoNet.Api.Controllers;
 
@@ -27,7 +28,16 @@ public class AuthController : ControllerBase
     public async Task<IResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
         var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(
-            new LoginCommand(request.Email, request.Password), ct);
+            new LoginCommand(request.Email, request.Username, request.Password), ct);
+
+        return result.Match(Results.Ok, errors => errors.ToProblemResult());
+    }
+    
+    [HttpPost("validate")]
+    public async Task<IResult> Login([FromBody] ValidateRegistrationRequest request, CancellationToken ct)
+    {
+        var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(
+            new ValidateEmailCommand(request.Email, request.Token, HttpContext.GetUserAgentData()), ct);
 
         return result.Match(Results.Ok, errors => errors.ToProblemResult());
     }

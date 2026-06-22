@@ -1,12 +1,14 @@
+using PicoNet.Contracts.DTOs.Responses.Auth;
 using PicoNet.Contracts.DTOs.Responses.Shortener;
 using PicoNet.Domain.Entities;
 using PicoNet.Domain.ValueObjects;
+using PicoNet.Infrastructure.Identity;
 using Riok.Mapperly.Abstractions;
 
 namespace PicoNet.Application.Mappings;
 
 [Mapper]
-public static partial class UrlMapper
+public static partial class MapperConfiguration
 {
     private static string MapShortCode(ShortCode shortCode) => shortCode.Value; 
     
@@ -16,4 +18,6 @@ public static partial class UrlMapper
     private static List<string>? MapStringList(string? tags) =>
         tags?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToList();
+
+    public static partial AuthResponseUser ToAuthResponseUser(this ApplicationUser user);
 }

@@ -1,7 +1,9 @@
 ﻿using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using PicoNet.Application.Features.Auth.Commands;
+using PicoNet.Application.Mappings;
 using PicoNet.Contracts.DTOs.Requests.Auth;
+using PicoNet.Contracts.DTOs.Responses.Auth;
 using PicoNet.Infrastructure.Identity;
 using PicoNet.Infrastructure.Identity.Interfaces;
 
@@ -34,6 +36,7 @@ public sealed class RegisterHandler
         }
 
         var (token, expiresAt) = _tokenService.GenerateToken(user);
-        return new AuthResponse { AccessToken = token, ExpiresAt = expiresAt, Email = user.Email! };
+        return new AuthResponse(AccessToken: string.Empty, RefreshToken: string.Empty, ExpiresAt: expiresAt,
+            User: user.ToAuthResponseUser());
     }
 }

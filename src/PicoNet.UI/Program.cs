@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using PicoNet.ServiceDefaults;
 using PicoNet.UI.ApiClients.Implementations;
 using PicoNet.UI.ApiClients.Interfaces;
 using PicoNet.UI.Components;
 using PicoNet.UI.Extensions;
+using PicoNet.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,17 @@ builder.AddRedisDistributedCache(connectionName: "piconet-cache");
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<CurrentUserTokenAccessor>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(2); // match your JWT lifetime for now
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState(); // makes auth state available to all components
 
 builder.Services.AddApiClients(builder.Configuration);
 
@@ -39,4 +52,6 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.Run();

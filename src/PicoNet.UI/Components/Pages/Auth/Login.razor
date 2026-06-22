@@ -1,0 +1,42 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using PicoNet.Contracts.DTOs.Requests.Auth
+@using PicoNet.UI.ApiClients.Interfaces
+@using PicoNet.UI.Services
+@inject IAuthApiClient AuthClient
+@inject CurrentUserTokenAccessor TokenAccessor
+@inject NavigationManager Nav
+@inject IHttpContextAccessor HttpContextAccessor
+
+<EditForm Model="_model" OnValidSubmit="HandleLoginAsync" FormName="login-form">
+    <DataAnnotationsValidator />
+    <InputText @bind-Value="_model.Email" placeholder="Email" />
+    <InputText @bind-Value="_model.Password" type="password" placeholder="Password" />
+    <button type="submit">Sign in</button>
+</EditForm>
+
+@code {
+    private readonly LoginRequest _model = new();
+
+    private async Task HandleLoginAsync()
+    {
+        var result = await AuthClient.LoginAsync(_model,CancellationToken.None);
+        if (result.IsError) 
+            return; // show error — left as exercise
+
+        TokenAccessor.AccessToken = result.Value.AccessToken;
+
+        // Sign the user into the Blazor Server cookie session
+        var claims = new[] { new Claim(ClaimTypes.Email, result.Value.User.Email) };
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContextAccessor.HttpContext!.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+        Nav.NavigateTo("/dashboard", forceLoad: true);
+    }
+}
