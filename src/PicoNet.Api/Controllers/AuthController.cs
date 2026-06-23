@@ -3,6 +3,7 @@ using PicoNet.Application.Features.Auth.Commands;
 using PicoNet.Contracts.DTOs.Requests.Auth;
 using Wolverine;
 using ErrorOr;
+using Microsoft.AspNetCore.Authorization;
 using PicoNet.Api.Extensions;
 using PicoNet.Contracts.DTOs.Responses.Auth;
 
@@ -38,6 +39,28 @@ public class AuthController : ControllerBase
     {
         var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(
             new ValidateEmailCommand(request.Email, request.Token, HttpContext.GetUserAgentData()), ct);
+
+        return result.Match(Results.Ok, errors => errors.ToProblemResult());
+    }
+    
+    [HttpHead("Refresh")]
+    public async Task<IResult> ValidateEmail(CancellationToken ct)
+    {
+        var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(HttpContext.GetRefreshCommand(), ct);
+
+        return result.Match(Results.Ok, errors => errors.ToProblemResult());
+    }
+    
+    [HttpPatch("ChangeEmail")]
+    [Authorize]
+    public async Task<IResult> ChangeEmail(ChangeEmailRequest request,CancellationToken ct)
+    {
+        var userCtx = HttpContext.GetCurrentUser();
+        if(userCtx.IsError)
+            return  Results.Unauthorized();
+
+        var result = await _bus.InvokeAsync<ErrorOr<ChangeEmailResponse>>(
+            new ChangeEmailCommand(userCtx.Value, request.NewEmail, HttpContext.GetUserAgentData()), ct);
 
         return result.Match(Results.Ok, errors => errors.ToProblemResult());
     }

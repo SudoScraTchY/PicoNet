@@ -18,17 +18,19 @@ public class AuthApiClient : IAuthApiClient
         if (!response.IsSuccessStatusCode)
             return await response.ToErrorListAsync(ct);
 
-        return await response.Content.ReadFromJsonAsync<ErrorOr<AuthResponse>>(cancellationToken: ct);
+        return await response.Content.ReadFromJsonAsync<AuthResponse>(cancellationToken: ct) 
+               ?? (ErrorOr<AuthResponse>)Error.Unexpected("Auth.EmptyResponse", "Server returned an empty response.");
     }
     
-    public async Task<ErrorOr<RegisterResponse>> RegisterAsync(RegisterRequest command, CancellationToken ct)
+    public async Task<ErrorOr<AuthResponse>> RegisterAsync(RegisterRequest command, CancellationToken ct)
     {
         var response = await _http.PostAsJsonAsync("/api/auth/register", command, ct);
         
         if (!response.IsSuccessStatusCode)
             return await response.ToErrorListAsync(ct);
         
-        return await response.Content.ReadFromJsonAsync<ErrorOr<RegisterResponse>>(cancellationToken: ct);
+        return await response.Content.ReadFromJsonAsync<AuthResponse>(cancellationToken: ct) 
+               ?? (ErrorOr<AuthResponse>)Error.Unexpected("Auth.EmptyResponse", "Server returned an empty response.");
     }
 
     public async Task<ErrorOr<AuthResponse>> ValidateEmailAsync(ValidateRegistrationRequest command, CancellationToken ct)
@@ -38,6 +40,7 @@ public class AuthApiClient : IAuthApiClient
         if (!response.IsSuccessStatusCode)
             return await response.ToErrorListAsync(ct);
         
-        return await response.Content.ReadFromJsonAsync<ErrorOr<AuthResponse>>(cancellationToken: ct);
+        return await response.Content.ReadFromJsonAsync<AuthResponse>(cancellationToken: ct) 
+               ?? (ErrorOr<AuthResponse>)Error.Unexpected("Auth.EmptyResponse", "Server returned an empty response.");
     }
 }

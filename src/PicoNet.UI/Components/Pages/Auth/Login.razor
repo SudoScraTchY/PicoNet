@@ -43,7 +43,11 @@
 
         TokenAccessor.AccessToken = result.Value.AccessToken;
 
-        var claims = new[] { new Claim(ClaimTypes.Email, result.Value.User.Email) };
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, result.Value.User.Id.ToString()),
+            new Claim(ClaimTypes.Email, result.Value.User.Email)
+        };
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
 

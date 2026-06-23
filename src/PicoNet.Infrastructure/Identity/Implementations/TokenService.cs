@@ -39,5 +39,10 @@ public sealed class TokenService : ITokenService
 
         return (new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
     }
+
+    public bool ValidateRefreshToken(string token)
+    {
+        throw new NotImplementedException();
+    }
 }
 

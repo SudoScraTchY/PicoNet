@@ -19,7 +19,8 @@ public sealed class UrlApiClient : IUrlApiClient
             ? $"/api/shortener?pageSize={pageSize}"
             : $"/api/shortener?pageSize={pageSize}&cursor={Uri.EscapeDataString(cursor)}";
 
-        return await _http.GetFromJsonAsync<ErrorOr<CursorPaginatedResult<ShortUrlResponse>>>(url, ct);
+        return await _http.GetFromJsonAsync<CursorPaginatedResult<ShortUrlResponse>>(url, ct) ??
+               (ErrorOr<CursorPaginatedResult<ShortUrlResponse>>)Error.Unexpected("Url.Unexpected","Server returned an empty response.");
     }
 
     public async Task<ErrorOr<ShortUrlResponse?>> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -34,7 +35,8 @@ public sealed class UrlApiClient : IUrlApiClient
         if (!response.IsSuccessStatusCode)
             return await response.ToErrorListAsync(ct);
         
-        return await response.Content.ReadFromJsonAsync<ErrorOr<ShortUrlResponse>>(ct);
+        return await response.Content.ReadFromJsonAsync<ShortUrlResponse>(ct) ??
+               (ErrorOr<ShortUrlResponse>)Error.Unexpected("Url.Unexpected","Server returned an empty response.");
     }
 
     public async Task<ErrorOr<bool>> DeleteAsync(Guid id, CancellationToken ct = default)
@@ -44,7 +46,8 @@ public sealed class UrlApiClient : IUrlApiClient
         if (!response.IsSuccessStatusCode)
             return await response.ToErrorListAsync(ct);
         
-        return response.IsSuccessStatusCode;
+        return await response.Content.ReadFromJsonAsync<bool?>(ct) 
+               ?? (ErrorOr<bool>)Error.Unexpected("Url.Unexpected","Server returned an empty response.");
     }
 
     public async Task<ErrorOr<ShortUrlResponse>> CreateAsync(CreateShortUrlRequest command,
@@ -55,6 +58,7 @@ public sealed class UrlApiClient : IUrlApiClient
         if (!response.IsSuccessStatusCode)
             return await response.ToErrorListAsync(ct);
         
-        return await response.Content.ReadFromJsonAsync<ErrorOr<ShortUrlResponse>>(cancellationToken: ct);
+        return await response.Content.ReadFromJsonAsync<ShortUrlResponse>(cancellationToken: ct) ??
+               (ErrorOr<ShortUrlResponse>)Error.Unexpected("Url.Unexpected","Server returned an empty response.");
     }
 }

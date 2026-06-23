@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using PicoNet.Contracts.DTOs.Requests;
+using PicoNet.Contracts.DTOs.Requests.Auth;
 
 namespace PicoNet.Api.ModelBinding;
 

@@ -1,4 +1,5 @@
 ﻿using PicoNet.Contracts.DTOs.Requests;
+using PicoNet.Contracts.DTOs.Requests.Auth;
 using PicoNet.Domain.Enums;
 
 namespace PicoNet.Application.Features.Shortener.Commands;
