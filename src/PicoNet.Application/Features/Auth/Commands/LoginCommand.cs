@@ -1,3 +1,5 @@
-﻿namespace PicoNet.Application.Features.Auth.Commands;
+﻿using PicoNet.Contracts.DTOs.Requests.Auth;
 
-public record LoginCommand(string? Email,string? Username, string Password);
+namespace PicoNet.Application.Features.Auth.Commands;
+
+public record LoginCommand(string? Email,string? Username, string Password,UserAgentData UserAgentData);

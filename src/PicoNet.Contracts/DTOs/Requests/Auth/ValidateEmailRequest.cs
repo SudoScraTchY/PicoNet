@@ -1,3 +1,12 @@
-﻿namespace PicoNet.Contracts.DTOs.Requests.Auth;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record ValidateRegistrationRequest(string Email,string Token);
+namespace PicoNet.Contracts.DTOs.Requests.Auth;
+
+public record ValidateRegistrationRequest
+{
+    [Required,EmailAddress]
+    public string Email { get; set; }
+
+    [Required]
+    public string Token { get; set; }
+}

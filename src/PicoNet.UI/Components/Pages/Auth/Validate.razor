@@ -1,4 +1,4 @@
-﻿@page "/login"
+﻿@page "/validate"
 @rendermode InteractiveServer
 @using System.Security.Claims
 @using ErrorOr
@@ -8,36 +8,37 @@
 @using PicoNet.UI.ApiClients.Interfaces
 @using PicoNet.UI.Services
 @inject IAuthApiClient AuthClient
+@inject PendingValidationState PendingValidationState
 @inject CurrentUserTokenAccessor TokenAccessor
 @inject NavigationManager Nav
 @inject IHttpContextAccessor HttpContextAccessor
 
-<PageTitle>Login | NimMas</PageTitle>
+<PageTitle>Validate Email | NimMas</PageTitle>
 
 <div class="min-h-screen bg-background text-foreground px-4 py-10 flex items-center justify-center">
     <div class="w-full max-w-md rounded-[28px] border border-border bg-surface-0 p-8 shadow-2xl shadow-black/5">
         <div class="mb-8">
-            <div class="text-xs uppercase tracking-[0.35em] text-muted">Welcome back</div>
-            <h1 class="mt-3 text-3xl font-black tracking-tight">Sign in</h1>
-            <p class="mt-2 text-sm text-muted">Continue to your dashboard and keep building your path.</p>
+            <div class="text-xs uppercase tracking-[0.35em] text-muted">Email validation</div>
+            <h1 class="mt-3 text-3xl font-black tracking-tight">Enter your token</h1>
+            <p class="mt-2 text-sm text-muted">We saved your email securely for this session.</p>
         </div>
 
-        <EditForm Model="_model" OnValidSubmit="HandleLoginAsync" FormName="login-form">
+        <EditForm Model="_model" OnValidSubmit="HandleValidateAsync" FormName="validate-form">
             <DataAnnotationsValidator />
 
             <div class="space-y-4">
                 <div>
                     <label class="mb-2 block text-sm font-medium">Email</label>
-                    <InputText @bind-Value="_model.Email" placeholder="Email" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
+                    <InputText @bind-Value="_model.Email" readonly class="w-full rounded-2xl border border-border bg-surface-100 px-4 py-3 outline-none" />
                 </div>
 
                 <div>
-                    <label class="mb-2 block text-sm font-medium">Password</label>
-                    <InputText @bind-Value="_model.Password" type="password" placeholder="Password" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
+                    <label class="mb-2 block text-sm font-medium">Token</label>
+                    <InputText @bind-Value="_model.Token" placeholder="Validation token" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
                 </div>
 
                 <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-primary-600 to-primary-500 px-4 py-3 font-semibold text-white transition hover:shadow-lg hover:shadow-primary-500/20 active:scale-[0.99]">
-                    Sign in
+                    Validate account
                 </button>
             </div>
         </EditForm>
@@ -51,21 +52,25 @@
                 }
             </div>
         }
-
-        <div class="mt-6 text-sm text-muted">
-            New here?
-            <a class="font-semibold text-primary-600 hover:underline" href="/register">Create an account</a>
-        </div>
     </div>
 </div>
 
 @code {
-    private readonly LoginRequest _model = new();
+    private readonly ValidateRegistrationRequest _model = new();
     private IList<Error> _errors = [];
 
-    private async Task HandleLoginAsync()
+    protected override async Task OnInitializedAsync()
     {
-        var result = await AuthClient.LoginAsync(_model, CancellationToken.None);
+        _model.Email = await PendingValidationState.GetEmailAsync() ?? "";
+        if (string.IsNullOrWhiteSpace(_model.Email))
+        {
+            Nav.NavigateTo("/register", forceLoad: true);
+        }
+    }
+
+    private async Task HandleValidateAsync()
+    {
+        var result = await AuthClient.ValidateEmailAsync(_model, CancellationToken.None);
         if (result.IsError)
         {
             _errors = result.Errors;
@@ -84,6 +89,7 @@
         var principal = new ClaimsPrincipal(identity);
 
         await HttpContextAccessor.HttpContext!.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+        await PendingValidationState.ClearAsync();
 
         Nav.NavigateTo("/dashboard", forceLoad: true);
     }

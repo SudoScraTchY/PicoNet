@@ -15,12 +15,13 @@ public sealed class PicoNetDbContextFactory
             .AddJsonFile($"appsettings.Development.json", optional: true)
             .Build();
 
-        var connectionString =
-            configuration.GetConnectionString("piconet") ?? throw new InvalidOperationException("Connection string not found.");
+        var dbConnectionString = 
+            configuration.GetConnectionString("piconet") ??
+            configuration.GetConnectionString("DefaultConnection");
 
         var options = new DbContextOptionsBuilder<PicoNetDbContext>();
 
-        options.UseNpgsql(connectionString);
+        options.UseNpgsql(dbConnectionString);
 
         return new PicoNetDbContext(options.Options);
     }

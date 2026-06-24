@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using PicoNet.Application.Features.Auth.Commands;
 using PicoNet.Contracts.DTOs.Responses.Auth;
 using PicoNet.Infrastructure.Identity;
+using PicoNet.Infrastructure.Identity.Entities;
 
 namespace PicoNet.Application.Features.Auth.Handler;
 
@@ -27,24 +28,31 @@ public sealed class ChangeEmailHandler
         {
             user.Email = command.NewEmail;
             var tokenForMistype = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            //Send Email
         
-            await _userManager.UpdateAsync(user);
+            var updateResultChangeEmail = await _userManager.UpdateAsync(user);
+            if (!updateResultChangeEmail.Succeeded)
+                return Error.Failure("User.UpdateFailed", string.Join("; ", updateResultChangeEmail.Errors.Select(e => e.Description)));
+            
+            Console.WriteLine(tokenForMistype);
+            //Send Email
             return new ChangeEmailResponse(user.Email,"Email Sent");
         }
 
         var existing = await _userManager.FindByEmailAsync(command.NewEmail);
         if (existing is not null)
             return Error.Conflict("User.AlreadyExists", "Email already in use.");
-        
+
+        user.EmailConfirmed = false;
         user.Email = command.NewEmail;
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-        await _userManager.UpdateAsync(user);
+        var updateResult = await _userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
+            return Error.Failure("User.UpdateFailed", string.Join("; ", updateResult.Errors.Select(e => e.Description)));
 
         // send/log token, same as registration
+        Console.WriteLine(token);
         
-
         return new ChangeEmailResponse(user.Email,"Email Sent");
     }
 }

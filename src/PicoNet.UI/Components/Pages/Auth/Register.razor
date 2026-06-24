@@ -3,41 +3,77 @@
 @using ErrorOr
 @using PicoNet.Contracts.DTOs.Requests.Auth
 @using PicoNet.UI.ApiClients.Interfaces
+@using PicoNet.UI.Services
 @inject IAuthApiClient AuthClient
+@inject PendingValidationState PendingValidationState
 @inject NavigationManager Nav
 
-<EditForm Model="_model" OnValidSubmit="HandleRegisterAsync" FormName="register-form">
-    <DataAnnotationsValidator />
-    <InputText @bind-Value="_model.Username" placeholder="Username" />
-    <InputText @bind-Value="_model.Email" placeholder="Email" />
-    <InputText @bind-Value="_model.Password" type="password" placeholder="Password" />
-    <button type="submit">Sign in</button>
-</EditForm>
+<PageTitle>Register | NimMas</PageTitle>
 
-@if (_errors is { Count: > 0 })
-{
-    <ul class="text-sm text-red-600">
-        @foreach (var err in _errors)
+<div class="min-h-screen bg-background text-foreground px-4 py-10 flex items-center justify-center">
+    <div class="w-full max-w-md rounded-[28px] border border-border bg-surface-0 p-8 shadow-2xl shadow-black/5">
+        <div class="mb-8">
+            <div class="text-xs uppercase tracking-[0.35em] text-muted">Join NimMas</div>
+            <h1 class="mt-3 text-3xl font-black tracking-tight">Create account</h1>
+            <p class="mt-2 text-sm text-muted">Start shortening, shaping, and guiding every link.</p>
+        </div>
+
+        <EditForm Model="_model" OnValidSubmit="HandleRegisterAsync" FormName="register-form">
+            <DataAnnotationsValidator />
+
+            <div class="space-y-4">
+                <div>
+                    <label class="mb-2 block text-sm font-medium">Username</label>
+                    <InputText @bind-Value="_model.Username" placeholder="Username" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium">Email</label>
+                    <InputText @bind-Value="_model.Email" placeholder="Email" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-medium">Password</label>
+                    <InputText @bind-Value="_model.Password" type="password" placeholder="Password" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
+                </div>
+
+                <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-primary-600 to-primary-500 px-4 py-3 font-semibold text-white transition hover:shadow-lg hover:shadow-primary-500/20 active:scale-[0.99]">
+                    Create account
+                </button>
+            </div>
+        </EditForm>
+
+        @if (_errors is { Count: > 0 })
         {
-            <li>@err.Description</li>
+            <div class="mt-6 rounded-2xl border border-error/20 bg-error/10 p-4 text-sm text-error">
+                @foreach (var err in _errors)
+                {
+                    <div>@err.Description</div>
+                }
+            </div>
         }
-    </ul>
-}
+
+        <div class="mt-6 text-sm text-muted">
+            Already have an account?
+            <a class="font-semibold text-primary-600 hover:underline" href="/login">Sign in</a>
+        </div>
+    </div>
+</div>
 
 @code {
     private readonly RegisterRequest _model = new();
-    private IList<Error>? _errors = [];
+    private IList<Error> _errors = [];
 
     private async Task HandleRegisterAsync()
     {
-        var result = await AuthClient.RegisterAsync(_model,CancellationToken.None);
+        var result = await AuthClient.RegisterAsync(_model, CancellationToken.None);
         if (result.IsError)
         {
             _errors = result.Errors;
             return;
         }
 
-        //i should somehow send the email data securely to that page , without using query as much as possible for a cleaner look 
-        Nav.NavigateTo("/Validate", forceLoad: true);
+        await PendingValidationState.SetEmailAsync(_model.Email);
+        Nav.NavigateTo("/validate", forceLoad: true);
     }
 }

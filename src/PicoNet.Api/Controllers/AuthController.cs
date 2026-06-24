@@ -20,7 +20,13 @@ public class AuthController : ControllerBase
     public async Task<IResult> Register([FromBody] RegisterRequest request, CancellationToken ct)
     {
         var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(
-            new RegisterCommand(request.Email, request.Password), ct);
+            new RegisterCommand(request.Username, request.Email, request.Password, HttpContext.GetUserAgentData()), ct);
+        
+        if (result.IsSuccess)
+        {
+            Response .SetAccessToken(result.Value.Tokens.AccessToken,result.Value.Tokens.AccessExpiresAt);
+            Response .SetRefreshToken(result.Value.Tokens.RefreshToken,result.Value.Tokens.RefreshExpiresAt);
+        }
 
         return result.Match(Results.Ok, errors => errors.ToProblemResult());
     }
@@ -29,7 +35,13 @@ public class AuthController : ControllerBase
     public async Task<IResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
         var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(
-            new LoginCommand(request.Email, request.Username, request.Password), ct);
+            new LoginCommand(request.Email, request.Username, request.Password, HttpContext.GetUserAgentData()), ct);
+        
+        if (result.IsSuccess)
+        {
+            Response .SetAccessToken(result.Value.Tokens.AccessToken,result.Value.Tokens.AccessExpiresAt);
+            Response .SetRefreshToken(result.Value.Tokens.RefreshToken,result.Value.Tokens.RefreshExpiresAt);
+        }
 
         return result.Match(Results.Ok, errors => errors.ToProblemResult());
     }
@@ -43,10 +55,22 @@ public class AuthController : ControllerBase
         return result.Match(Results.Ok, errors => errors.ToProblemResult());
     }
     
-    [HttpHead("Refresh")]
-    public async Task<IResult> ValidateEmail(CancellationToken ct)
+    [HttpGet("Refresh")]
+    public async Task<IResult> RefreshToken(CancellationToken ct)
     {
-        var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(HttpContext.GetRefreshCommand(), ct);
+        var refreshToken = HttpContext.GetRefreshToken();
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            return Results.Forbid();
+        }
+        var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(new RefreshCommand(HttpContext.GetUserAgentData(),refreshToken), ct);
+
+        if (result.IsSuccess)
+        {
+            Response .SetAccessToken(result.Value.Tokens.AccessToken,result.Value.Tokens.AccessExpiresAt);
+            Response .SetRefreshToken(result.Value.Tokens.RefreshToken,result.Value.Tokens.RefreshExpiresAt);
+        }
+        
 
         return result.Match(Results.Ok, errors => errors.ToProblemResult());
     }

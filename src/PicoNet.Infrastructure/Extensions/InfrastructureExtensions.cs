@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PicoNet.Infrastructure.Data;
 using PicoNet.Infrastructure.Identity;
+using PicoNet.Infrastructure.Identity.Entities;
 using PicoNet.Infrastructure.Identity.Implementations;
 using PicoNet.Infrastructure.Identity.Interfaces;
 using PicoNet.Infrastructure.IServices;
@@ -18,11 +19,15 @@ public static class InfrastructureExtensions
         IConfiguration configuration)
     {
         // Database
+        var dbConnectionString = 
+            configuration.GetConnectionString("piconet") ??
+                                 configuration.GetConnectionString("DefaultConnection");
+        
         services.AddDbContext<PicoNetDbContext>(options =>
         {
             options.UseNpgsql(
-                configuration.GetConnectionString("piconet"), //DefaultConnection for local instance
-                npgsqlOptions =>
+                dbConnectionString,
+            npgsqlOptions =>
                 {
                     npgsqlOptions.EnableRetryOnFailure(3);
                     npgsqlOptions.CommandTimeout(30);
@@ -36,30 +41,14 @@ public static class InfrastructureExtensions
             }
         });
         
-        // OpenIddict stores will also use the same context
-        services.AddOpenIddict()
-            .AddCore(options =>
-                options.UseEntityFrameworkCore().UseDbContext<PicoNetDbContext>());
+        services.AddOpenIddictConfig();
         
-        services.AddIdentityCore<ApplicationUser>(options =>
-            {
-                options.Password.RequiredLength = 8;
-                options.Password.RequireNonAlphanumeric = false; // tune later
-                options.User.RequireUniqueEmail = true;
-            })
-            .AddRoles<IdentityRole<Guid>>()
-            .AddEntityFrameworkStores<PicoNetDbContext>();
-        
-        services.AddScoped<ITokenService, TokenService>();
-        
-        // Services
         services.AddSingleton<IShortCodeGenerator>(sp =>
         {
             var salt = configuration["ShortCode:Salt"] ?? "PicoNet-Default-Salt";
             return new ShortCodeGenerator(salt);
         });
         
-        // Health checks
         services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database");
         

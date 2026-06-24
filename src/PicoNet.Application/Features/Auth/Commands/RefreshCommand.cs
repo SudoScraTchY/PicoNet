@@ -2,5 +2,4 @@
 
 namespace PicoNet.Application.Features.Auth.Commands;
 
-public record RefreshCommand(UserAgentData  UserAgentData,
-    UserContext? UserContext,string RefreshToken);
+public record RefreshCommand(UserAgentData  UserAgentData, string RefreshToken);

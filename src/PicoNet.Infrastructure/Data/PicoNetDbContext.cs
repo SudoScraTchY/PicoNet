@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using PicoNet.Domain.Entities;
 using PicoNet.Domain.Entities.Common.Interfaces;
 using PicoNet.Infrastructure.Identity;
+using PicoNet.Infrastructure.Identity.Entities;
 
 namespace PicoNet.Infrastructure.Data;
 
@@ -42,7 +43,5 @@ public class PicoNetDbContext : IdentityDbContext<ApplicationUser,IdentityRole<G
     
     public DbSet<ShortenedUrl> Urls => Set<ShortenedUrl>();
     public DbSet<UrlVisit> Visits => Set<UrlVisit>();
-    
-    // Add this when you create User entity:
-    // public DbSet<User> Users => Set<User>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 }

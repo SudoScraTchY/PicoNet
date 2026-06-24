@@ -3,6 +3,7 @@ using PicoNet.Contracts.DTOs.Responses.Shortener;
 using PicoNet.Domain.Entities;
 using PicoNet.Domain.ValueObjects;
 using PicoNet.Infrastructure.Identity;
+using PicoNet.Infrastructure.Identity.Entities;
 using Riok.Mapperly.Abstractions;
 
 namespace PicoNet.Application.Mappings;

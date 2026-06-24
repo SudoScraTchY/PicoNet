@@ -9,4 +9,5 @@ public interface IAuthApiClient
     Task<ErrorOr<AuthResponse>> LoginAsync(LoginRequest command, CancellationToken ct);
     Task<ErrorOr<AuthResponse>> RegisterAsync(RegisterRequest command, CancellationToken ct);
     Task<ErrorOr<AuthResponse>> ValidateEmailAsync(ValidateRegistrationRequest command, CancellationToken ct);
+    Task<ErrorOr<ChangeEmailResponse>> ChangeEmailAsync(ChangeEmailRequest model, CancellationToken none);
 }

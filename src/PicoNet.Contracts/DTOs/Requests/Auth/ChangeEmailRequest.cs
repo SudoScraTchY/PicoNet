@@ -1,3 +1,9 @@
-﻿namespace PicoNet.Contracts.DTOs.Requests.Auth;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record ChangeEmailRequest(string NewEmail);
+namespace PicoNet.Contracts.DTOs.Requests.Auth;
+
+public record ChangeEmailRequest()
+{
+    [Required,EmailAddress]
+    public string NewEmail { get; set; }
+}

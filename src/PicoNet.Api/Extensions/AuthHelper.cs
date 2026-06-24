@@ -22,30 +22,36 @@ public static class AuthHelper
             ? httpContext.Request.Headers.Authorization.ToString()
             : httpContext.Request.Cookies["Authorization"];
     }
+
+    public static void SetAccessToken(this HttpResponse response, string accessToken,DateTime expires)
+    {
+        response.Cookies.Append("Authorization", accessToken,new CookieOptions()
+        {
+            Expires = expires,
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+        });
+        response.Headers.Authorization = accessToken;
+    }
+    
+    public static void SetRefreshToken(this HttpResponse response, string refreshToken,DateTime expires)
+    {
+        response.Cookies.Append("RefreshToken", refreshToken,new CookieOptions()
+        {
+            Expires = expires,
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+        });
+        response.Headers["refreshToken"] = refreshToken;
+    }
     
     public static string? GetRefreshToken(this HttpContext httpContext)
     {
         return httpContext.Request.Headers["RefreshToken"].Count > 0
-            ? httpContext.Request.Headers.Authorization.ToString()
+            ? httpContext.Request.Headers["RefreshToken"].ToString()
             : httpContext.Request.Cookies["RefreshToken"];
-    }
-
-    public static ErrorOr<RefreshCommand> GetRefreshCommand(this HttpContext httpContext)
-    {
-        var refreshToken = httpContext.GetRefreshToken();
-
-        if (refreshToken == null)
-            return Error.Unauthorized();
-
-        var userAgentData = httpContext.GetUserAgentData();
-        
-        UserContext? userContext = null;
-
-        var userIdString =  httpContext.User.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub);
-        if (userIdString is { Value: not null } && Guid.TryParse(userIdString.Value, out var userId))
-            userContext = new UserContext(userId);
-
-        return new RefreshCommand(userAgentData, userContext, refreshToken);
     }
 
     public static UserAgentData GetUserAgentData(this HttpContext httpContext)

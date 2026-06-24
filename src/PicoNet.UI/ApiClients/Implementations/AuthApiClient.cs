@@ -43,4 +43,15 @@ public class AuthApiClient : IAuthApiClient
         return await response.Content.ReadFromJsonAsync<AuthResponse>(cancellationToken: ct) 
                ?? (ErrorOr<AuthResponse>)Error.Unexpected("Auth.EmptyResponse", "Server returned an empty response.");
     }
+
+    public async Task<ErrorOr<ChangeEmailResponse>> ChangeEmailAsync(ChangeEmailRequest command, CancellationToken ct)
+    {
+        var response = await _http.PostAsJsonAsync("/api/auth/ChangeEmail", command, ct);
+        
+        if (!response.IsSuccessStatusCode)
+            return await response.ToErrorListAsync(ct);
+        
+        return await response.Content.ReadFromJsonAsync<ChangeEmailResponse>(cancellationToken: ct) 
+               ?? (ErrorOr<ChangeEmailResponse>)Error.Unexpected("Auth.EmptyResponse", "Server returned an empty response.");
+    }
 }

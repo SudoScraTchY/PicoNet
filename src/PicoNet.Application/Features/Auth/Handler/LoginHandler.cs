@@ -4,6 +4,7 @@ using PicoNet.Application.Features.Auth.Commands;
 using PicoNet.Application.Mappings;
 using PicoNet.Contracts.DTOs.Responses.Auth;
 using PicoNet.Infrastructure.Identity;
+using PicoNet.Infrastructure.Identity.Entities;
 using PicoNet.Infrastructure.Identity.Interfaces;
 
 namespace PicoNet.Application.Features.Auth.Handler;
@@ -38,7 +39,12 @@ public sealed class LoginHandler
             return Error.Unauthorized("Auth.InvalidCredentials", "Invalid email or password.");
 
         var (token, expiresAt) = _tokenService.GenerateToken(user);
-        return new AuthResponse(AccessToken: token, RefreshToken: string.Empty, ExpiresAt: expiresAt,
-            User: user.ToAuthResponseUser());
+        
+        var (refreshToken, refreshExpiresAt) =
+            await _tokenService.GenerateRefreshTokenAsync(user, command.UserAgentData.IpAddress,
+                command.UserAgentData.UserAgent, null, ct);
+        
+        return new AuthResponse(new AuthTokenResponse(token,expiresAt, refreshToken, refreshExpiresAt),
+            user.ToAuthResponseUser());
     }
 }

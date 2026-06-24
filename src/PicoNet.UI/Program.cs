@@ -17,11 +17,14 @@ builder.Services.ConfigureHttpClientDefaults(http =>
 // Add Garnet distributed caching
 builder.AddRedisDistributedCache(connectionName: "piconet-cache");
 
+builder.Services.AddHttpContextAccessor();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<CurrentUserTokenAccessor>();
+builder.Services.AddScoped<PendingValidationState>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -45,7 +48,6 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
-
 app.UseAntiforgery();
 
 app.MapStaticAssets();

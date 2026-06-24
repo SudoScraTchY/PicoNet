@@ -1,0 +1,86 @@
+﻿@using PicoNet.Contracts.DTOs.Requests.Auth
+@using PicoNet.UI.ApiClients.Interfaces
+@inject IAuthApiClient AuthClient
+
+@if (Open)
+{
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+        <div class="w-full max-w-md rounded-[28px] border border-border bg-surface-0 p-6 shadow-2xl shadow-black/20">
+            <div class="mb-6 flex items-start justify-between gap-4">
+                <div>
+                    <div class="text-xs uppercase tracking-[0.35em] text-muted">Security</div>
+                    <h2 class="mt-2 text-2xl font-black tracking-tight">Change email</h2>
+                    <p class="mt-2 text-sm text-muted">Use a new address for your account notifications and login flow.</p>
+                </div>
+
+                <button class="rounded-2xl border border-border bg-surface-50 px-3 py-2 text-sm hover:bg-surface-100" @onclick="Close">✕</button>
+            </div>
+
+            <EditForm Model="_model" OnValidSubmit="SubmitAsync">
+                <DataAnnotationsValidator />
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="mb-2 block text-sm font-medium">New email</label>
+                        <InputText @bind-Value="_model.NewEmail" placeholder="New email" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" class="flex-1 rounded-2xl border border-border bg-surface-50 px-4 py-3 font-semibold hover:bg-surface-100" @onclick="Close">Cancel</button>
+                        <button type="submit" class="flex-1 rounded-2xl bg-gradient-to-r from-primary-600 to-primary-500 px-4 py-3 font-semibold text-white hover:shadow-lg hover:shadow-primary-500/20 active:scale-[0.99]">Update email</button>
+                    </div>
+                </div>
+            </EditForm>
+
+            @if (_errors is { Count: > 0 })
+            {
+                <div class="mt-5 rounded-2xl border border-error/20 bg-error/10 p-4 text-sm text-error">
+                    @foreach (var err in _errors)
+                    {
+                        <div>@err.Description</div>
+                    }
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(_success))
+            {
+                <div class="mt-5 rounded-2xl border border-success/20 bg-success/10 p-4 text-sm text-success">
+                    @_success
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    private readonly ChangeEmailRequest _model = new();
+    private IList<ErrorOr.Error> _errors = [];
+    private string? _success;
+
+    private async Task SubmitAsync()
+    {
+        _errors = [];
+        _success = null;
+
+        var result = await AuthClient.ChangeEmailAsync(_model, CancellationToken.None);
+        if (result.IsError)
+        {
+            _errors = result.Errors;
+            return;
+        }
+
+        _success = "Email updated successfully.";
+        if (OnChanged.HasDelegate) await OnChanged.InvokeAsync();
+        await Task.Delay(700);
+        await Close();
+    }
+
+    private async Task Close()
+    {
+        if (OpenChanged.HasDelegate) await OpenChanged.InvokeAsync(false);
+    }
+}
