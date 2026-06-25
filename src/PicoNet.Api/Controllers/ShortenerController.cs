@@ -1,17 +1,12 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using ErrorOr;
+﻿using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PicoNet.Api.Extensions;
 using PicoNet.Application.Features.Shortener.Commands;
 using PicoNet.Application.Features.Shortener.Queries;
-using PicoNet.Contracts.DTOs.Requests;
 using PicoNet.Contracts.DTOs.Requests.Shortener;
 using PicoNet.Contracts.DTOs.Responses;
 using PicoNet.Contracts.DTOs.Responses.Shortener;
-using PicoNet.Infrastructure.Identity;
 using Wolverine;
 
 namespace PicoNet.Api.Controllers;

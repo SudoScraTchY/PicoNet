@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using PicoNet.ServiceDefaults;
+using Microsoft.AspNetCore.Components.Authorization;
 using PicoNet.UI.ApiClients.Implementations;
 using PicoNet.UI.ApiClients.Interfaces;
 using PicoNet.UI.Components;
@@ -23,18 +23,29 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped<CurrentUserTokenAccessor>();
+builder.Services.AddScoped<IUserTokenProvider, UserTokenProvider>();
+builder.Services.AddScoped<ITokenStorage,ProtectedTokenStorage>();
 builder.Services.AddScoped<PendingValidationState>();
+builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthStateProvider>();
+builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
+        options.Cookie.Name = "BlazorAuth";
         options.LoginPath = "/login";
-        options.ExpireTimeSpan = TimeSpan.FromHours(2); // match your JWT lifetime for now
     });
+
+// Program.cs
+builder.Services.AddScoped<TokenForwardingHandler>();
+
+// Also register a named client for internal proxy if needed
+builder.Services.AddHttpClient<IBlazorInternalApi,BlazorInternalApi>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7271/");
+}).AddHttpMessageHandler<TokenForwardingHandler>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState(); // makes auth state available to all components
-
 builder.Services.AddApiClients(builder.Configuration);
 
 var app = builder.Build();
@@ -48,12 +59,13 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+app.AddPicoNetAuthInternalHandler();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.UseAuthentication();
-app.UseAuthorization();
 app.Run();

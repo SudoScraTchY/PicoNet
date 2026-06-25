@@ -39,8 +39,8 @@ public class AuthController : ControllerBase
         
         if (result.IsSuccess)
         {
-            Response .SetAccessToken(result.Value.Tokens.AccessToken,result.Value.Tokens.AccessExpiresAt);
-            Response .SetRefreshToken(result.Value.Tokens.RefreshToken,result.Value.Tokens.RefreshExpiresAt);
+            Response.SetAccessToken(result.Value.Tokens.AccessToken,result.Value.Tokens.AccessExpiresAt);
+            Response.SetRefreshToken(result.Value.Tokens.RefreshToken,result.Value.Tokens.RefreshExpiresAt);
         }
 
         return result.Match(Results.Ok, errors => errors.ToProblemResult());

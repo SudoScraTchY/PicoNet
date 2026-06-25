@@ -1,0 +1,82 @@
+﻿@page "/settings"
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+<PageTitle>Settings | NimMas</PageTitle>
+<div class="min-h-screen bg-background text-foreground">
+    <div class="mx-auto max-w-5xl px-4 py-10">
+        <div class="mb-10">
+            <div class="text-xs uppercase tracking-[0.35em] text-muted">
+                Preferences
+            </div>
+            <h1 class="mt-2 text-5xl font-black tracking-tight">
+                Settings
+            </h1>
+            <p class="mt-3 max-w-2xl text-muted">
+                Manage account preferences, security and identity.
+            </p>
+        </div>
+        <div class="space-y-6">
+            <section class="rounded-[30px] border border-border bg-surface-0 p-8">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold">
+                        Security
+                    </h2>
+                    <div class="text-sm text-muted">
+                        Protect and maintain your account.
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <button
+                        @onclick="()=>_showChangePassword=true"
+                        class="group flex w-full items-center justify-between rounded-2xl border border-border bg-surface-50 p-5 transition hover:border-primary-500/30 hover:bg-surface-100">
+                        <div>
+                            <div class="font-semibold">
+                                Change Password
+                            </div>
+                            <div class="text-sm text-muted">
+                                Update your account credentials
+                            </div>
+                        </div>
+                        <span class="text-primary-500">
+                            →
+                        </span>
+                    </button>
+                    <button
+                        @onclick="()=>_showChangeEmail=true"
+                        class="group flex w-full items-center justify-between rounded-2xl border border-border bg-surface-50 p-5 transition hover:border-primary-500/30 hover:bg-surface-100">
+                        <div>
+                            <div class="font-semibold">
+                                Change Email
+                            </div>
+                            <div class="text-sm text-muted">
+                                Update email and verify ownership
+                            </div>
+                        </div>
+                        <span class="text-primary-500">
+                            →
+                        </span>
+                    </button>
+                </div>
+            </section>
+            <section class="rounded-[30px] border border-border bg-surface-0 p-8">
+                <h2 class="text-xl font-bold">
+                    Sessions
+                </h2>
+                <div class="mt-4 rounded-2xl bg-surface-50 p-5">
+                    <div class="font-medium">
+                        Coming Soon
+                    </div>
+                    <div class="text-sm text-muted">
+                        Device history, revoke sessions and activity logs.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+<ChangeEmailModal Open="_showChangeEmail" OpenChanged="v=>_showChangeEmail=v" />
+<ChangePasswordModal Open="_showChangePassword" OpenChanged="v=>_showChangePassword=v" />
+@code {
+    private bool _showChangeEmail;
+    private bool _showChangePassword;
+}

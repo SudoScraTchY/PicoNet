@@ -31,10 +31,7 @@ builder.Services.AddWolverine(opts =>
 builder.AddRedisDistributedCache(connectionName: "piconet-cache");
 builder.Services.AddSingleton<IRedirectCacheService,RedirectCacheService>();
 
-builder.Services.AddControllers(options =>
-{
-    options.ModelBinderProviders.Insert(0, new UserContextBinderProvider());
-});
+builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 

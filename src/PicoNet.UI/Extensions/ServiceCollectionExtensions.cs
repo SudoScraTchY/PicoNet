@@ -10,22 +10,23 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddTransient<AuthHeaderHandler>();
+        services.AddScoped<AuthHeaderHandler>();
+        services.AddScoped<CurrentUserTokenAccessor>();
         
         services.AddHttpClient<IUrlApiClient, UrlApiClient>(client =>
         {
             client.BaseAddress = new Uri("https+http://api");
-        }).AddHttpMessageHandler<AuthHeaderHandler>();
+        }).AddHttpMessageHandler<TokenForwardingHandler>();
 
         services.AddHttpClient<IRedirectClient, RedirectClient>(client =>
         {
             client.BaseAddress = new Uri("https+http://api");
-        }).AddHttpMessageHandler<AuthHeaderHandler>();
+        }).AddHttpMessageHandler<TokenForwardingHandler>();
         
         services.AddHttpClient<IAuthApiClient, AuthApiClient>(client =>
         {
             client.BaseAddress = new Uri("https+http://api");
-        }).AddHttpMessageHandler<AuthHeaderHandler>();      
+        }).AddHttpMessageHandler<TokenForwardingHandler>();      
         
         return services;
     }
