@@ -1,33 +1,117 @@
-﻿@inject NavigationManager NavigationManager
+﻿@using Blazor.Heroicons
+@using PicoNet.UI.Components.Shared
 @rendermode InteractiveServer
 
-<nav class="flex flex-col gap-1">
-    <NavLink href="/dashboard" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all" ActiveClass="bg-indigo-500/10 text-indigo-300 border border-indigo-400/20" NotActiveClass="text-indigo-100/60 hover:text-white hover:bg-white/5">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-        Dashboard
-    </NavLink>
-
-    <NavLink href="/create" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all" ActiveClass="bg-indigo-500/10 text-indigo-300 border border-indigo-400/20" NotActiveClass="text-indigo-100/60 hover:text-white hover:bg-white/5">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        New Link
-    </NavLink>
-
-    <NavLink href="/settings" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all" ActiveClass="bg-indigo-500/10 text-indigo-300 border border-indigo-400/20" NotActiveClass="text-indigo-100/60 hover:text-white hover:bg-white/5">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-        Analytics
-    </NavLink>
-
-    <NavLink @onclick="@( () => NavigationManager.NavigateTo(@"/settings"))" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all" ActiveClass="bg-indigo-500/10 text-indigo-300 border border-indigo-400/20" NotActiveClass="text-indigo-100/60 hover:text-white hover:bg-white/5">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        Settings
-    </NavLink>
+<nav class="flex h-full flex-col">
+    <!-- Profile -->
+    <div class="mb-8">
+        <div class="
+            rounded-3xl
+            border
+            border-[var(--color-border)]
+            bg-[var(--color-surface-50)]/80
+            p-4
+            backdrop-blur">
+            <div class="flex items-center gap-3">
+                <div class="
+                    flex h-14 w-14 shrink-0
+                    items-center justify-center
+                    rounded-2xl
+                    bg-gradient-to-br
+                    from-[var(--color-primary-500)]
+                    to-[var(--color-accent-500)]
+                    font-bold
+                    text-white">
+                    M
+                </div>
+                <div class="min-w-0">
+                    <div class="
+                        truncate
+                        font-semibold
+                        text-[var(--color-foreground)]">
+                        Mehrshad
+                    </div>
+                    <div class="
+                        truncate
+                        text-sm
+                        text-[var(--color-muted)]">
+                        @@example.com
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 flex items-center gap-2">
+                <span class="
+                    rounded-full
+                    bg-[var(--color-success)]/15
+                    px-2.5 py-1
+                    text-xs
+                    font-medium
+                    text-[var(--color-success)]">
+                    Active
+                </span>
+                <span class="
+                    text-xs
+                    text-[var(--color-muted)]">
+                    Free Plan
+                </span>
+            </div>
+        </div>
+    </div>
+    <!-- Navigation -->
+    <div class="flex-1">
+        <div class="
+            mb-3
+            px-4
+            text-xs
+            font-semibold
+            uppercase
+            tracking-[0.2em]
+            text-[var(--color-muted)]">
+            Workspace
+        </div>
+        <div class="space-y-2">
+            <NavItem
+                Href="/dashboard"
+                Text="Dashboard"
+                Icon="@(HeroiconName.Home)" />
+            <NavItem
+                Href="/create"
+                Text="Create Link"
+                Icon="@(HeroiconName.PlusCircle)" />
+            <NavItem
+                Href="/analytics"
+                Text="Analytics"
+                Icon="@(HeroiconName.ChartBarSquare)" />
+            <NavItem
+                Href="/settings"
+                Text="Settings"
+                Icon="@(HeroiconName.Cog6Tooth)" />
+        </div>
+    </div>
+    <!-- Dock -->
+    <div class="
+        border-t
+        border-[var(--color-border)]
+        pt-6">
+        <button class="
+            mt-5
+            flex
+            w-full
+            items-center
+            gap-3
+            rounded-2xl
+            px-4
+            py-3
+            text-sm
+            font-medium
+            text-[var(--color-error)]
+            transition
+            hover:bg-[var(--color-error)]/10">
+            <Heroicon
+                Type="HeroiconType.Mini"
+                Name="@(HeroiconName.ArrowLeftStartOnRectangle)"
+                class="h-5 w-5" />
+            Sign Out
+        </button>
+    </div>
 </nav>

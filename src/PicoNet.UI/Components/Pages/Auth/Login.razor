@@ -1,15 +1,13 @@
 ﻿@page "/login"
 @rendermode InteractiveServer
+@using BitzArt.Blazor.Auth
 @using ErrorOr
-@using Microsoft.AspNetCore.Mvc
-@inject CurrentUserTokenAccessor TokenAccessor
 @using PicoNet.Contracts.DTOs.Requests.Auth
-@using PicoNet.UI.ApiClients.Interfaces
+@using PicoNet.UI.Models
 @using PicoNet.UI.Services
-@inject IAuthApiClient AuthClient
 @inject NavigationManager Nav
-@inject ITokenStorage TokenStorage
-@inject IBlazorInternalApi Http
+@inject IUserService<LoginRequest> UserService
+@inject ICurrentUserService CurrentUserService
 
 <PageTitle>Login | NimMas</PageTitle>
 <div class="min-h-screen bg-background text-foreground px-4 py-10 flex items-center justify-center">
@@ -19,21 +17,22 @@
             <h1 class="mt-3 text-3xl font-black tracking-tight">Sign in</h1>
             <p class="mt-2 text-sm text-muted">Continue to your dashboard and keep building your path.</p>
         </div>
-        <form OnValidSubmit="HandleLoginAsync" method="post" action="/api/auth/login" class FormName="landing-login-form">
+        <EditForm Model="_model" OnValidSubmit="HandleLoginAsync" FormName="landing-login-form">
+            <DataAnnotationsValidator />
             <div class="space-y-4">
                 <div>
                     <label class="mb-2 block text-sm font-medium">Email</label>
-                    <input name="@nameof(_model.Email)" type="@nameof(_model.Email)" placeholder="Email" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
+                    <InputText @bind-Value="_model.Email" placeholder="Email" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
                 </div>
                 <div>
                     <label class="mb-2 block text-sm font-medium">Password</label>
-                    <input name="@nameof(_model.Password)" type="@nameof(_model.Password)" placeholder="Password" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
+                    <InputText @bind-Value="_model.Password" type="password" placeholder="Password" class="w-full rounded-2xl border border-border bg-surface-50 px-4 py-3 outline-none transition focus:border-primary-500" />
                 </div>
                 <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-primary-600 to-primary-500 px-4 py-3 font-semibold text-white transition hover:shadow-lg hover:shadow-primary-500/20 active:scale-[0.99]">
                     Sign in
                 </button>
             </div>
-        </form>
+        </EditForm>
         @if (_errors is { Count: > 0 })
         {
             <div class="mt-6 rounded-2xl border border-error/20 bg-error/10 p-4 text-sm text-error">
@@ -51,20 +50,41 @@
     private readonly LoginRequest _model = new();
     private IList<Error> _errors = [];
     
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         // Read the cookie that BitzArt set
+    //         var accessToken = await JSRuntime.InvokeAsync<string?>(
+    //             "eval", "document.cookie.split('; ').find(row => row.startsWith('BlazorAuth.AccessToken='))?.split('=')[1]");
+    //
+    //         if (!string.IsNullOrEmpty(accessToken))
+    //         {
+    //             TokenStore.AccessToken = accessToken;
+    //         }
+    //     }
+    // }
     private async Task HandleLoginAsync()
     {
         // Call YOUR server, not the external API
-        var response = await Http.Login(_model);
-        
-        if (response is { IsSuccess: false, Value.IsSuccessStatusCode: true })
+        var result = await UserService.SignInAsync(_model);
+
+        if (!result.IsSuccess)
         {
-            var problem = await response.Value.Content.ReadFromJsonAsync<ProblemDetails>();
-            // handle errors
+            //_errors = result.ErrorMessage;
             return;
         }
-    
-        // Cookies are automatically set by the browser from the HttpResponse
-        // Now do a full redirect to establish the auth cookie in the circuit
+
+        // Store user info for the circuit lifetime
+        // CurrentUserService.SetUser(new UserSession
+        // {
+        //     Id = result.Data.Id,
+        //     Email = user.Email,
+        //     UserName = user.UserName,
+        //     DisplayName = user.DisplayName ?? user.Email
+        // });
+        
+        // Force reload to establish auth state in the circuit
         Nav.NavigateTo("/dashboard", forceLoad: true);
     }
 }

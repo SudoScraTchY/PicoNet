@@ -7,7 +7,7 @@
 @inject IAuthApiClient AuthClient
 @inject NavigationManager Nav
 @inject PendingValidationState PendingValidationState
-@inject ITokenStorage TokenStorage
+@inject ICircuitTokenStore TokenStorage
 
 <PageTitle>Validate Email | NimMas</PageTitle>
 
@@ -129,12 +129,6 @@ else
             _errors = result.Errors;
             return;
         }
-
-        await TokenStorage.SaveTokensAsync(
-            result.Value.Tokens.AccessToken, 
-            result.Value.Tokens.RefreshToken
-        );
-
         await PendingValidationState.ClearAsync();
 
         Nav.NavigateTo("/dashboard", forceLoad: true);
