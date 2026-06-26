@@ -1,5 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using ErrorOr;
+using ImTools;
 using PicoNet.Application.Features.Auth.Commands;
 using PicoNet.Contracts.DTOs.Requests.Auth;
 
@@ -9,10 +11,14 @@ public static class AuthHelper
 {
     public static ErrorOr<UserContext> GetCurrentUser(this HttpContext httpContext)
     {
-        var userIdString = httpContext?.User?.Claims?.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub);
+        var userIdString = httpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)
+                           ?? httpContext?.User?.FindFirst(JwtRegisteredClaimNames.Sub);
+
+        var list = httpContext?.User?.List();
+
         if (userIdString is { Value: not null } && Guid.TryParse(userIdString.Value, out var userId))
             return new UserContext(userId);
-        
+
         return Error.Unauthorized();
     }
 

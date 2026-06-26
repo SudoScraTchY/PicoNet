@@ -71,6 +71,7 @@ public class ShortenerController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CursorPaginatedResult<ShortUrlResponse>))]
     public async Task<IResult> GetUserShortenedUrls(string? cursor ,int pageSize,CancellationToken ct)
     {
+        var test = Request;
         var userCtx = HttpContext.GetCurrentUser();
         if(userCtx.IsError)
             return  Results.Unauthorized();

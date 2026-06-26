@@ -1,45 +1,48 @@
-﻿using System.Net.Http.Headers;
+﻿namespace PicoNet.UI.Services;
 
-namespace PicoNet.UI.Services;
+using System.Net.Http.Headers;
 
 public sealed class AuthHeaderHandler : DelegatingHandler
 {
-    private readonly ITokenStorage _tokenStorage;
-    private readonly CurrentUserTokenAccessor _currentUserTokenAccessor;
+    private readonly IHttpContextAccessor? _httpContextAccessor;
+    private readonly ICircuitTokenStore? _circuitTokenStore;
+    private readonly ILogger<AuthHeaderHandler> _logger;
 
-    public AuthHeaderHandler(ITokenStorage tokenStorage, CurrentUserTokenAccessor currentUserTokenAccessor)
+    public AuthHeaderHandler(
+        IHttpContextAccessor? httpContextAccessor,
+        ILogger<AuthHeaderHandler> logger, ICircuitTokenStore? circuitTokenStore)
     {
-        _tokenStorage = tokenStorage;
-        _currentUserTokenAccessor = currentUserTokenAccessor;
+        _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
+        _circuitTokenStore = circuitTokenStore;
     }
 
-// Inside your AuthHeaderHandler.cs / AuthHeaderHandler class
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var path = request.RequestUri?.AbsolutePath ?? "";
-        var token1 = _currentUserTokenAccessor.AccessToken;
-
-        // 1. Bypass token extraction completely for anonymous auth endpoints
-        if (path.Contains("/login", StringComparison.OrdinalIgnoreCase) || 
-            path.Contains("/register", StringComparison.OrdinalIgnoreCase))
+        var httpContext = _httpContextAccessor?.HttpContext;
+        
+        if (httpContext != null)
         {
-            return await base.SendAsync(request, cancellationToken);
-        }
-
-        try
-        {
-            var token = await _tokenStorage.GetAccessTokenAsync();
-            if (!string.IsNullOrEmpty(token))
+            // Read cookies that BitzArt set
+            if (httpContext.Request.Cookies.TryGetValue("AccessToken", out var accessToken) 
+                && !string.IsNullOrEmpty(accessToken))
             {
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token1);
+                request.Headers.Authorization = 
+                    new AuthenticationHeaderValue("Bearer", accessToken);
+            }
+
+            if (httpContext.Request.Cookies.TryGetValue("RefreshToken", out var refreshToken) 
+                && !string.IsNullOrEmpty(refreshToken))
+            {
+                request.Headers.TryAddWithoutValidation("RefreshToken", refreshToken);
             }
         }
-        catch (InvalidOperationException exception)
+        else
         {
-            // 2. Safe fallback: If a non-auth endpoint is hit during an unexpected SSR state,
-            // log it or skip attaching the header instead of crashing the SignalR circuit.
+            _logger.LogWarning("HttpContext is null — cannot attach auth token");
         }
 
-        return await base.SendAsync(request, cancellationToken);
+        return base.SendAsync(request, cancellationToken);
     }
 }
