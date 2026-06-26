@@ -1,19 +1,20 @@
 using BitzArt.Blazor.Auth.Server;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Authorization;
-using PicoNet.UI.ApiClients.Implementations;
-using PicoNet.UI.ApiClients.Interfaces;
 using PicoNet.UI.Components;
 using PicoNet.UI.Extensions;
 using PicoNet.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddServiceDiscovery();
-builder.Services.ConfigureHttpClientDefaults(http =>
+if (builder.Environment.IsDevelopment())
 {
-    http.AddServiceDiscovery();
-});
+    builder.Services.AddServiceDiscovery();
+
+    builder.Services.ConfigureHttpClientDefaults(http =>
+    {
+        http.AddServiceDiscovery();
+    });
+}
 
 // Add Garnet distributed caching
 var connectionString = builder.Configuration.GetConnectionString("piconet-cache")
