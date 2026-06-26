@@ -1,11 +1,7 @@
-// PicoNet.AppHost/Program.cs
-
-using System.Security.Cryptography;
-using Aspire.Hosting;
-
 var builder = DistributedApplication.CreateBuilder(args);
 
-// == 1. Add PostgreSQL Database (Pinned to 17.6) ==
+builder.AddProject<Projects.PicoNet_Api>("piconet-api");
+
 var dbPassword = builder.AddParameter("postgres-password", secret: true);
 
 var postgres = builder
@@ -14,19 +10,19 @@ var postgres = builder
     .WithImage("library/postgres", "17.6") 
     .WithDataVolume("piconet-postgres-data")
     // Pin pgAdmin to your target version 9.12.0
-    .WithPgAdmin(c => c.WithImage("dpage/pgadmin4", "9.12.0"))
-    .AddDatabase("piconet"); 
+    //.WithPgAdmin(c => c.WithImage("dpage/pgadmin4", "9.12.0"))
+    .AddDatabase("piconet");
 
-// == 2. Add Redis Cache (Replacing Garnet, Pinned to stable v7 / v8) ==
 var cache = builder
     .AddRedis("piconet-cache", port: 6379)
-    .WithImage("library/redis", "8.6.3") 
-    .WithDataVolume("piconet-redis-data")
-    .WithRedisCommander();
+    .WithImage("library/redis", "8.6.3")
+    .WithDataVolume("piconet-redis-data");
+    //.WithRedisCommander();
 
-// The API project
-// AppHost/Program.cs
-var jwtKey = builder.AddParameter("jwt-key", secret: true, value: GenerateJwtKey());
+var jwtKey =
+    builder.AddParameter(
+        "jwt-key",
+        secret: true);
 
 var api = builder
     .AddProject<Projects.PicoNet_Api>("api")
@@ -48,12 +44,4 @@ var ui = builder
     .WaitFor(api)
     .WithExternalHttpEndpoints(); 
 
-// == 4. Build and Run ==
 builder.Build().Run();
-return;
-
-static string GenerateJwtKey()
-{
-    var bytes = RandomNumberGenerator.GetBytes(32); // 32 bytes = 256-bit key
-    return Convert.ToBase64String(bytes);
-}

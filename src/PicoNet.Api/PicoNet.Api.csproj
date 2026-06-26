@@ -4,11 +4,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="13.3.5" />
-    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.3.5" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="13.4.6" />
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.4.6" />
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
     <PackageReference Include="ErrorOr" Version="2.1.1" />
@@ -46,6 +47,12 @@
     <ProjectReference Include="..\PicoNet.Contracts\PicoNet.Contracts.csproj" />
     <ProjectReference Include="..\PicoNet.Infrastructure\PicoNet.Infrastructure.csproj" />
     <ProjectReference Include="..\PicoNet.ServiceDefaults\PicoNet.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
   </ItemGroup>
 
 </Project>

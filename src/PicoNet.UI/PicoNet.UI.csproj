@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <!-- Download Tailwind CLI automatically -->
@@ -33,8 +34,8 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.StackExchange.Redis" Version="13.3.5" />
-    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.3.5" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="13.4.6" />
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.4.6" />
     <PackageReference Include="BitzArt.Blazor.Auth.Server" Version="2.1.1" />
     <PackageReference Include="Blazilla" Version="2.4.0" />
     <PackageReference Include="Blazor.Heroicons" Version="3.2.1.1" />
@@ -67,6 +68,12 @@
 
   <ItemGroup>
     <Folder Include="tools\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
   </ItemGroup>
 
 </Project>
