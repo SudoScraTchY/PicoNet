@@ -16,7 +16,19 @@ builder.Services.ConfigureHttpClientDefaults(http =>
 });
 
 // Add Garnet distributed caching
-builder.AddRedisDistributedCache(connectionName: "piconet-cache");
+var connectionString = builder.Configuration.GetConnectionString("piconet-cache")
+                       ?? Environment.GetEnvironmentVariable("ConnectionStrings__piconet-cache")
+                       ?? Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING");
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException("Redis connection string not found in configuration or environment variables.");
+    }
+
+builder.AddRedisDistributedCache(connectionName:"piconet-cache",cfg =>
+{
+    cfg.ConnectionString = connectionString;
+});
 
 builder.Services.AddHttpContextAccessor();
 

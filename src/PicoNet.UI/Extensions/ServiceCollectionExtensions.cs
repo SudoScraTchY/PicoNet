@@ -10,23 +10,28 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var apiUrl =
+            configuration["Api:BaseUrl"]
+            ?? throw new InvalidOperationException(
+                "Api:BaseUrl missing");
+        
         services.AddTransient<AuthHeaderHandler>();
         
         services.AddHttpClient<IUrlApiClient, UrlApiClient>(client =>
         {
-            client.BaseAddress = new Uri("https+http://api");
+            client.BaseAddress = new Uri(apiUrl);
         })
         .AddHttpMessageHandler<AuthHeaderHandler>();
 
         services.AddHttpClient<IRedirectClient, RedirectClient>(client =>
         {
-            client.BaseAddress = new Uri("https+http://api");
+            client.BaseAddress = new Uri(apiUrl);
         })
         .AddHttpMessageHandler<AuthHeaderHandler>();
 
         services.AddHttpClient<IAuthApiClient, AuthApiClient>(client =>
         {
-            client.BaseAddress = new Uri("https+http://api");
+            client.BaseAddress = new Uri(apiUrl);
         })
         .AddHttpMessageHandler<AuthHeaderHandler>();      
         
