@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +50,7 @@ builder.Services.AddAuthentication(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            NameClaimType = JwtRegisteredClaimNames.Sub,
             ValidateIssuer = true,
             ValidIssuer = jwtSection["Issuer"],
             ValidateAudience = true,

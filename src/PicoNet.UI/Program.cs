@@ -1,3 +1,4 @@
+using BitzArt.Blazor.Auth.Server;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
 using PicoNet.UI.ApiClients.Implementations;
@@ -23,30 +24,23 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddScoped<IUserTokenProvider, UserTokenProvider>();
-builder.Services.AddScoped<ITokenStorage,ProtectedTokenStorage>();
+builder.Services.AddScoped<ICircuitTokenStore, CircuitTokenStore>();
 builder.Services.AddScoped<PendingValidationState>();
-builder.Services.AddScoped<AuthenticationStateProvider, CookieAuthStateProvider>();
-builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.AddBlazorAuth<PicoNetAuthenticationService>();
+
+builder.Services.AddApiClients(builder.Configuration);
+
+// Auth
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.Cookie.Name = "BlazorAuth";
+        options.Cookie.Name = "PicoNet.Auth";
         options.LoginPath = "/login";
     });
 
-// Program.cs
-builder.Services.AddScoped<TokenForwardingHandler>();
-
-// Also register a named client for internal proxy if needed
-builder.Services.AddHttpClient<IBlazorInternalApi,BlazorInternalApi>(client =>
-{
-    client.BaseAddress = new Uri("https://localhost:7271/");
-}).AddHttpMessageHandler<TokenForwardingHandler>();
-
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState(); // makes auth state available to all components
-builder.Services.AddApiClients(builder.Configuration);
 
 var app = builder.Build();
 
@@ -61,8 +55,8 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.AddPicoNetAuthInternalHandler();
 app.UseAntiforgery();
+app.MapAuthEndpoints();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
