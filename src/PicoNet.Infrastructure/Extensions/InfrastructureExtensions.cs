@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PicoNet.Infrastructure.Data;
 using PicoNet.Infrastructure.Identity;
-using PicoNet.Infrastructure.Identity.Entities;
-using PicoNet.Infrastructure.Identity.Implementations;
-using PicoNet.Infrastructure.Identity.Interfaces;
 using PicoNet.Infrastructure.IServices;
 using PicoNet.Infrastructure.Services;
 

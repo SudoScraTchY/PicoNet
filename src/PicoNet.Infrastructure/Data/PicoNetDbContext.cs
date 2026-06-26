@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PicoNet.Domain.Entities;
 using PicoNet.Domain.Entities.Common.Interfaces;
-using PicoNet.Infrastructure.Identity;
 using PicoNet.Infrastructure.Identity.Entities;
 
 namespace PicoNet.Infrastructure.Data;
