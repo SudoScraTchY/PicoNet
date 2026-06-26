@@ -6,7 +6,7 @@ namespace PicoNet.UI.Components.Admin;
 
 public partial class Dashboard : ComponentBase
 {
-    private readonly List<ShortUrlResponse> _urls = [];
+    private readonly List<ShortUrlResponse>? _urls = [];
     private string? _nextCursor;
     private bool _hasMore;
 

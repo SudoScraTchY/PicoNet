@@ -1,0 +1,131 @@
+@namespace PicoNet.UI.Components.Shared
+@using System.Threading
+
+@if (_isVisible)
+{
+    <!-- Backdrop -->
+    <div class="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm dark:bg-black/40" @onclick="Cancel"></div>
+
+    <!-- Modal -->
+    <div class="fixed inset-x-4 bottom-4 z-50 mx-auto max-w-md rounded-2xl border border-red-200 bg-white shadow-2xl dark:border-red-900 dark:bg-zinc-900">
+        <div class="p-6">
+            <!-- Header -->
+            <div class="mb-4">
+                <h3 class="text-lg font-bold text-red-700 dark:text-red-300">
+                    Delete URL?
+                </h3>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                    This action cannot be undone. The URL will be permanently deleted.
+                </p>
+            </div>
+
+            <!-- Timer Section -->
+            <div class="mb-6 rounded-xl bg-red-50/80 p-4 dark:bg-red-950/30">
+                <div class="mb-2 flex items-center justify-between">
+                    <span class="text-sm font-medium text-red-700 dark:text-red-300">Auto-delete in</span>
+                    <span class="text-2xl font-bold text-red-600 dark:text-red-400 font-mono">
+                        @_timeRemaining
+                    </span>
+                </div>
+                <!-- Progress Bar -->
+                <div class="h-1.5 overflow-hidden rounded-full bg-red-200/50 dark:bg-red-900/50">
+                    <div class="h-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-1000"
+                         style="width: @($"{(_timeRemaining / _initialDelay * 100):F1}%")"></div>
+                </div>
+            </div>
+
+            <!-- Short URL Info -->
+            <div class="mb-6 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-zinc-700 dark:bg-zinc-800">
+                <div class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">URL to delete</div>
+                <div class="mt-1 truncate text-sm font-medium text-slate-700 dark:text-slate-300">
+                    @ShortCode
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-3">
+                <button
+                    type="button"
+                    @onclick="Cancel"
+                    class="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300">
+                    Cancel
+                </button>
+                <button
+                    type="button"
+                    @onclick="DeleteNow"
+                    class="flex-1 rounded-lg bg-gradient-to-r from-red-600 to-red-700 px-4 py-2.5 text-sm font-medium text-white transition-all hover:scale-[1.02] active:scale-95">
+                    Delete Now
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public string ShortCode { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    [Parameter]
+    public int DelaySeconds { get; set; } = 5;
+
+    private bool _isVisible;
+    private int _timeRemaining;
+    private int _initialDelay;
+    private CancellationTokenSource? _timerCts;
+
+    public void Show()
+    {
+        _isVisible = true;
+        _initialDelay = DelaySeconds;
+        _timeRemaining = DelaySeconds;
+        _timerCts = new CancellationTokenSource();
+        _ = StartTimer(_timerCts.Token);
+    }
+
+    private async Task StartTimer(CancellationToken ct)
+    {
+        try
+        {
+            while (_timeRemaining > 0 && !ct.IsCancellationRequested)
+            {
+                await Task.Delay(1000, ct);
+                if (!ct.IsCancellationRequested)
+                {
+                    _timeRemaining--;
+                    StateHasChanged();
+                }
+            }
+
+            if (_timeRemaining <= 0 && !ct.IsCancellationRequested)
+            {
+                await DeleteNow();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Timer was cancelled, do nothing
+        }
+    }
+
+    private async Task DeleteNow()
+    {
+        _timerCts?.Cancel();
+        _isVisible = false;
+        await OnConfirm.InvokeAsync();
+    }
+
+    private async Task Cancel()
+    {
+        _timerCts?.Cancel();
+        _isVisible = false;
+        await OnCancel.InvokeAsync();
+    }
+}
+
+

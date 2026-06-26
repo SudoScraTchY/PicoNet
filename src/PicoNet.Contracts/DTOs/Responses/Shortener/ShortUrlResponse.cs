@@ -14,6 +14,7 @@ public record ShortUrlResponse()
     public List<string>? Tags  { get; init; }
     public int MaxClicks  { get; init; }
     public long ClickCount { get; init; }
+    public bool IsPermanent { get; set; }
     public string? Password { get; init; }
     public string? Campaign { get; init; }
     public DateTime? LastAccessedAt { get; init; }

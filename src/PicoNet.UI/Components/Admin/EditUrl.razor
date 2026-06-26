@@ -1,0 +1,332 @@
+@page "/edit/{UrlId:guid}"
+@using Blazor.Heroicons.Solid
+@using PicoNet.UI.ApiClients.Interfaces
+@using PicoNet.UI.Components.Shared
+@using PicoNet.Contracts.DTOs.Requests.Shortener
+@using PicoNet.Contracts.DTOs.Responses.Shortener
+@using PicoNet.Domain.Enums
+@using ErrorOr
+@inject IUrlApiClient ApiClient
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<PageTitle>Edit Short Link — PicoNet</PageTitle>
+
+<div class="mx-auto max-w-3xl px-5 py-10">
+    <div class="mb-8">
+        <div class="inline-flex items-center gap-2 rounded-full
+                    border border-indigo-200 bg-indigo-50
+                    px-3 py-1 text-xs font-medium text-indigo-700
+                    dark:border-indigo-900 dark:bg-indigo-950 dark:text-indigo-300">
+            Edit Link
+        </div>
+        <h1 class="mt-4 text-4xl font-black tracking-tight
+                   text-slate-900 dark:text-white">
+            Edit shortened URL
+        </h1>
+        <p class="mt-2 text-slate-500 dark:text-zinc-400">
+            Update the settings for your short link.
+        </p>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="flex justify-center py-20">
+            <div class="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"></div>
+        </div>
+    }
+    else if (_url is null)
+    {
+        <div class="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+            URL not found.
+        </div>
+    }
+    else
+    {
+        @if (_errors is { Count: > 0 })
+        {
+            <div class="mb-6 space-y-3">
+                @foreach (var err in _errors)
+                {
+                    <ErrorAlert
+                        Message="@err.Description"
+                        OnDismiss="@(() => _errors.Remove(err))" />
+                }
+            </div>
+        }
+
+        <EditForm
+            Model="_editModel"
+            OnValidSubmit="HandleSubmitAsync"
+            FormName="edit-url">
+            <DataAnnotationsValidator />
+            <div class="rounded-3xl border border-slate-200
+                        bg-white shadow-sm
+                        dark:border-zinc-800
+                        dark:bg-zinc-900">
+                <div class="p-8 space-y-7">
+                    @* Short Code (Read-only) *@
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold">
+                            Short Code
+                        </label>
+                        <div class="inline-flex items-center rounded-lg bg-indigo-50/80 px-3 py-2 text-sm font-semibold text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300">
+                            <span class="opacity-60 mr-1">https://nimmas.ir/</span>
+                            <span class="font-mono">@_url.ShortCode</span>
+                        </div>
+                    </div>
+
+                    @* URL *@
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold">
+                            Destination URL
+                        </label>
+                        <InputText
+                            @bind-Value="_editModel.OriginalUrl"
+                            placeholder="https://example.com/article"
+                            class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white" />
+                    </div>
+
+                    @* Alias *@
+                    <div>
+                        <label class="mb-2 block text-sm font-semibold">
+                            Custom Alias
+                            <span class="ml-1 text-slate-400 font-normal">
+                                optional
+                            </span>
+                        </label>
+                        <div class="flex overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10 dark:border-zinc-700 dark:bg-zinc-800">
+                            <div class="border-r border-slate-200 px-4 py-4 text-sm text-slate-500 dark:border-zinc-700">
+                                nimmas.ir/u/
+                            </div>
+                            <InputText
+                                @bind-Value="_editModel.CustomAlias"
+                                placeholder="summer-sale"
+                                class="flex-1 bg-transparent px-4 outline-none dark:text-white" />
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(_editModel.CustomAlias))
+                        {
+                            <div class="mt-3 rounded-xl bg-indigo-50 px-4 py-3 text-sm text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+                                Preview:
+                                <span class="font-semibold">
+                                    nimmas.ir/u/@_editModel.CustomAlias
+                                </span>
+                            </div>
+                        }
+                    </div>
+
+                    @* Advanced *@
+                    <details
+                        class="rounded-2xl border border-slate-200 dark:border-zinc-800">
+                        <summary class="cursor-pointer select-none px-5 py-4 font-semibold">
+                            Advanced Options
+                        </summary>
+                        <div class="space-y-5 px-5 pb-5">
+                            <div>
+                                <label class="mb-2 block text-sm">
+                                    Status
+                                </label>
+                                <InputSelect
+                                    @bind-Value="_selectedStatus"
+                                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800">
+                                    <option value="">Select Status</option>
+                                    <option value="@UrlStatus.Active.ToString()">Active</option>
+                                    <option value="@UrlStatus.Inactive.ToString()">Inactive</option>
+                                    <option value="@UrlStatus.Expired.ToString()">Expired</option>
+                                    <option value="@UrlStatus.Suspended.ToString()">Suspended</option>
+                                </InputSelect>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <InputCheckbox
+                                    @bind-Value="_editModel.IsPermanent"
+                                    class="h-4 w-4 rounded border-slate-300" />
+                                <label class="text-sm font-medium">
+                                    Make Permanent (never expires)
+                                </label>
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm">
+                                    Password
+                                </label>
+                                <InputText
+                                    @bind-Value="_editModel.Password"
+                                    type="password"
+                                    placeholder="Optional"
+                                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800" />
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm">
+                                    Tags
+                                </label>
+                                <InputText
+                                    @bind-Value="_tagsRaw"
+                                    placeholder="marketing, q2"
+                                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800" />
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm">
+                                    Expiry Time
+                                    <span class="ml-1 text-slate-400 font-normal">
+                                        optional
+                                    </span>
+                                </label>
+                                <InputDate
+                                    @bind-Value="_editModel.ExpiryTime"
+                                    type="@InputDateType.DateTimeLocal"
+                                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800" />
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm">
+                                    Campaign
+                                    <span class="ml-1 text-slate-400 font-normal">
+                                        optional
+                                    </span>
+                                </label>
+                                <InputText
+                                    @bind-Value="_editModel.Campaign"
+                                    placeholder="e.g., summer-2026"
+                                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800" />
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end gap-3">
+                <button
+                    type="button"
+                    @onclick='() => Nav.NavigateTo("/dashboard")'
+                    class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-medium">
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    disabled="@(_submitting)"
+                    class="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-7 py-3 text-sm font-semibold text-white hover:scale-[1.02] transition disabled:opacity-50">
+                    @(_submitting ? "Saving..." : "Save Changes")
+                </button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid UrlId { get; set; }
+
+    private ShortUrlResponse? _url;
+    private EditShortUrlRequest _editModel = new EditShortUrlRequest(null, null, null, null, false, null, null, null);
+    private string _tagsRaw = string.Empty;
+    private string _selectedStatus = string.Empty;
+    private List<Error> _errors = [];
+    private bool _submitting = false;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUrlAsync();
+    }
+
+    private async Task LoadUrlAsync()
+    {
+        _loading = true;
+        try
+        {
+            var result = await ApiClient.GetByIdAsync(UrlId);
+            if (result.IsError)
+            {
+                _errors = result.Errors.ToList();
+            }
+            else
+            {
+                _url = result.Value;
+                if (_url is not null)
+                {
+                    _editModel = new EditShortUrlRequest(
+                        _url.OriginalUrl,
+                        _url.CustomAlias,
+                        _url.Status,
+                        _url.Tags,
+                        _url.IsPermanent,
+                        _url.ExpiresAt,
+                        null,
+                        _url.Campaign
+                    );
+
+                    _selectedStatus = _url.Status.ToString();
+                    _tagsRaw = _url.Tags is { Count: > 0 } ? string.Join(", ", _url.Tags) : string.Empty;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _errors.Add(Error.Unexpected("Load.Exception", ex.Message));
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        _submitting = true;
+        _errors.Clear();
+
+        try
+        {
+            // Parse tags
+            List<string>? tags = null;
+            if (!string.IsNullOrWhiteSpace(_tagsRaw))
+            {
+                tags = _tagsRaw
+                    .Split(',')
+                    .Select(t => t.Trim())
+                    .Where(t => !string.IsNullOrWhiteSpace(t))
+                    .ToList();
+            }
+
+            // Parse status
+            UrlStatus? status = null;
+            if (!string.IsNullOrWhiteSpace(_selectedStatus) && 
+                Enum.TryParse<UrlStatus>(_selectedStatus, out var parsedStatus))
+            {
+                status = parsedStatus;
+            }
+
+            // Create request with parsed values
+            var request = new EditShortUrlRequest(
+                _editModel.OriginalUrl,
+                _editModel.CustomAlias,
+                status,
+                tags,
+                _editModel.IsPermanent,
+                _editModel.ExpiryTime,
+                _editModel.Password,
+                _editModel.Campaign
+            );
+
+            var result = await ApiClient.EditAsync(UrlId, request);
+
+            if (result.IsError)
+            {
+                _errors = result.Errors.ToList();
+            }
+            else
+            {
+                Nav.NavigateTo("/dashboard");
+            }
+        }
+        catch (Exception ex)
+        {
+            _errors.Add(Error.Unexpected("Edit.Exception", ex.Message));
+        }
+        finally
+        {
+            _submitting = false;
+        }
+    }
+}
+
+
+

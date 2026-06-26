@@ -35,7 +35,7 @@
     {
         <UrlTable
             Urls="_urls"
-            BaseUrl="nimmas.ir"
+            OnUrlDeleted="@(id => _urls?.RemoveAll(x=>x.Id == id))"
             EmptyActionLabel="Shorten your first URL"
             OnEmptyAction='() => Nav.NavigateTo("/create")' />
 
