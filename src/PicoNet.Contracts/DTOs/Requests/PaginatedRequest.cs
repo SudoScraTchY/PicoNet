@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace PicoNet.Contracts.DTOs.Requests;
+﻿namespace PicoNet.Contracts.DTOs.Requests;
 
 public class OffsetPaginatedRequestDto(int pageNumber, int pageSize)
 {
