@@ -1,0 +1,119 @@
+services:
+  compose-dashboard:
+    image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest"
+    ports:
+      - "18888"
+    expose:
+      - "18889"
+      - "18890"
+    networks:
+      - "aspire"
+    restart: "always"
+  piconet-db:
+    image: "docker.io/library/postgres:17.6"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    expose:
+      - "5432"
+    volumes:
+      - type: "volume"
+        target: "/var/lib/postgresql/data"
+        source: "piconet-postgres-data"
+        read_only: false
+    networks:
+      - "aspire"
+  piconet-cache:
+    image: "docker.io/library/redis:8.6.3"
+    command:
+      - "-c"
+      - "redis-server --requirepass $$REDIS_PASSWORD --save 60 1"
+    entrypoint:
+      - "/bin/sh"
+    environment:
+      REDIS_PASSWORD: "${PICONET_CACHE_PASSWORD}"
+    expose:
+      - "6379"
+    volumes:
+      - type: "volume"
+        target: "/data"
+        source: "piconet-redis-data"
+        read_only: false
+    networks:
+      - "aspire"
+  api:
+    image: "${API_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${API_PORT}"
+      ConnectionStrings__piconet: "Host=piconet-db;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=piconet"
+      PICONET_HOST: "piconet-db"
+      PICONET_PORT: "5432"
+      PICONET_USERNAME: "postgres"
+      PICONET_PASSWORD: "${POSTGRES_PASSWORD}"
+      PICONET_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@piconet-db:5432/piconet"
+      PICONET_JDBCCONNECTIONSTRING: "jdbc:postgresql://piconet-db:5432/piconet"
+      PICONET_DATABASENAME: "piconet"
+      ConnectionStrings__piconet-cache: "piconet-cache:6379,password=${PICONET_CACHE_PASSWORD}"
+      PICONET_CACHE_HOST: "piconet-cache"
+      PICONET_CACHE_PORT: "6379"
+      PICONET_CACHE_PASSWORD: "${PICONET_CACHE_PASSWORD}"
+      PICONET_CACHE_URI: "redis://:${PICONET_CACHE_PASSWORD}@piconet-cache:6379"
+      Jwt__Key: "${JWT_KEY}"
+      Jwt__Issuer: "PicoNet"
+      Jwt__Audience: "PicoNetClients"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "api"
+    ports:
+      - "${API_PORT}"
+    depends_on:
+      piconet-db:
+        condition: "service_started"
+      piconet-cache:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  ui:
+    image: "${UI_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${UI_PORT}"
+      API_HTTP: "http://api:${API_PORT}"
+      services__api__http__0: "http://api:${API_PORT}"
+      API_HTTPS: "https://api:${API_PORT}"
+      ConnectionStrings__piconet: "Host=piconet-db;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=piconet"
+      PICONET_HOST: "piconet-db"
+      PICONET_PORT: "5432"
+      PICONET_USERNAME: "postgres"
+      PICONET_PASSWORD: "${POSTGRES_PASSWORD}"
+      PICONET_URI: "postgresql://postgres:${POSTGRES_PASSWORD}@piconet-db:5432/piconet"
+      PICONET_JDBCCONNECTIONSTRING: "jdbc:postgresql://piconet-db:5432/piconet"
+      PICONET_DATABASENAME: "piconet"
+      ConnectionStrings__piconet-cache: "piconet-cache:6379,password=${PICONET_CACHE_PASSWORD}"
+      PICONET_CACHE_HOST: "piconet-cache"
+      PICONET_CACHE_PORT: "6379"
+      PICONET_CACHE_PASSWORD: "${PICONET_CACHE_PASSWORD}"
+      PICONET_CACHE_URI: "redis://:${PICONET_CACHE_PASSWORD}@piconet-cache:6379"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "ui"
+    ports:
+      - "${UI_PORT}"
+    depends_on:
+      api:
+        condition: "service_started"
+    networks:
+      - "aspire"
+networks:
+  aspire:
+    driver: "bridge"
+volumes:
+  piconet-postgres-data:
+    driver: "local"
+  piconet-redis-data:
+    driver: "local"
