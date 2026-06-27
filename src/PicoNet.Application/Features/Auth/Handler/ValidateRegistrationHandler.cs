@@ -33,7 +33,8 @@ public sealed class ValidateRegistrationHandler
             return Error.Failure("User.Email", result.Errors.First().Description);
         }
 
-        var (token, expiresAt) = _tokenService.GenerateToken(user);
+        var roles = await _userManager.GetRolesAsync(user);
+        var (token, expiresAt) = _tokenService.GenerateToken(user, roles);
         var (refreshToken, refreshExpiresAt) =
             await _tokenService.GenerateRefreshTokenAsync(user, command.UserAgentData.IpAddress,
                 command.UserAgentData.UserAgent, null, ct);
