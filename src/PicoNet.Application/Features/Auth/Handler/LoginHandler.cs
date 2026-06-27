@@ -38,7 +38,8 @@ public sealed class LoginHandler
         if (!passwordValid)
             return Error.Unauthorized("Auth.InvalidCredentials", "Invalid email or password.");
 
-        var (token, expiresAt) = _tokenService.GenerateToken(user);
+        var roles = await _userManager.GetRolesAsync(user);
+        var (token, expiresAt) = _tokenService.GenerateToken(user, roles);
         
         var (refreshToken, refreshExpiresAt) =
             await _tokenService.GenerateRefreshTokenAsync(user, command.UserAgentData.IpAddress,

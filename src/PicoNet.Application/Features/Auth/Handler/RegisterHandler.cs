@@ -39,7 +39,8 @@ public sealed class RegisterHandler
         var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         Console.WriteLine($"\n{emailConfirmationToken} has been Created for {command.Email}.\n");
         
-        var (token, expiresAt) = _tokenService.GenerateToken(user);
+        
+        var (token, expiresAt) = _tokenService.GenerateToken(user, ["user"]);
         
         var (refreshToken, refreshExpiresAt) =
             await _tokenService.GenerateRefreshTokenAsync(user, command.UserAgentData.IpAddress,

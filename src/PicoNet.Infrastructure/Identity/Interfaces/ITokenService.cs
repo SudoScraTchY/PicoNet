@@ -5,7 +5,7 @@ namespace PicoNet.Infrastructure.Identity.Interfaces;
 
 public interface ITokenService
 {
-    (string Token, DateTime ExpiresAt) GenerateToken(ApplicationUser user);
+    (string Token, DateTime ExpiresAt) GenerateToken(ApplicationUser user, IList<string> roles);
 
     Task<(string RefreshToken, DateTime ExpiresAt)> GenerateRefreshTokenAsync(
         ApplicationUser user, string? createdByIp, string? userAgent, Guid? replacesTokenId, CancellationToken ct);

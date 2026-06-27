@@ -24,15 +24,14 @@ public class ShortenerController : ControllerBase
     }
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<IResult> CreateUserShortUrl([FromBody] CreateShortUrlRequest request,CancellationToken ct)
     {
         var userCtx = HttpContext.GetCurrentUser();
-        if(userCtx.IsError)
-            return  Results.Unauthorized();
         
         var command = new CreateShortUrlCommand(
             OriginalUrl: request.OriginalUrl,
-            userCtx.Value,
+            userCtx.IsSuccess ? userCtx.Value : null,
             CustomAlias: request.CustomAlias,
             Tags: request.Tags,
             MaxClicks: request.MaxClicks,

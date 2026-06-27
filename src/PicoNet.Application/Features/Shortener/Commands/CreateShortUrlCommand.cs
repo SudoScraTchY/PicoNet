@@ -5,7 +5,7 @@ namespace PicoNet.Application.Features.Shortener.Commands;
 
 public record CreateShortUrlCommand(
     string OriginalUrl,
-    UserContext UserContext,
+    UserContext? UserContext = null,
     DateTime? ExpiryTime = null,
     string? Campaign = null,
     int? MaxClicks = null,

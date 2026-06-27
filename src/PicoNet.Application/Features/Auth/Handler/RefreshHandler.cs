@@ -57,7 +57,8 @@ public sealed class RefreshHandler
         if (user is null)
             return Error.Unauthorized("Auth.InvalidUser", "User no longer exists.");
 
-        var (accessToken, accessExpiresAt) = _tokenService.GenerateToken(user);
+        var roles = await _userManager.GetRolesAsync(user);
+        var (accessToken, accessExpiresAt) = _tokenService.GenerateToken(user, roles);
         var (newRefreshToken, refreshExpiresAt) = await _tokenService.GenerateRefreshTokenAsync(
             user, command.UserAgentData.IpAddress, command.UserAgentData.UserAgent, stored.Id, ct);
 

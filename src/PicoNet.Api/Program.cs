@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using PicoNet.Api.ModelBinding;
+using Microsoft.AspNetCore.Identity;
 using PicoNet.Application.Extensions;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
@@ -38,6 +38,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddProblemDetails();
 
+
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var signingKey = Encoding.UTF8.GetBytes(jwtSection["Key"]!);
 
@@ -62,7 +63,10 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
+});
 
 var app = builder.Build();
 
@@ -71,13 +75,17 @@ app.MapDefaultEndpoints();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PicoNetDbContext>();
-
     await db.Database.MigrateAsync();
+
+    // Ensure default roles exist
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    foreach (var roleName in new[] { "User", "Admin" })
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
+            await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+    }
 }
 
-if (app.Environment.IsDevelopment())
-{
-}
 app.MapScalarApiReference();
 app.MapOpenApi();
 

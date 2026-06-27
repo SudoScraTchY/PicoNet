@@ -17,7 +17,14 @@ public static class AuthHelper
         var list = httpContext?.User?.List();
 
         if (userIdString is { Value: not null } && Guid.TryParse(userIdString.Value, out var userId))
-            return new UserContext(userId);
+        {
+            var roles = httpContext?.User?.Claims
+                .Where(c => c.Type == ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
+            
+            return new UserContext(userId,roles ?? []);
+        }
 
         return Error.Unauthorized();
     }

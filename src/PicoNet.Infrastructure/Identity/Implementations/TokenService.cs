@@ -24,7 +24,7 @@ public sealed class TokenService : ITokenService
         _dbContext = dbContext;
     }
 
-    public (string Token, DateTime ExpiresAt) GenerateToken(ApplicationUser user)
+    public (string Token, DateTime ExpiresAt) GenerateToken(ApplicationUser user,IList<string> roles)
     {
         var jwtSection = _config.GetSection("Jwt");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]!));
@@ -35,10 +35,11 @@ public sealed class TokenService : ITokenService
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new("token_type", "access"), 
+            new("token_type", "access"),
             new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // unique per token
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
         var token = new JwtSecurityToken(
             issuer: jwtSection["Issuer"],
