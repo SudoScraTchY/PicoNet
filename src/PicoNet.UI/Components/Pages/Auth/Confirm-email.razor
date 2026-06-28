@@ -1,0 +1,70 @@
+﻿@page "/confirm-email"
+@rendermode InteractiveServer
+@using PicoNet.Contracts.DTOs.Requests.Auth
+@using PicoNet.UI.ApiClients.Interfaces
+@inject IAuthApiClient AuthClient
+@inject NavigationManager Nav
+
+<PageTitle>Confirm Email | PicoNet</PageTitle>
+
+<div class="min-h-screen flex items-center justify-center bg-background px-4">
+    <div class="w-full max-w-md rounded-[28px] border border-border bg-surface-0 p-8 shadow-2xl text-center">
+        
+        @if (_processing)
+        {
+            <div class="animate-pulse text-muted">Confirming your email...</div>
+        }
+        else if (_success)
+        {
+            <h1 class="text-2xl font-black tracking-tight text-success">Email confirmed!</h1>
+            <p class="mt-2 text-sm text-muted">You can now log in to your account.</p>
+            <button @onclick="GoToLogin" 
+                    class="mt-6 w-full rounded-2xl bg-primary-600 px-4 py-3 font-semibold text-white">
+                Go to Login
+            </button>
+        }
+        else
+        {
+            <h1 class="text-2xl font-black tracking-tight text-error">Confirmation failed</h1>
+            <p class="mt-2 text-sm text-muted">@_errorMessage</p>
+            <button @onclick="GoToRegister" 
+                    class="mt-6 w-full rounded-2xl border border-border px-4 py-3 font-semibold">
+                Back to Register
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    private bool _processing = true;
+    private bool _success;
+    private string _errorMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = Nav.ToAbsoluteUri(Nav.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        
+        var userId =  query["userId"];
+        var token = query["token"];
+
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
+        {
+            _errorMessage = "Invalid or missing confirmation link.";
+            _processing = false;
+            return;
+        }
+
+        // You'll need to add this method to your IAuthApiClient
+        var response = await AuthClient.ConfirmEmailAsync(new ValidateRegistrationRequest(userId,token), default);
+        _success = response.IsSuccess;
+        
+        if (!_success)
+            _errorMessage = "This confirmation link is invalid or has expired.";
+            
+        _processing = false;
+    }
+
+    private void GoToLogin() => Nav.NavigateTo("/login");
+    private void GoToRegister() => Nav.NavigateTo("/register");
+}

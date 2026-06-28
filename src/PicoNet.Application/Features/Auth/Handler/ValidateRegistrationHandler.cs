@@ -22,9 +22,9 @@ public sealed class ValidateRegistrationHandler
 
     public async Task<ErrorOr<AuthResponse>> Handle(ValidateEmailCommand command, CancellationToken ct)
     {
-        var user = await _userManager.FindByEmailAsync(command.Email);
+        var user = await _userManager.FindByIdAsync(command.Id.ToString());
         if (user is null)
-            return Error.Validation("User.Email", $"User with email {command.Email} not found");
+            return Error.Validation("User.Email", $"User with email {user?.Email} not found");
 
         var result = await _userManager.ConfirmEmailAsync(user, command.Token);
 

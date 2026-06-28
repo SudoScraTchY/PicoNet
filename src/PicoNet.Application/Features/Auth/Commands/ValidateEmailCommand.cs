@@ -2,4 +2,4 @@
 
 namespace PicoNet.Application.Features.Auth.Commands;
 
-public record ValidateEmailCommand(string Email,string Token,UserAgentData UserAgentData);
+public record ValidateEmailCommand(Guid Id,string Token,UserAgentData UserAgentData);

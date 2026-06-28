@@ -48,7 +48,7 @@ public class AuthApiClient : IAuthApiClient
                ?? (ErrorOr<AuthResponse>)Error.Unexpected("Auth.EmptyResponse", "Server returned an empty response.");
     }
 
-    public async Task<ErrorOr<AuthResponse>> ValidateEmailAsync(ValidateRegistrationRequest command, CancellationToken ct)
+    public async Task<ErrorOr<AuthResponse>> ConfirmEmailAsync(ValidateRegistrationRequest command, CancellationToken ct)
     {
         var response = await _http.PostAsJsonAsync("/api/auth/validate", command, ct);
         

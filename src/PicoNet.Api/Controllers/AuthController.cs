@@ -46,11 +46,16 @@ public class AuthController : ControllerBase
         return result.Match(Results.Ok, errors => errors.ToProblemResult());
     }
     
-    [HttpPost("validate")]
-    public async Task<IResult> ValidateEmail([FromBody] ValidateRegistrationRequest request, CancellationToken ct)
+    [HttpPost("confirm-email")]
+    public async Task<IResult> ConfirmEmail([FromBody] ValidateRegistrationRequest request, CancellationToken ct)
     {
+        if (!Guid.TryParse(request.Id, out var id))
+        {
+            return Results.BadRequest();
+        } 
+                
         var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(
-            new ValidateEmailCommand(request.Email, request.Token, HttpContext.GetUserAgentData()), ct);
+            new ValidateEmailCommand(id, request.Token, HttpContext.GetUserAgentData()), ct);
 
         return result.Match(Results.Ok, errors => errors.ToProblemResult());
     }

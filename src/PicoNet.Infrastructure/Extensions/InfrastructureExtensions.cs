@@ -48,6 +48,8 @@ public static class InfrastructureExtensions
         services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database");
         
+        services.AddScoped<IEmailService, ResendEmailService>();
+        
         return services;
     }
 }
