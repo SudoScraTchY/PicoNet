@@ -12,8 +12,7 @@ public static class ServiceCollectionExtensions
     {
         var apiUrl =
             configuration["Api:BaseUrl"]
-            ?? throw new InvalidOperationException(
-                "Api:BaseUrl missing");
+            ?? "https+http://api";
         
         services.AddTransient<AuthHeaderHandler>();
         

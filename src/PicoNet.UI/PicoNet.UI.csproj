@@ -10,15 +10,13 @@
   </PropertyGroup>
 
   <!-- Download Tailwind CLI automatically -->
-  <Target Name="DownloadTailwindCli" BeforeTargets="TailwindBuild" Condition="'$(Configuration)' == 'Debug'">
+  <Target Name="DownloadTailwindCli" BeforeTargets="TailwindBuild">
     <PropertyGroup>
       <TailwindUrl Condition="$([MSBuild]::IsOSPlatform('Windows'))">https://github.com/tailwindlabs/tailwindcss/releases/download/v$(TailwindVersion)/tailwindcss-windows-x64.exe</TailwindUrl>
       <TailwindUrl Condition="$([MSBuild]::IsOSPlatform('Linux'))">https://github.com/tailwindlabs/tailwindcss/releases/download/v$(TailwindVersion)/tailwindcss-linux-x64</TailwindUrl>
       <TailwindUrl Condition="$([MSBuild]::IsOSPlatform('OSX'))">https://github.com/tailwindlabs/tailwindcss/releases/download/v$(TailwindVersion)/tailwindcss-macos-x64</TailwindUrl>
-      <TailwindCliPath>$(MSBuildThisFileDirectory)tools\tailwindcss-linux-x64</TailwindCliPath>
-      <TailwindCliPath Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-        $(MSBuildThisFileDirectory)tools/tailwindcss.exe
-      </TailwindCliPath>
+      <TailwindCliPath>$(MSBuildThisFileDirectory)tools\tailwindcss</TailwindCliPath>
+      <TailwindCliPath Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(MSBuildThisFileDirectory)tools\tailwindcss.exe</TailwindCliPath>
     </PropertyGroup>
 
     <DownloadFile Condition="!Exists('$(TailwindCliPath)')" SourceUrl="$(TailwindUrl)" DestinationFolder="$(MSBuildThisFileDirectory)tools" SkipUnchangedFiles="true" />
@@ -27,16 +25,13 @@
   </Target>
 
   <!-- Build Tailwind CSS -->
-  <Target Name="TailwindBuild"
-          BeforeTargets="Build"
-          Condition="'$(Configuration)' == 'Debug'">
-    <Exec Command="'$(TailwindCliPath)'; -i wwwroot/css/input.css -o wwwroot/css/output.css --minify" />
+  <Target Name="TailwindBuild" BeforeTargets="Build">
+    <Exec Command="$(TailwindCliPath) -i wwwroot/css/input.css -o wwwroot/css/output.css --minify" />
   </Target>
 
   <!-- Watch Tailwind CSS for development -->
-  <Target Name="TailwindWatch"  BeforeTargets="Build"
-          Condition="'$(Configuration)' == 'Debug'">
-    <Exec Command="'$(TailwindCliPath)'; -i wwwroot/css/input.css -o wwwroot/css/output.css --watch" Condition="'$(Configuration)' == 'Debug'" IgnoreExitCode="true" ContinueOnError="true" />
+  <Target Name="TailwindWatch" AfterTargets="Build">
+    <Exec Command="$(TailwindCliPath) -i wwwroot/css/input.css -o wwwroot/css/output.css --watch" Condition="'$(Configuration)' == 'Debug'" IgnoreExitCode="true" ContinueOnError="true" />
   </Target>
 
   <ItemGroup>

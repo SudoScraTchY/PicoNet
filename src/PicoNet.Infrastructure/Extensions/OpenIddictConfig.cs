@@ -5,7 +5,7 @@ using PicoNet.Infrastructure.Identity.Entities;
 using PicoNet.Infrastructure.Identity.Implementations;
 using PicoNet.Infrastructure.Identity.Interfaces;
 
-namespace PicoNet.Infrastructure.Identity;
+namespace PicoNet.Infrastructure.Extensions;
 
 public static class  OpenIddictConfig
 {

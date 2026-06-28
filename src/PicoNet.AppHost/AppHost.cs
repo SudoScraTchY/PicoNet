@@ -9,8 +9,6 @@ var postgres = builder
     // Pin exactly to postgres:17.6
     .WithImage("library/postgres", "17.6") 
     .WithDataVolume("piconet-postgres-data")
-    // Pin pgAdmin to your target version 9.12.0
-    //.WithPgAdmin(c => c.WithImage("dpage/pgadmin4", "9.12.0"))
     .AddDatabase("piconet");
 
 var cache = builder
