@@ -15,7 +15,7 @@ public sealed class ResendEmailService : IEmailService
                      ?? throw new InvalidOperationException("Resend:ApiKey is not configured.");
         
         _fromEmail = config["Resend:FromEmail"] 
-                     ?? "onboarding@resend.dev";
+                     ?? "onboarding@nimmas.ir";
         _fromName = config["Resend:FromName"] 
                     ?? "PicoNet";
 

@@ -70,7 +70,8 @@
 
         if (!result.IsSuccess)
         {
-            //_errors = result.ErrorMessage;
+            
+            _errors.Add(Error.Unauthorized("InvalidCredentials",result.ErrorMessage ?? "The Email Or Password is Incorrect"));
             return;
         }
 

@@ -13,6 +13,7 @@ using PicoNet.Domain.Enums;
 using PicoNet.Domain.ValueObjects;
 using PicoNet.Infrastructure.Data;
 using PicoNet.Infrastructure.IServices;
+using PicoNet.Infrastructure.Security;
 
 namespace PicoNet.Application.Features.Shortener.Handlers;
 
@@ -21,12 +22,14 @@ public class CreateShortUrlHandler
     private readonly PicoNetDbContext _db;
     private readonly IShortCodeGenerator _codeGenerator;
     private readonly ILogger<CreateShortUrlHandler> _logger;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public CreateShortUrlHandler(PicoNetDbContext db, IShortCodeGenerator codeGenerator, ILogger<CreateShortUrlHandler> logger)
+    public CreateShortUrlHandler(PicoNetDbContext db, IShortCodeGenerator codeGenerator, ILogger<CreateShortUrlHandler> logger, IPasswordHasher passwordHasher)
     {
         _db = db;
         _codeGenerator = codeGenerator;
         _logger = logger;
+        _passwordHasher = passwordHasher;
     }   
 
     public async Task<ErrorOr<ShortUrlResponse>> Handle(CreateShortUrlCommand command)
@@ -54,17 +57,14 @@ public class CreateShortUrlHandler
         }
 
         // temporary until we create Password Hasher Service
-        string passwordHash;
-        if (command.Password != null)
-        {
-            passwordHash = command.Password;
-        }
+        var passwordHash = string.IsNullOrEmpty(command.Password) ? null :
+            _passwordHasher.HashPassword(command.Password);
 
         // 2. Create the aggregate
         var shortenedUrl = ShortenedUrl.Create(
             command.OriginalUrl,
             shortCode,
-            userId: command.UserContext.UserId,
+            userId: command.UserContext?.UserId,
             password: command.Password,
             customAlias: command.CustomAlias,
             tags: command.Tags != null ? string.Join(", ", command.Tags) : null 

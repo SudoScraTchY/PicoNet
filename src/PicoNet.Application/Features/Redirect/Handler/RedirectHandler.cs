@@ -8,6 +8,7 @@ using PicoNet.Domain.Enums;
 using PicoNet.Domain.ValueObjects;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
+using PicoNet.Infrastructure.Security;
 using Wolverine;
 
 namespace PicoNet.Application.Features.Redirect.Handler;
@@ -17,12 +18,14 @@ public sealed class RedirectHandler
     private readonly PicoNetDbContext _db;
     private readonly IRedirectCacheService _cache;
     private readonly IMessageContext _messageContext;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public RedirectHandler(PicoNetDbContext db, IRedirectCacheService cache,  IMessageContext messageContext)
+    public RedirectHandler(PicoNetDbContext db, IRedirectCacheService cache,  IMessageContext messageContext, IPasswordHasher passwordHasher)
     {
         _db = db;
         _cache = cache;
         _messageContext = messageContext;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<ErrorOr<RedirectUrlResult>> Handle(RedirectCommand command, CancellationToken ct)
@@ -79,8 +82,7 @@ public sealed class RedirectHandler
             if (string.IsNullOrEmpty(command.Password))
                 return Error.Unauthorized("Url.PasswordRequired", "This URL is password protected.");
 
-            // TODO: use proper hash comparison (BCrypt or similar) when you add auth
-            if (command.Password != dto.PasswordHash)
+            if (!_passwordHasher.VerifyPassword(command.Password, dto.PasswordHash))
                 return Error.Unauthorized("Url.InvalidPassword", "Incorrect password.");
         }
 

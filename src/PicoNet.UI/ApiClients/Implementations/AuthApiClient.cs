@@ -50,7 +50,7 @@ public class AuthApiClient : IAuthApiClient
 
     public async Task<ErrorOr<AuthResponse>> ConfirmEmailAsync(ValidateRegistrationRequest command, CancellationToken ct)
     {
-        var response = await _http.PostAsJsonAsync("/api/auth/validate", command, ct);
+        var response = await _http.PostAsJsonAsync("/api/auth/confirm-email", command, ct);
         
         if (!response.IsSuccessStatusCode)
             return await response.ToErrorListAsync(ct);
@@ -61,7 +61,7 @@ public class AuthApiClient : IAuthApiClient
 
     public async Task<ErrorOr<ChangeEmailResponse>> ChangeEmailAsync(ChangeEmailRequest command, CancellationToken ct)
     {
-        var response = await _http.PostAsJsonAsync("/api/auth/ChangeEmail", command, ct);
+        var response = await _http.PatchAsJsonAsync("/api/auth/ChangeEmail", command, ct);
         
         if (!response.IsSuccessStatusCode)
             return await response.ToErrorListAsync(ct);

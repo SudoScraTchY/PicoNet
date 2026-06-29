@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PicoNet.Infrastructure.Data;
-using PicoNet.Infrastructure.Identity;
 using PicoNet.Infrastructure.IServices;
+using PicoNet.Infrastructure.Security;
 using PicoNet.Infrastructure.Services;
 
 namespace PicoNet.Infrastructure.Extensions;
@@ -47,6 +47,8 @@ public static class InfrastructureExtensions
         
         services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database");
+        
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
         
         services.AddScoped<IEmailService, ResendEmailService>();
         

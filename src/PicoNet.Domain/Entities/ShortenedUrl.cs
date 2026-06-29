@@ -52,6 +52,7 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
         string? campaign = null,
         string? tags = null)
     {
+        
         var url = new ShortenedUrl
         {
             Id = Guid.NewGuid(),
@@ -61,7 +62,8 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
             OriginalUrl = originalUrl,
             CustomAlias = customAlias,
             UserId = userId,
-            ExpiryTime = isPermanent ? null : DateTime.UtcNow.AddDays(31),
+            ExpiryTime = !userId.HasValue ? DateTime.UtcNow.AddHours(24) : 
+                isPermanent ? null : DateTime.UtcNow.AddDays(31),
             IsPermanent = isPermanent,
             MaxClicks = maxClicks,
             Password = password,
@@ -71,6 +73,8 @@ public class ShortenedUrl : SoftDeletableAggregateRoot<Guid>
             Status = UrlStatus.Active,
             CreatedBy = userId ?? Guid.Empty
         };
+        
+        
         url.AddDomainEvent(new UrlCreatedDomainEvent(url.Id, url.NanoId, originalUrl, userId));
         
         return url;
