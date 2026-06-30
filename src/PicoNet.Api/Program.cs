@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using PicoNet.Application.Extensions;
+using PicoNet.Application.Features.Auth.Handler;
+using PicoNet.Application.Features.Redirect.Handler;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
 using PicoNet.Infrastructure.Extensions;
@@ -24,7 +26,6 @@ builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddWolverine(opts =>
 {
     opts.Discovery.IncludeAssembly(typeof(ApplicationExtension).Assembly);
-    //opts.Durability.Mode = DurabilityMode.Balanced;
     opts.UseFluentValidation(cfg => cfg.RegistrationBehavior = RegistrationBehavior.ExplicitRegistration);
 }).AddWolverineHttp();
 
@@ -38,6 +39,12 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddProblemDetails();
 
+builder.Services.AddScoped<RegisterHandler>();
+builder.Services.AddScoped<LoginHandler>();
+builder.Services.AddScoped<ValidateRegistrationHandler>();
+builder.Services.AddScoped<RefreshHandler>();
+builder.Services.AddScoped<ChangeEmailHandler>();
+builder.Services.AddScoped<RedirectHandler>();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var signingKey = Encoding.UTF8.GetBytes(jwtSection["Key"]!);

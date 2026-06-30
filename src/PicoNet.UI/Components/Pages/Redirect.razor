@@ -1,167 +1,209 @@
 ﻿@page "/u/{ShortCode}"
 @using ErrorOr
 @using PicoNet.UI.ApiClients.Interfaces
-@using PicoNet.UI.Components.Shared
 @inject IRedirectClient RedirectClient
 @inject NavigationManager Nav
 @implements IDisposable
-
-<PageTitle>@(_state == RedirectState.Loading ? "Loading..." : "نیم مسیر - Redirect")</PageTitle>
-
-<div class="min-h-screen flex items-center justify-center p-4 bg-[var(--color-bg-primary)] transition-all duration-500">
-    @if (_state == RedirectState.Loading)
-    {
-        <!-- Loading spinner with brand -->
-        <div class="text-center animate-fade-in-up">
-            <CompassSpinner />
-            <p class="mt-6 text-2xl font-bold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">
-                نیم مسیر
-            </p>
-            <p class="text-sm text-[var(--color-text-secondary)] mt-2">Preparing your path...</p>
-        </div>
-    }
-    else if (_state == RedirectState.PasswordRequired)
-    {
-        <!-- Password gate -->
-        <div class="w-full max-w-md animate-fade-in-up">
-            <div class="text-center mb-8">
-                <CompassSpinner static />
-                <h2 class="mt-4 text-3xl font-extrabold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">Protected Path</h2>
-                <p class="mt-2 text-[var(--color-text-secondary)]">This link requires a password</p>
-            </div>
-            <div class="bg-white/30 dark:bg-black/30 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/20 dark:border-white/10">
-                <div class="flex flex-col gap-4">
-                    <input type="password" @bind="Password"
-                           placeholder="Enter password"
-                           class="w-full px-4 py-3 rounded-xl bg-white/50 dark:bg-black/50 border border-white/30 dark:border-white/20
-                                  text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)]
-                                  focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all" />
-                    <button @onclick="@SubmitPassword"
-                            class="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)]
-                                   text-white shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
-                        Continue on Path
-                    </button>
+<PageTitle>@(_state == RedirectState.Ready ? "نیم مسیر" : "Preparing Journey...")</PageTitle>
+<div class="relative min-h-screen overflow-hidden bg-background text-foreground">
+    <div class="absolute inset-0 mesh-gradient opacity-40"></div>
+    <div class="absolute left-[-10rem] top-[-10rem] size-[30rem] rounded-full bg-primary-500/10 blur-3xl"></div>
+    <div class="absolute right-[-10rem] bottom-[-10rem] size-[30rem] rounded-full bg-accent-500/10 blur-3xl"></div>
+    <div class="relative flex min-h-screen items-center justify-center px-4">
+        @if (_state == RedirectState.Loading)
+        {
+            <div class="animate-fade-in-up text-center">
+                <div class="relative mx-auto mb-8 size-28">
+                    <div class="absolute inset-0 rounded-full border-4 border-primary-500/10"></div>
+                    <div class="absolute inset-0 rounded-full border-[6px] border-transparent border-t-primary-500 border-r-accent-500 animate-spin"></div>
+                    <div class="absolute inset-5 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 opacity-90 animate-pulse-glow"></div>
                 </div>
-            </div>
-        </div>
-    }
-    else if (_state == RedirectState.NotFound)
-    {
-        <!-- 404 styled -->
-        <div class="text-center animate-fade-in-up">
-            <div class="text-8xl font-black bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">404</div>
-            <h2 class="mt-4 text-2xl font-bold text-[var(--color-text-primary)]">Halfway Lost</h2>
-            <p class="mt-2 text-[var(--color-text-secondary)] max-w-sm mx-auto">
-                The path you’re looking for doesn’t exist or has expired.
-            </p>
-            <a href="/" class="inline-block mt-6 px-6 py-3 rounded-full bg-[var(--color-primary)] text-white hover:bg-[var(--color-accent)] transition-colors duration-300">
-                Start a New Journey
-            </a>
-        </div>
-    }
-    else if (_state == RedirectState.Ready)
-    {
-        <!-- Landing interstitial -->
-        <div class="w-full max-w-lg animate-fade-in-up">
-            <div class="text-center">
-                <!-- Brand visual: half circle symbol -->
-                <div class="mx-auto w-32 h-32 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-accent)] flex items-center justify-center shadow-2xl mb-6">
-                    <svg class="w-16 h-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
+                <div class="text-[11px] uppercase tracking-[0.4em] text-muted">
+                    Preparing Path
                 </div>
-                <h1 class="text-4xl font-extrabold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] bg-clip-text text-transparent">
+                <h1 class="mt-3 text-5xl font-black gradient-text">
                     نیم مسیر
                 </h1>
-                <p class="mt-2 text-lg text-[var(--color-text-secondary)]">
-                    Your bridge to the destination.
+                <p class="mt-4 text-muted">
+                    Finding the shortest way to your destination
                 </p>
-                <p class="text-sm text-[var(--color-text-secondary)] mt-1">
-                    Redirecting in <span class="font-mono font-bold text-[var(--color-accent)]">@countdown</span>s
-                </p>
-                <!-- Progress bar -->
-                <div class="mt-6 h-1.5 w-full bg-white/30 dark:bg-black/30 rounded-full overflow-hidden backdrop-blur-sm">
-                    <div class="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] transition-all duration-1000 ease-linear"
-                         style="width: @((countdown / 5.0 * 100).ToString("F0"))%"></div>
-                </div>
-                <button @onclick="GoNow"
-                        class="mt-6 px-8 py-3 rounded-full font-semibold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)]
-                               text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                    Go Now
-                </button>
             </div>
-        </div>
-    }
+        }
+        else if (_state == RedirectState.PasswordRequired)
+        {
+            <div class="w-full max-w-lg animate-fade-in-up">
+                <div class="glass rounded-[34px] border border-border bg-surface-0 p-8">
+                    <div class="text-center">
+                        <div class="mx-auto mb-6 flex size-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary-600 to-accent-500 shadow-xl shadow-primary-500/20">
+                            🔒
+                        </div>
+                        <div class="text-xs uppercase tracking-[0.35em] text-muted">
+                            Protected Route
+                        </div>
+                        <h1 class="mt-3 text-4xl font-black">
+                            Password Required
+                        </h1>
+                        <p class="mt-3 text-muted">
+                            This path is protected. Enter the password to continue.
+                        </p>
+                    </div>
+                    <div class="mt-8">
+                        <input
+                            type="password"
+                            @bind="Password"
+                            placeholder="Enter password"
+                            class="w-full rounded-3xl border border-border bg-surface-50 px-5 py-4 outline-none transition focus:border-primary-500" />
+                        <button
+                            @onclick="SubmitPassword"
+                            class="mt-4 w-full rounded-3xl bg-gradient-to-r from-primary-600 to-accent-500 px-5 py-4 font-semibold text-white hover:scale-[1.01]">
+                            Continue Journey
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (_state == RedirectState.NotFound)
+        {
+            <div class="animate-fade-in-up text-center">
+                <div class="text-[8rem] font-black text-primary-500/15">
+                    404
+                </div>
+                <h1 class="-mt-10 text-4xl font-black">
+                    Path Not Found
+                </h1>
+                <p class="mx-auto mt-4 max-w-md text-muted">
+                    This destination no longer exists,
+                    expired, or was never created.
+                </p>
+                <a
+                    href="/"
+                    class="mt-8 inline-flex rounded-3xl bg-gradient-to-r from-primary-600 to-accent-500 px-8 py-4 font-semibold text-white">
+                    Create New Path
+                </a>
+            </div>
+        }
+        else if (_state == RedirectState.Ready)
+        {
+            <div class="w-full max-w-2xl animate-fade-in-up">
+                <div class="glass overflow-hidden rounded-[40px] border border-border bg-surface-0">
+                    <div class="p-10 text-center">
+                        <div class="mx-auto mb-8 w-fit rounded-full border border-primary-500/20 bg-primary-500/10 px-5 py-2">
+                            <span class="text-xs uppercase tracking-[0.35em] text-primary-500">
+                                Half-Way There
+                            </span>
+                        </div>
+                        <h1 class="text-6xl font-black gradient-text">
+                            نیم مسیر
+                        </h1>
+                        <p class="mt-4 text-lg text-muted">
+                            We shortened the route.
+                            Your destination is waiting.
+                        </p>
+                        <div class="mt-12">
+                            <div class="mb-3 flex justify-between text-sm">
+                                <span class="text-muted">
+                                    Redirecting
+                                </span>
+                                <span class="font-black text-primary-500">
+                                    @countdown s
+                                </span>
+                            </div>
+                            <div class="h-3 overflow-hidden rounded-full bg-surface-100">
+                                <div
+                                    class="h-full rounded-full bg-gradient-to-r from-primary-600 to-accent-500 transition-all duration-1000 ease-linear"
+                                    style="width:@Progress%">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 flex justify-center gap-4">
+                            <button
+                                @onclick="GoNow"
+                                class="rounded-3xl bg-gradient-to-r from-primary-600 to-accent-500 px-8 py-4 font-semibold text-white">
+                                Go Now
+                            </button>
+                            <a
+                                href="/"
+                                class="rounded-3xl border border-border bg-surface-50 px-8 py-4">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
-
 @code {
     [Parameter]
     public string ShortCode { get; set; } = "";
-
     private RedirectState _state = RedirectState.Loading;
     private string _destination = "";
-    private string Password { get; set; } = "";
+    private string Password = "";
     private int countdown = 5;
     private Timer? _timer;
-
-    enum RedirectState { Loading, Ready, PasswordRequired, NotFound }
-
+    private string Progress =>
+        $"{((5 - countdown) / 5d) * 100:F0}%";
+    private enum RedirectState
+    {
+        Loading,
+        Ready,
+        PasswordRequired,
+        NotFound
+    }
     protected override async Task OnInitializedAsync()
     {
         await ResolveUrl();
     }
-
     private async Task ResolveUrl()
     {
-        var result = await RedirectClient.ResolveAsync(ShortCode, Password);
-
+        var result =
+            await RedirectClient.ResolveAsync(
+                ShortCode,
+                Password);
         if (result.IsError)
         {
-            if (result.Errors.Any(e => e.Type == ErrorType.Unauthorized))
-            {
-                _state = RedirectState.PasswordRequired;
-                return;
-            }
-            _state = RedirectState.NotFound;
+            _state =
+                result.Errors.Any(x => x.Type == ErrorType.Unauthorized)
+                    ? RedirectState.PasswordRequired
+                    : RedirectState.NotFound;
             return;
         }
-
         _destination = result.Value.OriginalUrl;
+        countdown = 5;
         _state = RedirectState.Ready;
         StartCountdown();
     }
-
     private async Task SubmitPassword()
     {
         _state = RedirectState.Loading;
         await ResolveUrl();
     }
-
     private void StartCountdown()
     {
-        _timer = new Timer(async _ =>
-        {
-            if (countdown > 0)
-            {
-                countdown--;
-                await InvokeAsync(StateHasChanged);
-            }
-            else
-            {
-                await GoNow();
-            }
-        }, null, 1000, 1000);
+        _timer?.Dispose();
+        _timer =
+            new Timer(
+                async _ =>
+                {
+                    if (countdown <= 0)
+                    {
+                        await InvokeAsync(GoNow);
+                        return;
+                    }
+                    countdown--;
+                    await InvokeAsync(StateHasChanged);
+                },
+                null,
+                1000,
+                1000);
     }
-
-    private async Task GoNow()
+    private Task GoNow()
     {
         _timer?.Dispose();
-        if (!string.IsNullOrEmpty(_destination))
-        {
-            Nav.NavigateTo(_destination, forceLoad: true);
-        }
+        if (!string.IsNullOrWhiteSpace(_destination))
+            Nav.NavigateTo(_destination, true);
+        return Task.CompletedTask;
     }
-
     public void Dispose()
     {
         _timer?.Dispose();

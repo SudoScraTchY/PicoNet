@@ -5,6 +5,7 @@ using Wolverine;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using PicoNet.Api.Extensions;
+using PicoNet.Application.Features.Auth.Handler;
 using PicoNet.Contracts.DTOs.Responses.Auth;
 
 namespace PicoNet.Api.Controllers;
@@ -13,13 +14,26 @@ namespace PicoNet.Api.Controllers;
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
-    private readonly IMessageBus _bus;
-    public AuthController(IMessageBus bus) => _bus = bus;
+    //private readonly IMessageBus _bus;
+    
+    private readonly RegisterHandler _registerHandler;
+    private readonly LoginHandler _loginHandler;
+    private readonly ChangeEmailHandler _changeEmailHandler;
+    private readonly ValidateRegistrationHandler _validateRegistrationHandler;
+    private readonly RefreshHandler _refreshHandler;
+    public AuthController(ValidateRegistrationHandler validateRegistrationHandler, RegisterHandler registerHandler, LoginHandler loginHandler, ChangeEmailHandler changeEmailHandler, RefreshHandler refreshHandler)
+    {
+        _validateRegistrationHandler = validateRegistrationHandler;
+        _registerHandler = registerHandler;
+        _loginHandler = loginHandler;
+        _changeEmailHandler = changeEmailHandler;
+        _refreshHandler = refreshHandler;
+    }
 
     [HttpPost("register")]
     public async Task<IResult> Register([FromBody] RegisterRequest request, CancellationToken ct)
     {
-        var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(
+        var result = await _registerHandler.Handle(
             new RegisterCommand(request.Username, request.Email, request.Password, HttpContext.GetUserAgentData()), ct);
         
         if (result.IsSuccess)
@@ -34,7 +48,7 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
-        var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(
+        var result = await _loginHandler.Handle(
             new LoginCommand(request.Email, request.Username, request.Password, HttpContext.GetUserAgentData()), ct);
         
         if (result.IsSuccess)
@@ -54,7 +68,7 @@ public class AuthController : ControllerBase
             return Results.BadRequest();
         } 
                 
-        var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(
+        var result = await _validateRegistrationHandler.Handle(
             new ValidateEmailCommand(id, request.Token, HttpContext.GetUserAgentData()), ct);
 
         return result.Match(Results.Ok, errors => errors.ToProblemResult());
@@ -68,7 +82,7 @@ public class AuthController : ControllerBase
         {
             return Results.Forbid();
         }
-        var result = await _bus.InvokeAsync<ErrorOr<AuthResponse>>(new RefreshCommand(HttpContext.GetUserAgentData(),refreshToken), ct);
+        var result = await _refreshHandler.Handle(new RefreshCommand(HttpContext.GetUserAgentData(),refreshToken), ct);
 
         if (result.IsSuccess)
         {
@@ -88,7 +102,7 @@ public class AuthController : ControllerBase
         if(userCtx.IsError)
             return  Results.Unauthorized();
 
-        var result = await _bus.InvokeAsync<ErrorOr<ChangeEmailResponse>>(
+        var result = await _changeEmailHandler.Handle(
             new ChangeEmailCommand(userCtx.Value, request.NewEmail, HttpContext.GetUserAgentData()), ct);
 
         return result.Match(Results.Ok, errors => errors.ToProblemResult());

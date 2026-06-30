@@ -23,9 +23,9 @@ public class EditShortUrlHandler
         _logger = logger;
     }
 
-    public async Task<ErrorOr<ShortUrlResponse>> Handle(EditShortUrlCommand request, CancellationToken ct)
+    public async Task<ErrorOr<ShortUrlResponse>> Handle(EditShortUrlCommand command, CancellationToken ct)
     {
-        var shortenedUrl = await _context.Urls.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == request.UserContext.UserId && x.Id == request.ShortenedUrlId, cancellationToken: ct);
+        var shortenedUrl = await _context.Urls.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == command.UserContext.UserId && x.Id == command.ShortenedUrlId, cancellationToken: ct);
 
         if (shortenedUrl is null || shortenedUrl.IsDeleted)
         {
@@ -42,10 +42,19 @@ public class EditShortUrlHandler
             return Error.Failure();
         }
 
-        shortenedUrl.Edit(request.OriginalUrl, request.CustomAlias, request.IsPermanent,
-            request.Password, request.Campaign, request.UrlStatus,
-            request.Tags != null ? string.Join(',', request.Tags) : null
-            , request.ExpiryTime);
+        if (command.CustomAlias != null)
+        {
+            if(await _context.Urls.AsNoTracking().AnyAsync(x=>x.CustomAlias == command.CustomAlias 
+                && x.Id != command.ShortenedUrlId && !x.IsDeleted, cancellationToken: ct))
+            {
+                return Error.Conflict("CustomAlias.AlreadyExists", $"Alias '{command.CustomAlias}' is already in use.");
+            }
+        }
+
+        shortenedUrl.Edit(command.OriginalUrl, command.CustomAlias, command.IsPermanent,
+            command.Password, command.Campaign, command.UrlStatus,
+            command.Tags != null ? string.Join(',', command.Tags) : null
+            , command.ExpiryTime);
         
         _context.Urls.Update(shortenedUrl);
         await _redirectCacheService.RemoveAsync(shortenedUrl.NanoId.Value,ct);

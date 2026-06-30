@@ -75,6 +75,6 @@
         }
 
         await PendingValidationState.SetEmailAsync(_model.Email);
-        Nav.NavigateTo("/validate", forceLoad: true);
+        Nav.NavigateTo("/confirm-email", forceLoad: true);
     }
 }
