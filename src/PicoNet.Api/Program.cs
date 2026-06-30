@@ -10,6 +10,7 @@ using PicoNet.Application.Features.Redirect.Handler;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
 using PicoNet.Infrastructure.Extensions;
+using PicoNet.Infrastructure.Identity.Entities;
 using PicoNet.ServiceDefaults;
 using Scalar.AspNetCore;
 using Wolverine;
@@ -90,6 +91,20 @@ using (var scope = app.Services.CreateScope())
     {
         if (!await roleManager.RoleExistsAsync(roleName))
             await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+    }
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    if(await userManager.FindByNameAsync("administrator") == null)
+    {
+        var adminUser = new ApplicationUser
+        {
+            UserName = "administrator",
+            Email = "administrator@example.com",
+            EmailConfirmed = true,
+            LockoutEnabled = false,
+            TwoFactorEnabled = false,
+            PhoneNumberConfirmed = false,
+        };
+        await userManager.CreateAsync(adminUser, "PicoNet@1234");
     }
 }
 
