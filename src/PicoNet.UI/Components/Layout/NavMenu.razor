@@ -88,6 +88,35 @@
                 Icon="@(HeroiconName.Cog6Tooth)" />
         </div>
     </div>
+    <!-- Administration Section -->
+    <AuthorizeView Roles="Admin,Administrator">
+        <Authorized>
+            <div class="
+                mb-3
+                mt-6
+                px-4
+                text-xs
+                font-semibold
+                uppercase
+                tracking-[0.2em]
+                text-[var(--color-muted)]
+                border-t
+                border-[var(--color-border)]
+                pt-6">
+                Administration
+            </div>
+            <div class="space-y-2">
+                <NavItem
+                    Href="/admin/users"
+                    Text="Users"
+                    Icon="@(HeroiconName.Users)" />
+                <NavItem
+                    Href="/admin/roles"
+                    Text="Roles"
+                    Icon="@(HeroiconName.Cog6Tooth)" />
+            </div>
+        </Authorized>
+    </AuthorizeView>
     <!-- Dock -->
     <div class="
         border-t

@@ -1,0 +1,199 @@
+@page "/admin/roles"
+@using PicoNet.UI.ApiClients.Interfaces
+@using PicoNet.UI.Services
+@using PicoNet.UI.Components.Admin
+@using PicoNet.Contracts.DTOs.Responses.Roles
+@using PicoNet.Contracts.DTOs.Requests.Roles
+@using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin,Administrator")]
+@inject IAdminApiClient AdminApiClient
+@inject IAdminAuthorizationService AdminAuthService
+
+<PageTitle>Roles Management | Admin</PageTitle>
+
+<div class="min-h-screen bg-gradient-to-b from-[var(--color-background)] to-[var(--color-surface-50)]">
+    <div class="mx-auto max-w-5xl px-4 py-10">
+        <!-- Header -->
+        <div class="mb-10">
+            <div class="text-xs uppercase tracking-[0.35em] text-[var(--color-muted)]">
+                Administration
+            </div>
+            <h1 class="mt-2 text-5xl font-black tracking-tight">
+                Roles Management
+            </h1>
+            <p class="mt-3 max-w-2xl text-[var(--color-muted)]">
+                Create and manage user roles for access control.
+            </p>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="mb-8 flex justify-end">
+            <button
+                @onclick="OpenCreateRoleModal"
+                class="rounded-xl bg-gradient-to-r from-[var(--color-primary-600)] to-[var(--color-primary-700)] px-6 py-2.5 font-semibold text-white transition hover:scale-[1.02] active:scale-95">
+                + Create Role
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        @if (_isLoading && _roles == null)
+        {
+            <div class="flex items-center justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-0)] py-12">
+                <LoadingSpinner />
+            </div>
+        }
+        <!-- Empty State -->
+        else if (_roles?.Count == 0)
+        {
+            <div class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-0)] p-12">
+                <EmptyState
+                    Title="No roles found"
+                    Description="Create your first role to get started with role management."
+                    ActionText="Create Role"
+                    OnAction="OpenCreateRoleModal" />
+            </div>
+        }
+        <!-- Roles Table -->
+        else if (_roles != null)
+        {
+            <div class="grid gap-6">
+                @foreach (var role in _roles)
+                {
+                    <div class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-0)] transition hover:border-[var(--color-primary-500)]/30">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-bold text-[var(--color-foreground)]">
+                                        @role.RoleName
+                                    </h3>
+                                    <p class="mt-2 text-sm text-[var(--color-muted)]">
+                                        @role.UserCount user@(role.UserCount != 1 ? "s" : "")
+                                    </p>
+                                </div>
+                                <div class="flex gap-2">
+                                    @if (!IsBuiltInRole(role.RoleName))
+                                    {
+                                        <button
+                                            @onclick="() => OpenDeleteRoleModal(role.RoleName)"
+                                            class="rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--color-error)] transition hover:bg-[var(--color-error)]/10">
+                                            Delete
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Error Alert -->
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="mt-6 rounded-lg border border-[var(--color-error)]/30 bg-[var(--color-error)]/10 p-4 text-sm text-[var(--color-error)]">
+                @_errorMessage
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modals -->
+<RoleFormModal @ref="_roleFormModal" OnSaved="OnRoleSaved" />
+<RoleDeleteConfirmationModal @ref="_deleteConfirmModal" OnConfirm="ConfirmDeleteRole" />
+
+@code {
+    private List<RoleResponse>? _roles;
+    private bool _isLoading;
+    private string? _errorMessage;
+    private RoleFormModal? _roleFormModal;
+    private RoleDeleteConfirmationModal? _deleteConfirmModal;
+    private string _deleteRoleName = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var isAdmin = await AdminAuthService.IsAdministratorAsync();
+        if (!isAdmin)
+        {
+            return;
+        }
+
+        await LoadRoles();
+    }
+
+    private async Task LoadRoles()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await AdminApiClient.ListRolesAsync();
+
+            if (result.IsError)
+            {
+                _errorMessage = "Failed to load roles";
+                _roles = new List<RoleResponse>();
+            }
+            else
+            {
+                _roles = result.Value.OrderBy(r => r.RoleName).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error: {ex.Message}";
+            _roles = new List<RoleResponse>();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OpenCreateRoleModal()
+    {
+        _roleFormModal?.OpenForCreate();
+    }
+
+    private void OpenDeleteRoleModal(string roleName)
+    {
+        _deleteRoleName = roleName;
+        _deleteConfirmModal?.Show(roleName);
+    }
+
+    private async Task OnRoleSaved()
+    {
+        await LoadRoles();
+    }
+
+    private async Task ConfirmDeleteRole()
+    {
+        _isLoading = true;
+        try
+        {
+            var result = await AdminApiClient.DeleteRoleAsync(_deleteRoleName);
+            if (result.IsError)
+            {
+                _errorMessage = "Failed to delete role";
+            }
+            else
+            {
+                await LoadRoles();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private bool IsBuiltInRole(string roleName)
+    {
+        return roleName == "Admin" || roleName == "User" || roleName == "Administrator";
+    }
+}

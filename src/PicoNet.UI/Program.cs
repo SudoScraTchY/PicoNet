@@ -38,6 +38,7 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.AddBlazorAuth<PicoNetAuthenticationService>();
 
 builder.Services.AddApiClients(builder.Configuration);
+builder.Services.AddAdminServices(builder.Configuration);
 
 // Auth
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

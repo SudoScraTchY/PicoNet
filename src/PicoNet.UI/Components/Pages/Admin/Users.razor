@@ -1,0 +1,342 @@
+@page "/admin/users"
+@using PicoNet.UI.ApiClients.Interfaces
+@using PicoNet.UI.Services
+@using PicoNet.UI.Components.Admin
+@using PicoNet.Contracts.DTOs.Responses.Users
+@using PicoNet.Contracts.DTOs.Requests.Users
+@using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Admin,Administrator")]
+@inject IAdminApiClient AdminApiClient
+@inject IAdminAuthorizationService AdminAuthService
+
+<PageTitle>Users Management | Admin</PageTitle>
+
+<div class="min-h-screen bg-gradient-to-b from-[var(--color-background)] to-[var(--color-surface-50)]">
+    <div class="mx-auto max-w-7xl px-4 py-10">
+        <!-- Header -->
+        <div class="mb-10">
+            <div class="text-xs uppercase tracking-[0.35em] text-[var(--color-muted)]">
+                Administration
+            </div>
+            <h1 class="mt-2 text-5xl font-black tracking-tight">
+                Users Management
+            </h1>
+            <p class="mt-3 max-w-2xl text-[var(--color-muted)]">
+                Manage users, assign roles, and control access permissions.
+            </p>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-1 gap-2">
+                <input
+                    type="text"
+                    placeholder="Search users..."
+                    @bind="_searchQuery"
+                    @bind:event="oninput"
+                    @onkeyup="OnSearchChanged"
+                    class="flex-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-0)] px-4 py-2.5 text-sm placeholder-[var(--color-muted)] transition focus:border-[var(--color-primary-500)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-500)]/20" />
+            </div>
+            <button
+                @onclick="OpenCreateUserModal"
+                class="rounded-xl bg-gradient-to-r from-[var(--color-primary-600)] to-[var(--color-primary-700)] px-6 py-2.5 font-semibold text-white transition hover:scale-[1.02] active:scale-95">
+                + Create User
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        @if (_isLoading && _users == null)
+        {
+            <div class="flex items-center justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-0)] py-12">
+                <LoadingSpinner />
+            </div>
+        }
+        <!-- Empty State -->
+        else if (_users?.Count == 0)
+        {
+            <div class="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-0)] p-12">
+                <EmptyState
+                    Title="No users found"
+                    Description="Create your first user to get started with user management."
+                    ActionText="Create User"
+                    OnAction="OpenCreateUserModal" />
+            </div>
+        }
+        <!-- Users Table -->
+        else if (_users != null)
+        {
+            <div class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-0)]">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="border-b border-[var(--color-border)] bg-[var(--color-surface-50)]">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-[var(--color-foreground)]">Username</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-[var(--color-foreground)]">Email</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-[var(--color-foreground)]">Roles</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-[var(--color-foreground)]">Status</th>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-[var(--color-foreground)]">Created</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-[var(--color-foreground)]">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[var(--color-border)]">
+                            @foreach (var user in _users)
+                            {
+                                <tr class="transition hover:bg-[var(--color-surface-50)]">
+                                    <td class="px-6 py-4 text-sm font-medium text-[var(--color-foreground)]">
+                                        @user.Username
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-[var(--color-muted)]">
+                                        @user.Email
+                                    </td>
+                                    <td class="px-6 py-4 text-sm">
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach (var role in user.Roles)
+                                            {
+                                                <span class="inline-flex rounded-full bg-[var(--color-primary-500)]/15 px-2.5 py-1 text-xs font-medium text-[var(--color-primary-600)]">
+                                                    @role
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm">
+                                        @if (user.EmailConfirmed)
+                                        {
+                                            <span class="inline-flex rounded-full bg-[var(--color-success)]/15 px-2.5 py-1 text-xs font-medium text-[var(--color-success)]">
+                                                Verified
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex rounded-full bg-[var(--color-warning)]/15 px-2.5 py-1 text-xs font-medium text-[var(--color-warning)]">
+                                                Pending
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-[var(--color-muted)]">
+                                        @user.CreatedAt.ToString("MMM dd, yyyy")
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex justify-end gap-2">
+                                            <button
+                                                @onclick="() => OpenEditUserModal(user.Id)"
+                                                class="rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--color-primary-600)] transition hover:bg-[var(--color-primary-500)]/10">
+                                                Edit
+                                            </button>
+                                            <button
+                                                @onclick="() => OpenResetPasswordModal(user.Id, user.Email)"
+                                                class="rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--color-warning)] transition hover:bg-[var(--color-warning)]/10">
+                                                Reset
+                                            </button>
+                                            <button
+                                                @onclick="() => OpenDeleteUserModal(user.Id, user.Username)"
+                                                class="rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--color-error)] transition hover:bg-[var(--color-error)]/10">
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-6 flex items-center justify-between">
+                <div class="text-sm text-[var(--color-muted)]">
+                    Showing @((_currentPage - 1) * _pageSize + 1) to @Math.Min(_currentPage * _pageSize, _totalCount) of @_totalCount users
+                </div>
+                <div class="flex gap-2">
+                    <button
+                        @onclick="PreviousPage"
+                        disabled="@(_currentPage <= 1)"
+                        class="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--color-surface-50)]">
+                        Previous
+                    </button>
+                    <button
+                        @onclick="NextPage"
+                        disabled="@(_currentPage * _pageSize >= _totalCount)"
+                        class="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--color-surface-50)]">
+                        Next
+                    </button>
+                </div>
+            </div>
+        }
+
+        <!-- Error Alert -->
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="mt-6 rounded-lg border border-[var(--color-error)]/30 bg-[var(--color-error)]/10 p-4 text-sm text-[var(--color-error)]">
+                @_errorMessage
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modals -->
+<UserFormModal @ref="_userFormModal" OnSaved="OnUserSaved" />
+<UserDeleteConfirmationModal @ref="_deleteConfirmModal" OnConfirm="ConfirmDeleteUser" />
+<ResetPasswordModal @ref="_resetPasswordModal" OnConfirm="ConfirmResetPassword" />
+
+@code {
+    private List<UserResponse>? _users;
+    private int _currentPage = 1;
+    private int _pageSize = 10;
+    private int _totalCount;
+    private string _searchQuery = string.Empty;
+    private bool _isLoading;
+    private string? _errorMessage;
+    private UserFormModal? _userFormModal;
+    private UserDeleteConfirmationModal? _deleteConfirmModal;
+    private ResetPasswordModal? _resetPasswordModal;
+    private Guid _deleteUserId;
+    private Guid _resetPasswordUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var isAdmin = await AdminAuthService.IsAdministratorAsync();
+        if (!isAdmin)
+        {
+            return;
+        }
+
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await AdminApiClient.ListUsersAsync(_currentPage, _pageSize);
+
+            if (result.IsError)
+            {
+                _errorMessage = "Failed to load users";
+                _users = new List<UserResponse>();
+            }
+            else
+            {
+                _users = result.Value.Users;
+                _totalCount = result.Value.TotalCount;
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error: {ex.Message}";
+            _users = new List<UserResponse>();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OnSearchChanged(KeyboardEventArgs e)
+    {
+        _currentPage = 1;
+        if (e.Code == "Enter")
+        {
+            await LoadUsers();
+        }
+    }
+
+    private void OpenCreateUserModal()
+    {
+        _userFormModal?.OpenForCreate();
+    }
+
+    private void OpenEditUserModal(Guid userId)
+    {
+        _userFormModal?.OpenForEdit(userId);
+    }
+
+    private void OpenResetPasswordModal(Guid userId, string email)
+    {
+        _resetPasswordUserId = userId;
+        _resetPasswordModal?.Show(email);
+    }
+
+    private void OpenDeleteUserModal(Guid userId, string username)
+    {
+        _deleteUserId = userId;
+        _deleteConfirmModal?.Show(username);
+    }
+
+    private async Task OnUserSaved()
+    {
+        await LoadUsers();
+    }
+
+    private async Task ConfirmDeleteUser()
+    {
+        _isLoading = true;
+        try
+        {
+            var result = await AdminApiClient.DeleteUserAsync(_deleteUserId);
+            if (result.IsError)
+            {
+                _errorMessage = "Failed to delete user";
+            }
+            else
+            {
+                await LoadUsers();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ConfirmResetPassword()
+    {
+        _isLoading = true;
+        try
+        {
+            var result = await AdminApiClient.ResetPasswordAsync(_resetPasswordUserId);
+            if (result.IsError)
+            {
+                _errorMessage = "Failed to reset password";
+            }
+            else
+            {
+                _errorMessage = null;
+                await LoadUsers();
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (_currentPage * _pageSize < _totalCount)
+        {
+            _currentPage++;
+            await LoadUsers();
+        }
+    }
+
+    private async Task PreviousPage()
+    {
+        if (_currentPage > 1)
+        {
+            _currentPage--;
+            await LoadUsers();
+        }
+    }
+}

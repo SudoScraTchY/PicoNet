@@ -32,7 +32,7 @@ public static class ServiceCollectionExtensions
         {
             client.BaseAddress = new Uri(apiUrl);
         })
-        .AddHttpMessageHandler<AuthHeaderHandler>();      
+        .AddHttpMessageHandler<AuthHeaderHandler>();
         
         return services;
     }
