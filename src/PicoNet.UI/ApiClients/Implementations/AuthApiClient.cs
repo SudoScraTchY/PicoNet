@@ -1,5 +1,4 @@
 ﻿using ErrorOr;
-using Microsoft.AspNetCore.Identity.Data;
 using PicoNet.Contracts.DTOs.Requests.Auth;
 using PicoNet.Contracts.DTOs.Responses.Auth;
 using PicoNet.UI.ApiClients.Interfaces;
