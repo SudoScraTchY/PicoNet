@@ -1,5 +1,6 @@
 using BitzArt.Blazor.Auth.Server;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using PicoNet.Contracts.Extensions;
 using PicoNet.UI.Components;
 using PicoNet.UI.Extensions;
 using PicoNet.UI.Services;
@@ -17,13 +18,12 @@ if (builder.Environment.IsDevelopment())
 }
 
 // Add Garnet distributed caching
-var connectionString = builder.Configuration.GetConnectionString("piconet-cache")
-                       ?? Environment.GetEnvironmentVariable("ConnectionStrings__piconet-cache")
-                       ?? Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING");
+var rawRedisUrl = builder.Configuration.GetConnectionString("piconet-cache");
+var redisConnection = RedisConnectionParser.ParseRenderRedisUrl(rawRedisUrl);
 
-builder.AddRedisDistributedCache(connectionName:"piconet-cache",cfg =>
+builder.Services.AddStackExchangeRedisCache(options =>
 {
-    cfg.ConnectionString = connectionString;
+    options.Configuration = redisConnection;
 });
 
 builder.Services.AddHttpContextAccessor();

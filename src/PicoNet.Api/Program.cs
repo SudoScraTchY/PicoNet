@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using PicoNet.Application.Extensions;
 using PicoNet.Application.Features.Auth.Handler;
 using PicoNet.Application.Features.Redirect.Handler;
+using PicoNet.Contracts.Extensions;
 using PicoNet.Infrastructure.Cache;
 using PicoNet.Infrastructure.Data;
 using PicoNet.Infrastructure.Extensions;
@@ -31,7 +32,13 @@ builder.Services.AddWolverine(opts =>
 }).AddWolverineHttp();
 
 // Add Redis distributed caching
-builder.AddRedisDistributedCache(connectionName: "piconet-cache");
+var rawRedisUrl = builder.Configuration.GetConnectionString("piconet-cache");
+var redisConnection = RedisConnectionParser.ParseRenderRedisUrl(rawRedisUrl);
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConnection;
+});
 builder.Services.AddSingleton<IRedirectCacheService,RedirectCacheService>();
 
 builder.Services.AddControllers();
