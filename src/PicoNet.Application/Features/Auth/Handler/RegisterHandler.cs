@@ -49,23 +49,7 @@ public sealed class RegisterHandler
         var confirmationLink = $"{_config["FrontendUrl"]}/confirm-email?userId={user.Id}&token={Uri.EscapeDataString(emailConfirmationToken)}";
         
         // Send email
-        await _emailService.SendAsync(
-            to: user.Email,
-            subject: "Confirm your PicoNet account",
-            body: $@"
-                <div style='font-family: sans-serif; max-width: 500px; margin: 0 auto;'>
-                    <h2 style='color: #111;'>Welcome to PicoNet</h2>
-                    <p>Click the button below to confirm your email address:</p>
-                    <a href='{confirmationLink}' 
-                       style='display: inline-block; padding: 12px 24px; background: #007bff; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;'>
-                       Confirm Email
-                    </a>
-                    <p style='margin-top: 24px; color: #666; font-size: 14px;'>
-                        Or paste this URL into your browser:<br/>
-                        <code style='word-break: break-all;'>{confirmationLink}</code>
-                    </p>
-                </div>"
-        );
+        await SendEmailConfirmation(user, confirmationLink);
         
         var (token, expiresAt) = _tokenService.GenerateToken(user, ["user"]);
         
@@ -82,7 +66,7 @@ public sealed class RegisterHandler
         // Send via Resend
         await _emailService.SendAsync(
             to: user.Email,
-            subject: "Confirm your PicoNet account",
+            subject: "Confirm your NimMasir account",
             body: $@"
                 <div style='font-family: system-ui, sans-serif; max-width: 480px; margin: 0 auto; color: #111;'>
                     <h2 style='font-size: 24px; margin-bottom: 8px;'>Welcome to PicoNet</h2>
